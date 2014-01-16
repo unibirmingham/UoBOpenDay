@@ -356,3 +356,12 @@ body, html {
         background-size: 100%;
     }
 }
+
+
+/* end custom icons */
+
+.offline {
+    background-color: red;
+    color: white;
+    padding: 1rem;
+}
