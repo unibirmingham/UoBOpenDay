@@ -21,4 +21,7 @@
 
         app.application.skin(mobileSkin);
     };
+    
+    
+    
 })(window);

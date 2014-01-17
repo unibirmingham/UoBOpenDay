@@ -12,10 +12,69 @@
     <script src="cordova.js"></script>
     <script src="kendo/js/jquery.min.js"></script>
     <script src="kendo/js/kendo.mobile.min.js"></script>
+    <script type="text/javascript" src="Plugins/GAPlugin-master/www/GAPlugin.js"></script>
 
+<script type="text/javascript">
+                        var gaPlugin;
+                
+                        function initialize() {
+                            document.addEventListener("deviceready", onDeviceReady, true);
+                        }
+                
+                        function onDeviceReady() {
+                                gaPlugin = window.plugins.gaPlugin;
+                                
+                                // Note: A request for permission is REQUIRED by google. You probably want to do this just once, though, and remember the answer for subsequent runs.
+                                navigator.notification.confirm('GA_PLUGIN would like your permission to collect usage data. No personal or user identifiable data will be collected.', permissionCallback, 'Attention', ['Allow','Deny']);
+                            
+                        }
+                
+                        function permissionCallback (button) {
+                                if (button === 1)
+                                        gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 10);
+                        }
+
+                        function nativePluginResultHandler (result) {
+                                //alert('nativePluginResultHandler - '+result);
+                                console.log('nativePluginResultHandler: '+result);
+
+                        }
+        
+                        function nativePluginErrorHandler (error) {
+                                //alert('nativePluginErrorHandler - '+error);
+                                console.log('nativePluginErrorHandler: '+error);
+                        }
+                        
+                        function TrackButtonClicked() {
+                                gaPlugin.trackEvent( nativePluginResultHandler, nativePluginErrorHandler, "Button", "Click", "event only", 1);
+                        }
+        
+                        function VariableButtonClicked() {
+                                // Set a dimension based on index and value. Make sure you have added a dimension in the GA dashboard to the
+                                // default property for the passed in index, and your desired scope. GA allows up to 20 dimensions for a free account
+                                gaPlugin.setVariable( nativePluginResultHandler, nativePluginErrorHandler, 1, "Purple");
+
+                                // dimensions are are passed to the next event sent to GA. go ahead and fire off an event with the label (key) of your choice
+                                // In this example, the label for custom dimension 1 will show up in the dashboard as "favoriteColor". This is much more efficent
+                                // than the old custom variable method introduced in V1, (plus you get 20 free dimensions vs 5 free custom variables)
+                                gaPlugin.trackEvent( nativePluginResultHandler, nativePluginErrorHandler, "event with variable", "set variable", "favoriteColor", 1);
+                        }
+        
+                        function PageButtonClicked() {
+                                gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, "some.url.com");
+                        }
+                        function ScreenButtonClicked(page) {
+                                gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, page);
+                        }
+                        
+                        function goingAway() {
+                                gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
+                        }
+                        
+                </script>
 </head>
 
-<body>
+<body onload="initialize();" onunload="goingAway();">
     
     <!--Home-->
     <div id="tabstrip-home"
@@ -30,6 +89,9 @@
                     development platform by combining the convenience of a local development toolset with the
                     power and flexibility of the cloud.
             </p>
+            <a href="#" class="btn large" onclick="TrackButtonClicked();">Track Event</a>
+            <a href="#" class="btn large" onclick="VariableButtonClicked();">Track Event with Variable</a>
+            <a href="#" class="btn large" onclick="PageButtonClicked();">Track Page</a>
             <div class="img"></div>
         </div>
     </div>
@@ -84,10 +146,10 @@
         <!--Footer-->
         <div data-role="footer">
             <div data-role="tabstrip">
-                <a href="#tabstrip-home" data-icon="home">Home</a>
+                <a href="#tabstrip-home" data-icon="home" onclick="ScreenButtonClicked('Home');">Home</a>
                 <!--<a href="#tabstrip-login" data-icon="contacts">Login</a>-->
-                <a href="#tabstrip-events" data-icon="recents">Events</a>
-                <a href="#tabstrip-weather" data-icon="globe">Weather</a>
+                <a href="#tabstrip-events" data-icon="recents" onclick="ScreenButtonClicked('Events');">Events</a>
+                <a href="#tabstrip-weather" data-icon="globe" onclick="ScreenButtonClicked('Weather');">Weather</a>
             </div>
         </div>
     </div>    
@@ -136,15 +198,17 @@
 
         <!--Events template-->
     <script type="text/x-kendo-tmpl" id="events-template">
-        <div>
+        <!--<div>
             <div class="position-left">
                 <span class="event-info title">${Title}</span>
             </div>
             <div class="position-center">
                 <span class="event-icon ${EventImageUrl}"></span>
             </div>
-        </div>
+        </div>-->
+        <li class="event-item"><a>${Title}</a></li>
     </script>
+    
 
     
     <script src="scripts/weather.js"></script>

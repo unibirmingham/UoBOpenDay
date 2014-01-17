@@ -357,6 +357,13 @@ body, html {
     }
 }
 
+    .pullImage {
+        width: 64px;
+        height: 64px;
+        border-radius: 3px;
+        float: left;
+        margin-right: 10px;
+    }
 
 /* end custom icons */
 
