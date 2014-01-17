@@ -70,6 +70,31 @@
                         function goingAway() {
                                 gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
                         }
+    
+    function eventListViewPullWithEndless(e) {
+        var dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "http://www.birmingham.ac.uk/web_services/Events.svc/?folderPath=/events",
+                    dataType: "json"
+                }
+            },
+           
+            serverPaging: true,
+            pageSize: 40
+        });
+
+        $("#pull-eventslistview").kendoMobileListView({
+            dataSource: dataSource,
+            template: $("#events-template").text(),
+            pullToRefresh: true,
+            endlessScroll: true
+        });
+        var eventsList = $('#pull-eventslistview').data('kendoMobileListView');
+        eventsList.dataSource.read();
+        eventsList.refresh();
+
+    }
                         
                 </script>
 </head>
@@ -89,9 +114,6 @@
                     development platform by combining the convenience of a local development toolset with the
                     power and flexibility of the cloud.
             </p>
-            <a href="#" class="btn large" onclick="TrackButtonClicked();">Track Event</a>
-            <a href="#" class="btn large" onclick="VariableButtonClicked();">Track Event with Variable</a>
-            <a href="#" class="btn large" onclick="PageButtonClicked();">Track Page</a>
             <div class="img"></div>
         </div>
     </div>
@@ -154,47 +176,18 @@
         </div>
     </div>    
 
-    <div id="tabstrip-events"
-        data-role="view"
-        data-title="Events"
-        data-model="app.eventService.viewModel">
-
-        <div class="event">
-            <p class="event-title">UoB Events</p>
-
-            <div class="separator">
-                <div class="dark"></div>
-                <div class="light"></div>
-            </div>
-
-            <ul class="events-list"
-                data-role="listview"
-                data-bind="source: eventDataSource"
-                data-template="events-template">
-            </ul>
-        </div>
     
-        <!--
-        <table id="events"></table>
-    <div id="templates" style="display: none">
-
-    <table>
-
-        <tr class="row-template">
-            <td class="firstName" style="width: 100px;"></td>
-            <td class="lastName" style="width: 100px;"></td>
-            <td>
-                <input type="button" value="X" class="delete" />
-            </td>
-        </tr>
-
-    </table>
-
-        </div>
--->
+        
+        <div id="tabstrip-events" data-role="view" data-init="eventListViewPullWithEndless" data-title="Events">
+            <!--<header data-role="header">
+            <div data-role="navbar">
+                <span data-role="view-title"></span>
+            </div>
+            </header>-->
+            <ul id="pull-eventslistview" class="events-list"></ul>
+         </div>
         
         
-    </div>
 
         <!--Events template-->
     <script type="text/x-kendo-tmpl" id="events-template">
@@ -206,14 +199,19 @@
                 <span class="event-icon ${EventImageUrl}"></span>
             </div>
         </div>-->
-        <li class="event-item"><a>${Title}</a></li>
+        <div class="event-item">        
+            <h3>#:Title#</h3>
+            <p>text here</p>
+        </div>
     </script>
     
 
     
     <script src="scripts/weather.js"></script>
-    <script src="scripts/events.js"></script>
-    <script src="scripts/app.js"></script>
-
+    <!--<script src="scripts/events.js"></script>-->
+    <!--<script src="scripts/app.js"></script>-->
+<script>
+    app.application = new kendo.mobile.Application(document.body, { layout: "tabstrip-layout"});
+</script>
 </body>
 </html>
