@@ -24,14 +24,19 @@
                         function onDeviceReady() {
                                 gaPlugin = window.plugins.gaPlugin;
                                 
-                                // Note: A request for permission is REQUIRED by google. You probably want to do this just once, though, and remember the answer for subsequent runs.
-                                navigator.notification.confirm('GA_PLUGIN would like your permission to collect usage data. No personal or user identifiable data will be collected.', permissionCallback, 'Attention', ['Allow','Deny']);
+                                //if no variable stored locally, create one and set value as undefined
+                                //localStorage.setItem('allowUsageTracking', e.checked.toString());
+           //               
+                                var value = localStorage.getItem('allowUsageTracking');
+                                alert('Ooops');
                             
+                                
+                                //if stored value is not deny/false then No personal or user identifiable data will be collected.', permissionCallback, 'Attention', 'Allow,Deny');
                         }
                 
                         function permissionCallback (button) {
                                 if (button === 1)
-                                        gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 10);
+                                        gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-12345678-1", 10);
                         }
 
                         function nativePluginResultHandler (result) {
@@ -63,6 +68,40 @@
                         function PageButtonClicked() {
                                 gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, "some.url.com");
                         }
+                        
+                        function goingAway() {
+                                gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
+                        }
+                        
+
+
+  
+
+
+                            
+                                //if stored value is not false then allow tracking
+                                //gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 10);
+                                //else
+                                //gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
+                        //}
+                
+                        function permissionCallback (button) {
+                                if (button === 1)
+                                        gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 10);
+                        }
+
+                        function nativePluginResultHandler (result) {
+                                //alert('nativePluginResultHandler - '+result);
+                                console.log('nativePluginResultHandler: '+result);
+
+                        }
+        
+                        function nativePluginErrorHandler (error) {
+                                //alert('nativePluginErrorHandler - '+error);
+                                console.log('nativePluginErrorHandler: '+error);
+                        }
+                        
+                        
                         function ScreenButtonClicked(page) {
                                 gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, page);
                         }
@@ -79,7 +118,7 @@
                     dataType: "json"
                 }
             },
-           
+            
             serverPaging: true,
             pageSize: 40
         });
@@ -95,6 +134,68 @@
         eventsList.refresh();
 
     }
+    
+    function newsListViewPullWithEndless(e) {
+        var dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: "http://www.bbc.co.uk/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json?take=6&skip=0&page=1&pageSize=6",
+                    //url: "data/progs.json",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                data: function(response) {
+                  //console.log(response.broadcasts[0].programme.title);
+                  return response.broadcasts;
+                }
+            },
+            
+            /*
+            schema: {
+                parse: function(response) {
+                    var programmes = [];
+                    for (var i = 0; i < response.length; i++) {
+                        var prog = {
+                          id: response.broadcasts.programme[i].pid,
+                          title: response.broadcasts.programme[i].title
+                       };
+                    programmes.push(prog);
+                     }
+                  return programmes;
+                }  
+            },
+            */
+            serverPaging: true,
+            pageSize: 6
+        });
+        //dataSource.fetch(function(){
+        //  var data = this.data();
+        //  console.log(data[0].programme.title);
+        //});
+
+        $("#pull-newslistview").kendoMobileListView({
+            dataSource: dataSource,
+            template: $("#news-template").text(),
+            pullToRefresh: true
+        });
+
+        
+        
+
+    }
+    
+    function settingsInit() {
+        $("#usage-tracking-switch").kendoMobileSwitch({
+            checked: true,
+            onLabel: "Allow",
+            offLabel: "Deny"
+        });
+    }
+    
+    function onTrackingChange(e) {
+        localStorage.setItem('allowUsageTracking', e.checked.toString());
+    }
                         
                 </script>
 </head>
@@ -107,13 +208,15 @@
         data-title="Home">
 
         <div class="view-content">
-            <h1>Welcome!</h1>
-            <a id="skin-change" data-role="button" data-click="app.changeSkin">Flat</a>
-            <p>
-                Icenium&trade; enables you to build cross-platform device applications regardless of your
-                    development platform by combining the convenience of a local development toolset with the
-                    power and flexibility of the cloud.
-            </p>
+            <!--<h1>Welcome!</h1>
+            <a id="skin-change" data-role="button" data-click="app.changeSkin">Flat</a>-->
+            <ul data-role="listview" data-style="inset">
+        <li><a data-icon="justify" href="#tabstrip-news" onclick="ScreenButtonClicked('News');">News</a></li>
+        <li><a data-icon="cal" href="#tabstrip-events" onclick="ScreenButtonClicked('Events');">Events</a></li>
+        <li><a data-icon="cloud" href="#tabstrip-weather">Weather</a></li>
+        <li><a data-icon="organize">Pocket Guide</a></li>
+        <li><a data-icon="globe">Map</a></li>
+    </ul>
             <div class="img"></div>
         </div>
     </div>
@@ -160,31 +263,53 @@
 
         <!--Header-->
         <div data-role="header">
-            <div data-role="navbar">
-                <span data-role="view-title"></span>
-            </div>
+        <div data-role="navbar">
+            <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
+            <span data-role="view-title"></span>
+            <a data-align="right" data-role="button" class="nav-button" href="#tabstrip-home">Index</a>
+        </div>
+
         </div>
 
         <!--Footer-->
         <div data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home" onclick="ScreenButtonClicked('Home');">Home</a>
-                <!--<a href="#tabstrip-login" data-icon="contacts">Login</a>-->
-                <a href="#tabstrip-events" data-icon="recents" onclick="ScreenButtonClicked('Events');">Events</a>
-                <a href="#tabstrip-weather" data-icon="globe" onclick="ScreenButtonClicked('Weather');">Weather</a>
+                <a href="#tabstrip-settings" data-icon="settings">Settings</a>
+                <a href="#tabstrip-events" data-icon="cal" onclick="ScreenButtonClicked('Events'
+                    );">Events</a>
+                <a href="#tabstrip-info" data-icon="info">Info</a>
             </div>
         </div>
     </div>    
 
     
         
-        <div id="tabstrip-events" data-role="view" data-init="eventListViewPullWithEndless" data-title="Events">
-            <!--<header data-role="header">
-            <div data-role="navbar">
-                <span data-role="view-title"></span>
-            </div>
-            </header>-->
+        <div id="tabstrip-events" data-role="vidata-role="switch" tListViewPullWithEndless" data-title="Events">
+            <p class="events-title">UoB Events</p>
             <ul id="pull-eventslistview" class="events-list"></ul>
+         </div>
+    
+    <div id="tabstrip-news" data-role="view" data-init="newsListViewPullWithEndless" data-title="News">
+        <p class="progs-title">SciFi Fantasy Prog</p>
+            <ul id="pull-newslistview" class="news-list"></ul>
+         </div>
+    
+    <div id="tabstrip-info" data-role="view"  data-title="AppInfo">
+            <h3>My UoB Mobile App</h3>
+        <p>My UoB is one of a number of official mobile apps from the University of Birmingham, replacing UoB Student.<br/>A full list of University apps is availble on our app store page @ <a href="http://www.birmingham.ac.uk/contact/app-store.aspx">www.birmingham.ac.uk/contact/app-store.aspx</a></p>
+        <h3>Get in touch</h3>
+        <p>If you have an feedback on this app, please contact...</p>
+        </div>
+    
+    <div id="tabstrip-settings" data-role="view"  data-init="settingsInit" data-title="AppSettings">
+            <h2 class="settings-title">App Settings</h2>
+        <h3>Privacy settings</h3>
+         <p>This app tracks usage, using Google Analytics so that we can learn from user behaviour and provide a better app in the future. No personal or user identifiable data will be collected, but if you would prefer for the app not to collect such data please select deny below.</p>    
+             <ul data-role="listview" data-style="inset" data-type="group">
+                <li>Usage tracking <input type="checkbox" id="usage-tracking-switch" data-role="switch" data-change="onTrackingChange" /></li>
+            </ul>
+            
          </div>
         
         
@@ -205,11 +330,21 @@
         </div>
     </script>
     
+    
+    <!--News template-->
+    <script type="text/x-kendo-tmpl" id="news-template">
+        <div class="news-item">        
+            <h3>#:programme.title#</h3>
+            <p>#:service.title#, #:schedule_date#</p>
+        </div>
+    </script>
+    
 
     
     <script src="scripts/weather.js"></script>
+    
     <!--<script src="scripts/events.js"></script>-->
-    <!--<script src="scripts/app.js"></script>-->
+    <!--<script src="scripts/app.js"></script>-->-->
 <script>
     app.application = new kendo.mobile.Application(document.body, { layout: "tabstrip-layout"});
 </script>

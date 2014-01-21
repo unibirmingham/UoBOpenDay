@@ -26,7 +26,7 @@ body, html {
 
 /* IMAGE STYLES*/
 .img {
-    background-image: url(../styles/images/icenium.png);
+    background-image: url(../styles/images/awebb.png);
     background-repeat: no-repeat;
     text-align: center;
     width: 320px;
@@ -35,7 +35,7 @@ body, html {
 }
 
 .logo {
-    background-image: url(../styles/images/logo.png);
+    background-image: url(../styles/images/logo.gif);
     background-repeat: no-repeat;
     width: 85px;
     height: 60px;
@@ -372,3 +372,23 @@ body, html {
     color: white;
     padding: 1rem;
 }
+
+
+    .km-cal:after,
+    .km-cal:before
+    {
+        content: "\e089";
+    }
+
+.km-cloud:after,
+    .km-cloud:before
+    {
+        content: "\e08e";
+    }
+
+.km-justify:after,
+.km-justify:before
+{
+    content: "\e0f1";
+}
+
