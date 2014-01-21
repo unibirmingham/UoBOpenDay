@@ -23,12 +23,20 @@
                 
                         function onDeviceReady() {
                                 gaPlugin = window.plugins.gaPlugin;
-                                
+                                console.log("AllowUsageTracking: " + localStorage.getItem('allowUsageTracking'));
                                 //if no variable stored locally, create one and set value as undefined
                                 //localStorage.setItem('allowUsageTracking', e.checked.toString());
            //               
-                                var value = localStorage.getItem('allowUsageTracking');
-                                alert('Ooops');
+                                if (!localStorage.getItem('allowUsageTracking')) {
+                                    localStorage.setItem('allowUsageTracking','unset');
+                                    console.log('null');
+                                }
+                                else
+                            {
+                                console.log('thinks it has a value');
+                            }
+                                console.log("AllowUsageTracking: " + localStorage.getItem('allowUsageTracking'));
+                                
                             
                                 
                                 //if stored value is not deny/false then No personal or user identifiable data will be collected.', permissionCallback, 'Attention', 'Allow,Deny');
@@ -285,7 +293,7 @@
 
     
         
-        <div id="tabstrip-events" data-role="vidata-role="switch" tListViewPullWithEndless" data-title="Events">
+        <div id="tabstrip-events" data-role="switch" data-init="eventListViewPullWithEndless" data-title="Events">
             <p class="events-title">UoB Events</p>
             <ul id="pull-eventslistview" class="events-list"></ul>
          </div>
