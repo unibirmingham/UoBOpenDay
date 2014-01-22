@@ -23,68 +23,40 @@
                 
                         function onDeviceReady() {
                                 gaPlugin = window.plugins.gaPlugin;
-                                console.log("AllowUsageTracking: " + localStorage.getItem('allowUsageTracking'));
+                                
                                 //if no variable stored locally, create one and set value as undefined
                                 //localStorage.setItem('allowUsageTracking', e.checked.toString());
            //               
                                 if (!localStorage.getItem('allowUsageTracking')) {
                                     localStorage.setItem('allowUsageTracking','unset');
-                                    console.log('null');
                                 }
-                                else
-                            {
-                                console.log('thinks it has a value');
-                            }
                                 console.log("AllowUsageTracking: " + localStorage.getItem('allowUsageTracking'));
-                                
                             
-                                
+                                if (localStorage.getItem('allowUsageTracking')!="deny") {
+                                    gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2);
+                                    alert('ga go');
+                                }
+
                                 //if stored value is not deny/false then No personal or user identifiable data will be collected.', permissionCallback, 'Attention', 'Allow,Deny');
+                        
+                                $('#clearLog').on('click', function() {
+                                    $('#log').val('');
+                                    //log.empty();
+                                });
+                        
                         }
                 
-                        function permissionCallback (button) {
-                                if (button === 1)
-                                        gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-12345678-1", 10);
+                        function permissionCallback() {
+                                if (localStorage.getItem('allowUsageTracking')!="deny") {
+                                    gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2);
+                                    
+                                }
+                                else
+                                {
+                                    gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
+                                }
+                                console.log("permissionCallBack: " + localStorage.getItem('allowUsageTracking'));
                         }
-
-                        function nativePluginResultHandler (result) {
-                                //alert('nativePluginResultHandler - '+result);
-                                console.log('nativePluginResultHandler: '+result);
-
-                        }
-        
-                        function nativePluginErrorHandler (error) {
-                                //alert('nativePluginErrorHandler - '+error);
-                                console.log('nativePluginErrorHandler: '+error);
-                        }
-                        
-                        function TrackButtonClicked() {
-                                gaPlugin.trackEvent( nativePluginResultHandler, nativePluginErrorHandler, "Button", "Click", "event only", 1);
-                        }
-        
-                        function VariableButtonClicked() {
-                                // Set a dimension based on index and value. Make sure you have added a dimension in the GA dashboard to the
-                                // default property for the passed in index, and your desired scope. GA allows up to 20 dimensions for a free account
-                                gaPlugin.setVariable( nativePluginResultHandler, nativePluginErrorHandler, 1, "Purple");
-
-                                // dimensions are are passed to the next event sent to GA. go ahead and fire off an event with the label (key) of your choice
-                                // In this example, the label for custom dimension 1 will show up in the dashboard as "favoriteColor". This is much more efficent
-                                // than the old custom variable method introduced in V1, (plus you get 20 free dimensions vs 5 free custom variables)
-                                gaPlugin.trackEvent( nativePluginResultHandler, nativePluginErrorHandler, "event with variable", "set variable", "favoriteColor", 1);
-                        }
-        
-                        function PageButtonClicked() {
-                                gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, "some.url.com");
-                        }
-                        
-                        function goingAway() {
-                                gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
-                        }
-                        
-
-
-  
-
 
                             
                                 //if stored value is not false then allow tracking
@@ -93,25 +65,22 @@
                                 //gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
                         //}
                 
-                        function permissionCallback (button) {
-                                if (button === 1)
-                                        gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 10);
-                        }
-
+ 
                         function nativePluginResultHandler (result) {
                                 //alert('nativePluginResultHandler - '+result);
-                                console.log('nativePluginResultHandler: '+result);
+                                log('nativePluginResultHandler: '+result);
 
                         }
         
                         function nativePluginErrorHandler (error) {
                                 //alert('nativePluginErrorHandler - '+error);
-                                console.log('nativePluginErrorHandler: '+error);
+                                log('nativePluginErrorHandler: '+error);
                         }
                         
                         
                         function ScreenButtonClicked(page) {
                                 gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, page);
+                                log('tracked page: ' + page);
                         }
                         
                         function goingAway() {
@@ -194,15 +163,43 @@
     }
     
     function settingsInit() {
+        var switchVal = true;
+        if (localStorage.getItem('allowUsageTracking')==="deny") {
+            switchVal = false;    
+        }
         $("#usage-tracking-switch").kendoMobileSwitch({
-            checked: true,
+            checked: switchVal,
             onLabel: "Allow",
             offLabel: "Deny"
         });
     }
     
+    function mapInit() {
+        ScreenButtonClicked("map");
+    }
+    
     function onTrackingChange(e) {
-        localStorage.setItem('allowUsageTracking', e.checked.toString());
+        alert("Change");
+        var allowTrackingVal;
+        if (e.checked) {
+            allowTrackingVal = "allow";
+            }
+        else {
+            allowTrackingVal = "deny";
+        }
+        localStorage.setItem('allowUsageTracking', allowTrackingVal);
+        if (allowTrackingVal=="deny"){
+            gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
+            alert("stop");
+        }
+        else {
+            gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2)
+            alert("start");
+        }
+    }
+    
+    function log(msg) {
+        $('#log').val($('#log').val() + msg + '\n');
     }
                         
                 </script>
@@ -221,9 +218,9 @@
             <ul data-role="listview" data-style="inset">
         <li><a data-icon="justify" href="#tabstrip-news" onclick="ScreenButtonClicked('News');">News</a></li>
         <li><a data-icon="cal" href="#tabstrip-events" onclick="ScreenButtonClicked('Events');">Events</a></li>
-        <li><a data-icon="cloud" href="#tabstrip-weather">Weather</a></li>
-        <li><a data-icon="organize">Pocket Guide</a></li>
-        <li><a data-icon="globe">Map</a></li>
+        <li><a data-icon="cloud" href="#tabstrip-weather" onclick="ScreenButtonClicked('Weather');">Weather</a></li>
+        <li><a data-icon="organize" href="#tabstrip-pocket-guide" onclick="ScreenButtonClicked('PocketGuide');">Pocket Guide</a></li>
+        <li><a data-icon="globe" href="#tabstrip-map" onclick="ScreenButtonClicked('Map');">Map</a></li>
     </ul>
             <div class="img"></div>
         </div>
@@ -274,7 +271,7 @@
         <div data-role="navbar">
             <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
             <span data-role="view-title"></span>
-            <a data-align="right" data-role="button" class="nav-button" href="#tabstrip-home">Index</a>
+            <a data-align="right" data-role="button" class="nav-button" href="#tabstrip-console">Console</a>
         </div>
 
         </div>
@@ -283,17 +280,16 @@
         <div data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home" onclick="ScreenButtonClicked('Home');">Home</a>
-                <a href="#tabstrip-settings" data-icon="settings">Settings</a>
-                <a href="#tabstrip-events" data-icon="cal" onclick="ScreenButtonClicked('Events'
-                    );">Events</a>
-                <a href="#tabstrip-info" data-icon="info">Info</a>
+                <a href="#tabstrip-settings" data-icon="settings" onclick="ScreenButtonClicked('Settings');">Settings</a>
+                <a href="#tabstrip-events" data-icon="cal" onclick="ScreenButtonClicked('Events');">Events</a>
+                <a href="#tabstrip-info" data-icon="info" onclick="ScreenButtonClicked('Info');">Info</a>
             </div>
         </div>
     </div>    
 
     
         
-        <div id="tabstrip-events" data-role="switch" data-init="eventListViewPullWithEndless" data-title="Events">
+        <div id="tabstrip-events" data-role="view" data-init="eventListViewPullWithEndless" data-title="Events">
             <p class="events-title">UoB Events</p>
             <ul id="pull-eventslistview" class="events-list"></ul>
          </div>
@@ -303,14 +299,33 @@
             <ul id="pull-newslistview" class="news-list"></ul>
          </div>
     
-    <div id="tabstrip-info" data-role="view"  data-title="AppInfo">
+    <div id="tabstrip-info" data-role="view" data-title="AppInfo">
             <h3>My UoB Mobile App</h3>
         <p>My UoB is one of a number of official mobile apps from the University of Birmingham, replacing UoB Student.<br/>A full list of University apps is availble on our app store page @ <a href="http://www.birmingham.ac.uk/contact/app-store.aspx">www.birmingham.ac.uk/contact/app-store.aspx</a></p>
         <h3>Get in touch</h3>
         <p>If you have an feedback on this app, please contact...</p>
         </div>
     
-    <div id="tabstrip-settings" data-role="view"  data-init="settingsInit" data-title="AppSettings">
+    <div id="tabstrip-map" data-role="view" data-init="mapInit" data-title="Map">
+            <h3>Map</h3>
+        </div>
+    
+    <div id="tabstrip-pocket-guide" data-role="view" data-title="PocketGuide">
+            <h3>Pocket Guide</h3>
+        </div>
+    
+    <div id="tabstrip-console" data-role="view" data-title="Console">
+            <h3>Console</h3>
+        <div data-role="content">
+                <div class="logArea">
+                    <a id="clearLog" href="#" class="btn"><i class="icon-remove"></i> Clear Log</a>
+                    <textarea id="log" style="width:99%" rows="12"></textarea>
+                    
+                </div>
+            </div>
+        </div>
+    
+    <div id="tabstrip-settings" data-role="view" data-init="settingsInit" data-title="AppSettings">
             <h2 class="settings-title">App Settings</h2>
         <h3>Privacy settings</h3>
          <p>This app tracks usage, using Google Analytics so that we can learn from user behaviour and provide a better app in the future. No personal or user identifiable data will be collected, but if you would prefer for the app not to collect such data please select deny below.</p>    
