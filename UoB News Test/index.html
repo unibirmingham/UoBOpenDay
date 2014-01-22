@@ -33,54 +33,28 @@
                                 console.log("AllowUsageTracking: " + localStorage.getItem('allowUsageTracking'));
                             
                                 if (localStorage.getItem('allowUsageTracking')!="deny") {
-                                    gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2);
-                                    alert('ga go');
+                                    gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 5);
+                                    log('gaPlugin initialised');
                                 }
 
                                 //if stored value is not deny/false then No personal or user identifiable data will be collected.', permissionCallback, 'Attention', 'Allow,Deny');
                         
                                 $('#clearLog').on('click', function() {
                                     $('#log').val('');
-                                    //log.empty();
                                 });
                         
                         }
-                
-                        function permissionCallback() {
-                                if (localStorage.getItem('allowUsageTracking')!="deny") {
-                                    gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2);
-                                    
-                                }
-                                else
-                                {
-                                    gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
-                                }
-                                console.log("permissionCallBack: " + localStorage.getItem('allowUsageTracking'));
-                        }
-
-                            
-                                //if stored value is not false then allow tracking
-                                //gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 10);
-                                //else
-                                //gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
-                        //}
-                
  
                         function nativePluginResultHandler (result) {
-                                //alert('nativePluginResultHandler - '+result);
                                 log('nativePluginResultHandler: '+result);
-
                         }
         
                         function nativePluginErrorHandler (error) {
-                                //alert('nativePluginErrorHandler - '+error);
                                 log('nativePluginErrorHandler: '+error);
                         }
                         
-                        
                         function ScreenButtonClicked(page) {
                                 gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, page);
-                                log('tracked page: ' + page);
                         }
                         
                         function goingAway() {
@@ -106,9 +80,8 @@
             pullToRefresh: true,
             endlessScroll: true
         });
-        var eventsList = $('#pull-eventslistview').data('kendoMobileListView');
-        eventsList.dataSource.read();
-        eventsList.refresh();
+
+        ScreenButtonClicked("events");
 
     }
     
@@ -123,42 +96,20 @@
             },
             schema: {
                 data: function(response) {
-                  //console.log(response.broadcasts[0].programme.title);
                   return response.broadcasts;
                 }
             },
-            
-            /*
-            schema: {
-                parse: function(response) {
-                    var programmes = [];
-                    for (var i = 0; i < response.length; i++) {
-                        var prog = {
-                          id: response.broadcasts.programme[i].pid,
-                          title: response.broadcasts.programme[i].title
-                       };
-                    programmes.push(prog);
-                     }
-                  return programmes;
-                }  
-            },
-            */
             serverPaging: true,
             pageSize: 6
         });
-        //dataSource.fetch(function(){
-        //  var data = this.data();
-        //  console.log(data[0].programme.title);
-        //});
-
+        
         $("#pull-newslistview").kendoMobileListView({
             dataSource: dataSource,
             template: $("#news-template").text(),
             pullToRefresh: true
         });
-
         
-        
+        ScreenButtonClicked("news");
 
     }
     
@@ -172,6 +123,19 @@
             onLabel: "Allow",
             offLabel: "Deny"
         });
+        ScreenButtonClicked("settings");
+    }
+    
+    function infoInit() {
+        ScreenButtonClicked("info");
+    }
+    
+    function weatherInit() {
+        ScreenButtonClicked("weather");
+    }
+    
+    function guideInit() {
+        ScreenButtonClicked("pocket-guide");
     }
     
     function mapInit() {
@@ -179,7 +143,7 @@
     }
     
     function onTrackingChange(e) {
-        alert("Change");
+        log("Change");
         var allowTrackingVal;
         if (e.checked) {
             allowTrackingVal = "allow";
@@ -190,11 +154,11 @@
         localStorage.setItem('allowUsageTracking', allowTrackingVal);
         if (allowTrackingVal=="deny"){
             gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
-            alert("stop");
+            log("stop");
         }
         else {
             gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2)
-            alert("start");
+            log("start");
         }
     }
     
@@ -216,11 +180,11 @@
             <!--<h1>Welcome!</h1>
             <a id="skin-change" data-role="button" data-click="app.changeSkin">Flat</a>-->
             <ul data-role="listview" data-style="inset">
-        <li><a data-icon="justify" href="#tabstrip-news" onclick="ScreenButtonClicked('News');">News</a></li>
-        <li><a data-icon="cal" href="#tabstrip-events" onclick="ScreenButtonClicked('Events');">Events</a></li>
-        <li><a data-icon="cloud" href="#tabstrip-weather" onclick="ScreenButtonClicked('Weather');">Weather</a></li>
-        <li><a data-icon="organize" href="#tabstrip-pocket-guide" onclick="ScreenButtonClicked('PocketGuide');">Pocket Guide</a></li>
-        <li><a data-icon="globe" href="#tabstrip-map" onclick="ScreenButtonClicked('Map');">Map</a></li>
+        <li><a data-icon="justify" href="#tabstrip-news">News</a></li>
+        <li><a data-icon="cal" href="#tabstrip-events">Events</a></li>
+        <li><a data-icon="cloud" href="#tabstrip-weather">Weather</a></li>
+        <li><a data-icon="organize" href="#tabstrip-pocket-guide">Pocket Guide</a></li>
+        <li><a data-icon="globe" href="#tabstrip-map">Map</a></li>
     </ul>
             <div class="img"></div>
         </div>
@@ -229,7 +193,8 @@
     <div id="tabstrip-weather"
         data-role="view"
         data-title="Weather"
-        data-model="app.weatherService.viewModel">
+        data-model="app.weatherService.viewModel"
+        data-init="weatherInit">
 
         <div class="weather">
             <p class="weather-title">20-Day Forecast</p>
@@ -279,10 +244,10 @@
         <!--Footer-->
         <div data-role="footer">
             <div data-role="tabstrip">
-                <a href="#tabstrip-home" data-icon="home" onclick="ScreenButtonClicked('Home');">Home</a>
-                <a href="#tabstrip-settings" data-icon="settings" onclick="ScreenButtonClicked('Settings');">Settings</a>
-                <a href="#tabstrip-events" data-icon="cal" onclick="ScreenButtonClicked('Events');">Events</a>
-                <a href="#tabstrip-info" data-icon="info" onclick="ScreenButtonClicked('Info');">Info</a>
+                <a href="#tabstrip-home" data-icon="home">Home</a>
+                <a href="#tabstrip-settings" data-icon="settings">Settings</a>
+                <a href="#tabstrip-events" data-icon="cal">Events</a>
+                <a href="#tabstrip-info" data-icon="info">Info</a>
             </div>
         </div>
     </div>    
@@ -299,7 +264,7 @@
             <ul id="pull-newslistview" class="news-list"></ul>
          </div>
     
-    <div id="tabstrip-info" data-role="view" data-title="AppInfo">
+    <div id="tabstrip-info" data-role="view" data-init="infoInit" data-title="AppInfo">
             <h3>My UoB Mobile App</h3>
         <p>My UoB is one of a number of official mobile apps from the University of Birmingham, replacing UoB Student.<br/>A full list of University apps is availble on our app store page @ <a href="http://www.birmingham.ac.uk/contact/app-store.aspx">www.birmingham.ac.uk/contact/app-store.aspx</a></p>
         <h3>Get in touch</h3>
@@ -310,7 +275,7 @@
             <h3>Map</h3>
         </div>
     
-    <div id="tabstrip-pocket-guide" data-role="view" data-title="PocketGuide">
+    <div id="tabstrip-pocket-guide" data-role="view" data-init="guideInit" data-title="PocketGuide">
             <h3>Pocket Guide</h3>
         </div>
     
