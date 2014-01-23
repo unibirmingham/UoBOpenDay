@@ -23,6 +23,8 @@
                 
                         function onDeviceReady() {
                                 gaPlugin = window.plugins.gaPlugin;
+                                log("stored:" + localStorage.getItem('allowUsageTracking'));
+                                
                                 
                                 //if no variable stored locally, create one and set value as undefined
                                 //localStorage.setItem('allowUsageTracking', e.checked.toString());
@@ -54,7 +56,10 @@
                         }
                         
                         function ScreenButtonClicked(page) {
-                                gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, page);
+                            var lsi = localStorage.getItem('allowUsageTracking');
+                            if (lsi == "allow" || lsi == "unset") {
+                                gaPlugin.trackPage( nativePluginResultHandler, nativePluginErrorHandler, page);        
+                            }                            
                         }
                         
                         function goingAway() {
@@ -82,7 +87,7 @@
         });
 
         ScreenButtonClicked("events");
-
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function newsListViewPullWithEndless(e) {
@@ -110,7 +115,7 @@
         });
         
         ScreenButtonClicked("news");
-
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function settingsInit() {
@@ -124,22 +129,28 @@
             offLabel: "Deny"
         });
         ScreenButtonClicked("settings");
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function infoInit() {
+        
         ScreenButtonClicked("info");
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function weatherInit() {
         ScreenButtonClicked("weather");
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function guideInit() {
         ScreenButtonClicked("pocket-guide");
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function mapInit() {
         ScreenButtonClicked("map");
+        log("stored:" + localStorage.getItem('allowUsageTracking'));
     }
     
     function onTrackingChange(e) {
@@ -154,10 +165,11 @@
         localStorage.setItem('allowUsageTracking', allowTrackingVal);
         if (allowTrackingVal=="deny"){
             gaPlugin.exit(nativePluginResultHandler, nativePluginErrorHandler);
+    
             log("stop");
         }
         else {
-            gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 2)
+            gaPlugin.init(nativePluginResultHandler, nativePluginErrorHandler, "UA-47250154-1", 5);
             log("start");
         }
     }
@@ -329,12 +341,13 @@
     
 
     
-    <script src="scripts/weather.js"></script>
-    
+    <script src="scripts/weather.js"></script>    
     <!--<script src="scripts/events.js"></script>-->
-    <!--<script src="scripts/app.js"></script>-->-->
-<script>
-    app.application = new kendo.mobile.Application(document.body, { layout: "tabstrip-layout"});
-</script>
+    <script src="scripts/app.js"></script>-->
+    
+    <script>
+        app.application = new kendo.mobile.Application(document.body, { layout: "tabstrip-layout"});
+    </script>
+    
 </body>
 </html>
