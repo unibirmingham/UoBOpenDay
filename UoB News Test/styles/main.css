@@ -392,3 +392,7 @@ body, html {
     content: "\e0f1";
 }
 
+div.event-item {
+    padding:0px;
+    margin:0px;
+}
