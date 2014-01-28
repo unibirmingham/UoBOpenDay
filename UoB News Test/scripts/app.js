@@ -56,7 +56,7 @@ function eventListViewPullWithEndless(e) {
                 url: "http://www.birmingham.ac.uk/web_services/Events.svc/?folderPath=/events",
                 dataType: "json"
             }
-        },   
+        },
         serverPaging: true,
         pageSize: 40,
         change: function (data) {
@@ -67,13 +67,11 @@ function eventListViewPullWithEndless(e) {
     $("#pull-eventslistview").kendoMobileListView({
         dataSource: dataSource,
         template: $("#events-template").text(),
-        pullToRefresh: true,
-        endlessScroll: true
+        pullToRefresh: true
     });
     
     ScreenButtonClicked("events");
     log("stored:" + localStorage.getItem('allowUsageTracking'));
-    app.application.hideLoading()
 }
 
 //NEWS
