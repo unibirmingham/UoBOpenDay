@@ -1,4 +1,4 @@
-vim <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>Kendo UI</title>
@@ -60,13 +60,13 @@ vim <!DOCTYPE html>
     
     <!--Events screen-->
     <div id="tabstrip-events" data-role="view" data-init="eventListViewPullWithEndless" data-title="Events">
-        <p class="events-title">UoB Events</p>
+        <div class="events-title">UoB Events</div>
         <ul id="pull-eventslistview" class="events-list"></ul>
     </div>
     
     <!--News screen-->
     <div id="tabstrip-news" data-role="view" data-init="newsListViewPullWithEndless" data-title="News">
-        <p class="progs-title">SciFi Fantasy Prog</p>
+        <div class="news-title">Drama schedule (BBC)</div>
             <ul id="pull-newslistview" class="news-list"></ul>
          </div>
     
@@ -141,7 +141,13 @@ vim <!DOCTYPE html>
     <script src="scripts/templateLoader.js"></script>
         
     <script>
-        app.application = new kendo.mobile.Application(document.body, { layout: "tabstrip-layout"});
+        app.application = new kendo.mobile.Application(document.body, { 
+            layout: "tabstrip-layout"
+        });
+        
+
+        
+
     </script>
     
     <script>

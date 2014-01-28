@@ -49,6 +49,7 @@ function goingAway() {
 
 //EVENTS
 function eventListViewPullWithEndless(e) {
+    app.application.showLoading();
     var dataSource = new kendo.data.DataSource({
         transport: {
             read: {
@@ -57,7 +58,10 @@ function eventListViewPullWithEndless(e) {
             }
         },   
         serverPaging: true,
-        pageSize: 40
+        pageSize: 40,
+        change: function (data) {
+            app.application.hideLoading();
+        }
     });
 
     $("#pull-eventslistview").kendoMobileListView({
@@ -66,17 +70,20 @@ function eventListViewPullWithEndless(e) {
         pullToRefresh: true,
         endlessScroll: true
     });
-
+    
     ScreenButtonClicked("events");
     log("stored:" + localStorage.getItem('allowUsageTracking'));
+    app.application.hideLoading()
 }
 
 //NEWS
 function newsListViewPullWithEndless(e) {
+    app.application.showLoading();
     var dataSource = new kendo.data.DataSource({
         transport: {
             read: {
-                url: "http://www.bbc.co.uk/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json?take=6&skip=0&page=1&pageSize=6",
+                url: "http://www.bbc.co.uk/tv/programmes/genres/drama/schedules/upcoming.json?take=6&skip=0&page=1&pageSize=6",
+                //url: "http://www.bbc.co.uk/tv/programmes/genres/drama/scifiandfantasy/schedules/upcoming.json?take=6&skip=0&page=1&pageSize=6",
                 //url: "data/progs.json",
                 dataType: "json"
             }
@@ -87,7 +94,10 @@ function newsListViewPullWithEndless(e) {
             }
         },
         serverPaging: true,
-        pageSize: 6
+        pageSize: 6,
+        change: function (data) {
+            app.application.hideLoading();
+        }
     });
         
     $("#pull-newslistview").kendoMobileListView({
@@ -95,7 +105,7 @@ function newsListViewPullWithEndless(e) {
         template: $("#news-template").text(),
         pullToRefresh: true
     });
-        
+   
     ScreenButtonClicked("news");
     log("stored:" + localStorage.getItem('allowUsageTracking'));
 }
@@ -162,6 +172,8 @@ function onTrackingChange(e) {
 function log(msg) {
     $('#log').val($('#log').val() + msg + '\n');
 }
+
+
 
 
 
