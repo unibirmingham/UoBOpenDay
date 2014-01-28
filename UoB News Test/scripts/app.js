@@ -58,7 +58,7 @@ function eventListViewPullWithEndless(e) {
             }
         },
         serverPaging: true,
-        pageSize: 40,
+        pageSize: 28,
         change: function (data) {
             app.application.hideLoading();
         }
@@ -67,7 +67,8 @@ function eventListViewPullWithEndless(e) {
     $("#pull-eventslistview").kendoMobileListView({
         dataSource: dataSource,
         template: $("#events-template").text(),
-        pullToRefresh: true
+        pullToRefresh: true,
+        endlessScroll: true
     });
     
     ScreenButtonClicked("events");
