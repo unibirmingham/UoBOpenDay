@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kendo UI</title>
+    <meta charset="UTF-8" />
+    <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
+    <link href="styles/main.css" rel="stylesheet" />
+    <script src="cordova.js"></script>
+    <script src="kendo/js/jquery.min.js"></script>
+    <script src="kendo/js/kendo.mobile.min.js"></script>
+    <script src="scripts/contentRetrieval.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/events.js"></script>
+    <script src="scripts/registrationinfo.js"></script>
+</head>
+
+<body>
+  
+<!--Screens-->
+
+    <!--Home-->
+    <div id="tabstrip-home" data-role="view" data-title="Home">
+
+        <div class="view-content">
+            <h1>Open Day Application</h1>
+            <p id="welcome-message">Welcome to the Open Day Application.</p>
+            <ul data-role="listview" datatype="group">
+                <li><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
+                <li><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
+            </ul>
+            <div class="img"></div>
+        </div>
+    </div>
+    
+    <!--Events screen-->
+    <div id="tabstrip-events" data-role="view" data-init="populateEventList" data-title="Activities">
+        <div class="events-title">Open Day Activities</div>
+        <ul id="pull-eventslistview" class="events-list"></ul>
+    </div>
+    
+    <!--Map screen-->
+    <div id="tabstrip-map" data-role="view" data-init="mapInit" data-title="Map">
+        <h3>Map</h3>
+    </div>
+  
+    <!-- Registration information -->
+    <div id="tabstrip-registration" data-role="view" data-init="populateRegistrationInfo" data-title="Registration">
+        <div class="view-content">
+            <div id="registrationContent">
+                
+            </div>
+        </div>
+     </div>
+ <!--Screens End-->   
+    
+<!--Layout-->
+    <div data-role="layout" data-id="tabstrip-layout">
+
+        <!--Header-->
+        <div data-role="header">
+        <div data-role="navbar">
+            <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
+            <span data-role="view-title"></span>
+        </div>
+
+        </div>
+
+        <!--Footer-->
+        <div data-role="footer">
+            <div data-role="tabstrip">
+                <a href="#tabstrip-home" data-icon="home">Home</a>
+                <a href="#tabstrip-events" data-icon="cal">Events</a>
+                <a href="#tabstrip-map" data-icon="info">Map</a>
+            </div>
+        </div>
+    </div>    
+<!-- Layout End -->
+    
+    <!-- Template Loading -->
+    <script src="scripts/templateLoader.js"></script>
+        
+    <script>
+        app.application = new kendo.mobile.Application(document.body, { 
+            layout: "tabstrip-layout"
+        });
+
+    </script>
+    
+    <script>
+        //load templates
+        templateLoader.loadExtTemplate("templates/events.tmpl.html");
+    </script>
+    
+</body>
+</html>

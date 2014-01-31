@@ -1,0 +1,16 @@
+<!--Events template-->
+<script type="text/x-kendo-tmpl" id="events-template">
+    <div>
+        <p>
+            <span class="event-info date">#= kendo.toString(kendo.parseDate(StartDate), 'HH:mm')#</span>
+            <span class="event-title">${Title}</span>
+            # if (DurationDescription.length){ #
+            <span class="event-duration-description">(${DurationDescription})</span>
+            # } #
+        </p>
+        <p>
+            ${Description}
+        </p>
+    </div>
+</script>
+    
