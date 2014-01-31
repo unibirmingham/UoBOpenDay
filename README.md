@@ -1,2 +1,2 @@
-UoBNewsTest
-===========
+UoBOpenDay
+==========
