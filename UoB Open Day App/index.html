@@ -5,13 +5,16 @@
     <meta charset="UTF-8" />
     <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
     <link href="styles/main.css" rel="stylesheet" />
+    <link href="styles/app.css" rel="stylesheet" />
     <script src="cordova.js"></script>
     <script src="kendo/js/jquery.min.js"></script>
     <script src="kendo/js/kendo.mobile.min.js"></script>
     <script src="scripts/contentRetrieval.js"></script>
+    <script src="scripts/settings.js"></script>
     <script src="scripts/app.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/registrationinfo.js"></script>
+    <script src="scripts/about.js"></script>
 </head>
 
 <body>
@@ -28,6 +31,7 @@
                 <li><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
+                <li class="offlineButton"><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
             </ul>
             <div class="img"></div>
         </div>
@@ -36,7 +40,8 @@
     <!--Events screen-->
     <div id="tabstrip-events" data-role="view" data-init="populateEventList" data-title="Activities">
         <div class="events-title">Open Day Activities</div>
-        <ul id="pull-eventslistview" class="events-list"></ul>
+        <div class="events-error"></div>
+        <ul id="open-day-events-view" class="events-list"></ul>
     </div>
     
     <!--Map screen-->
@@ -49,6 +54,19 @@
         <div class="view-content">
             <div id="registrationContent">
                 
+            </div>
+        </div>
+     </div>
+    
+    <!-- About information -->
+    <div id="tabstrip-about" data-role="view" data-init="populateAboutInfo" data-title="Registration">
+        <div class="view-content">
+            <div id="aboutContent">
+                <ul>
+                    <li>Connection type: <span class="connectionTypeData">Loading ...</span></li>
+                    <li>Birmingham Web Site: <span class="birminghamWebSite">Loading ...</span></li>
+                    <li>Events Web Service: <span class="eventsWebService">Loading ...</span></li>
+                </ul>
             </div>
         </div>
      </div>
@@ -67,11 +85,11 @@
         </div>
 
         <!--Footer-->
-        <div data-role="footer">
+        <div id="appFooter" data-role="footer">
             <div data-role="tabstrip">
-                <a href="#tabstrip-home" data-icon="home">Home</a>
+                <a class="offlineButton" href="#tabstrip-home" data-icon="home">Home</a>
                 <a href="#tabstrip-events" data-icon="cal">Events</a>
-                <a href="#tabstrip-map" data-icon="info">Map</a>
+                <a class="offlineButton" href="#tabstrip-about" data-icon="about">About</a>
             </div>
         </div>
     </div>    

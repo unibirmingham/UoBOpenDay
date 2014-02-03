@@ -9,7 +9,10 @@
             # } #
         </p>
         <p>
-            ${Description}
+            # if (Location.length){ #
+            <span class="event-location">${Location}: </span>
+            # } #
+            <span class="event-description">${Description}</span>
         </p>
     </div>
 </script>
