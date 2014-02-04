@@ -1,12 +1,27 @@
+/*Initialise the buttons that are internet-based to hide.*/
+#tabstrip-home li.webSiteButton,
+#tabstrip-home li.webServiceButton,
+#appFooter a.webSiteButton,
+#appFooter a.webServiceButton
+{
+    display: none;
+}
+
+div.error-message p {
+    color: red;
+}
+
+/*Events listings */
  #tabstrip-events .event-title{
      font-weight: bold;
  }
 
-/*Initialise the buttons that are internet-based to hide.*/
-#tabstrip-home li.webSiteButtons,
-#tabstrip-home li.webServiceButtons,
-#appFooter a.webSiteButtons,
-#appFooter a.webServiceButtons
+#tabstrip-events .km-favourite-true
 {
-    display: none;
-}
+    color: red;
+    }
+
+#tabstrip-events .km-favourite-false
+{
+    color: blue;
+    }

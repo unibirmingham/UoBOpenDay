@@ -76,7 +76,7 @@
     function addErrorMessage(textMessage)
     {
         if (textMessage){
-            $j("#welcome-message").after("<p class='errorMessage'>" + textMessage + "</p>");
+            $j("div#tabstrip-home div.error-message").append("<p>" + textMessage + "</p>");
         }        
     }
 

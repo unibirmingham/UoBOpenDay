@@ -27,6 +27,7 @@
         <div class="view-content">
             <h1>Open Day Application</h1>
             <p id="welcome-message">Welcome to the Open Day Application.</p>
+            <div class="error-message"></div>
             <ul data-role="listview" datatype="group">
                 <li class="webServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li class="webServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
@@ -39,9 +40,23 @@
     
     <!--Events screen-->
     <div id="tabstrip-events" data-role="view" data-init="populateEventList" data-title="Activities">
+        <style>
+        .km-favourite-true:after,
+        .km-favourite-true:before
+        {
+            content: "\e044";
+        }
+        .km-favourite-false:after,
+        .km-favourite-false:before
+        {
+            content: "\e045";
+        }
+        
+    </style>
         <div class="events-title">Open Day Activities</div>
-        <div class="events-error"></div>
+        <div class="error-message"></div>
         <ul id="open-day-events-view" class="events-list"></ul>
+        
     </div>
     
     <!--Map screen-->
@@ -109,6 +124,6 @@
         //load templates
         templateLoader.loadExtTemplate("templates/events.tmpl.html");
     </script>
-    
+
 </body>
 </html>
