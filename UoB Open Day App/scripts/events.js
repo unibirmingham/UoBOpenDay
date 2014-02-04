@@ -13,14 +13,16 @@ function populateEventList(e) {
                 dataType: "json"
             }
         },
-        serverPaging: true,
-        pageSize: 28,
+        pageSize: 10000,
         change: function (data) {
+            console.log('Change event');
+            if (data.items){
+                console.log("Items:" + data.items.length);
+            }
             setEventsError('');
             app.application.hideLoading();
         },
         error: function(e) {
-            var xhr = e.xhr;
             var statusCode = e.status;
             var errorThrown = e.errorThrown;
             setEventsError("Error retrieving events: " + statusCode + " (" + errorThrown + ")");
@@ -32,8 +34,11 @@ function populateEventList(e) {
     $("#open-day-events-view").kendoMobileListView({
         dataSource: dataSource,
         template: $("#events-template").text(),
-        pullToRefresh: true,
-        endlessScroll: true
+         filterable: {
+                field: "Title",
+                operator: "contains"
+            },
+        pullToRefresh: true
     });
     
 }

@@ -22,6 +22,7 @@
         }
         else
         {
+            $jcontentDiv.html('<p>Loading content ...</p>');
             var url = urlProtocol + urlDomain + urlUri;
             console.log('Populating div id: ' + divId + ' from url ' + url);
             
@@ -34,6 +35,8 @@
                 //Make the content unique
                 pageMainContentDiv.attr('id',divId + "_content");
                 
+                //Remove existing content
+                $jcontentDiv.text('');
                 //Place the title and content into the page                
                 $jcontentDiv.append(pageTitle);
             	$jcontentDiv.append(pageMainContentDiv);                               
