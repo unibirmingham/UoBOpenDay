@@ -2,6 +2,25 @@
     
     app = global.app = global.app || {};
     
+    app.addErrorMessage = function (textMessage)
+    {
+        if (textMessage){
+            $j("div#tabstrip-home div.error-message").append("<p>" + textMessage + "</p>");
+        }        
+    }
+    
+    app.disableLinks = function (classToDisable)
+    {
+        $j("#tabstrip-home li." + classToDisable).hide();
+        $j("#appFooter a." + classToDisable).hide();
+    }
+    
+    app.enableLinks = function(classToEnable)
+    {
+        $j("#tabstrip-home li." + classToEnable).show();
+        $j("#appFooter a." + classToEnable).show();
+    }
+    
     document.addEventListener("deviceready", onDeviceReady, true);
     
     function onDeviceReady() {
@@ -24,22 +43,7 @@
         else
         {
             checkWebsite();
-            checkWebService();
         }
-    }
-    
-    function disableWebServiceButtons(){
-        disableLinks("webServiceButton");
-    }
-    
-    function disableWebSiteButtons(){
-        disableLinks("webSiteButton");
-    }
-    
-    function checkWebService()
-    {
-        //As this folder doesn't exist, should just get an empty JSON object.
-        checkUrl("Events Web Service", app.UoBEventsService + '?folderPath=/checktoseeiflive', "webServiceButton");
     }
     
     function checkWebsite()
@@ -51,46 +55,26 @@
     {
      
             //Check that the service is available:
-            $.ajax({
+            $j.ajax({
                 cache: false,
                 type: 'GET',
                 url: url,
                 timeout: 10000,
                 success: function(data, textStatus, XMLHttpRequest) {
                     if (!data) {
-                        disableLinks(buttonClass);
-                        addErrorMessage(serviceDescription + " is not responding correctly.");
+                        app.disableLinks(buttonClass);
+                        app.addErrorMessage(serviceDescription + " is not responding correctly.");
                     }
                     else{
                         console.log("Successfully requested url " + url + " for " + serviceDescription + " with status: " + textStatus);
-                        enableLinks(buttonClass);
+                        app.enableLinks(buttonClass);
                         }
                   },
                 error: function(jqXHR, textStatus, errorThrown){
-                    disableLinks(buttonClass);
-                    addErrorMessage(serviceDescription + " is not responding.");
+                    app.disableLinks(buttonClass);
+                    app.addErrorMessage(serviceDescription + " is not responding.");
                 }
             });
     }
     
-    function addErrorMessage(textMessage)
-    {
-        if (textMessage){
-            $j("div#tabstrip-home div.error-message").append("<p>" + textMessage + "</p>");
-        }        
-    }
-
-    function disableLinks(classToDisable)
-    {
-        $j("#tabstrip-home li." + classToDisable).hide();
-        $j("#appFooter a." + classToDisable).hide();
-    }
-    
-    function enableLinks(classToDisable)
-    {
-        $j("#tabstrip-home li." + classToDisable).show();
-        $j("#appFooter a." + classToDisable).show();
-    }
-    
-
 })(window, jQuery);

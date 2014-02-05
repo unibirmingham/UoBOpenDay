@@ -1,10 +1,18 @@
-function populateAboutInfo(e) {
+
+(function (global, $j) {
     
-    //Show the connection type:
-    $('#aboutContent .connectionTypeData').text(navigator.network.connection.type);  
+    app = global.app = global.app || {};
     
-    //Where is data coming from:
-    $('#aboutContent .birminghamWebSite').text(app.UoBWebSite); 
-    $('#aboutContent .eventsWebService').text(app.UoBEventsService); 
-    
+
+    app.populateAboutInfo = function(e)  {
+        
+        //Show the connection type:
+        $j('#aboutContent .connectionTypeData').text(navigator.network.connection.type);  
+        
+        //Where is data coming from:
+        $j('#aboutContent .birminghamWebSite').text(app.UoBWebSite); 
+        $j('#aboutContent .eventsWebService').text(app.UoBEventsService); 
+        
     }
+   
+})(window, jQuery);

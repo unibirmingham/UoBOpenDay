@@ -17,19 +17,27 @@
     <script src="scripts/about.js"></script>
 </head>
 
-<body>
+<body id="appBody">
   
 <!--Screens-->
 
     <!--Home-->
     <div id="tabstrip-home" data-role="view" data-title="Home">
-
+        <style>
+        .km-heart:after,
+        .km-heart:before
+        {
+            content: "\e044";
+        }
+        
+    </style>
         <div class="view-content">
             <h1>Open Day Application</h1>
             <p id="welcome-message">Welcome to the Open Day Application.</p>
             <div class="error-message"></div>
             <ul data-role="listview" datatype="group">
                 <li class="webServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
+                <li class="webServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourites</a></li>
                 <li class="webServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
                 <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
@@ -39,7 +47,7 @@
     </div>
     
     <!--Events screen-->
-    <div id="tabstrip-events" data-role="view" data-init="populateEventList" data-title="Activities">
+    <div id="tabstrip-events" data-role="view" data-init="app.populateEventList" data-title="Activities">
         <style>
         .km-favourite-true:after,
         .km-favourite-true:before
@@ -58,6 +66,27 @@
         <ul id="open-day-events-view" class="events-list"></ul>
         
     </div>
+
+    <!--Favourites screen (data-show event used as it needs to -->
+    <div id="tabstrip-favourites" data-role="view" data-show="app.populateFavouriteEventList" data-title="Favourites">
+        <style>
+            .km-favourite-true:after,
+            .km-favourite-true:before
+            {
+                content: "\e044";
+            }
+            .km-favourite-false:after,
+            .km-favourite-false:before
+            {
+                content: "\e045";
+            }
+            
+        </style>
+        <div class="events-title">Open Day Activities</div>
+        <div class="error-message"></div>
+        <ul id="open-day-favourite-events-view" class="events-list"></ul>
+        
+    </div>
     
     <!--Map screen-->
     <div id="tabstrip-map" data-role="view" data-init="mapInit" data-title="Map">
@@ -65,7 +94,7 @@
     </div>
   
     <!-- Registration information -->
-    <div id="tabstrip-registration" data-role="view" data-init="populateRegistrationInfo" data-title="Registration">
+    <div id="tabstrip-registration" data-role="view" data-init="app.populateRegistrationInfo" data-title="Registration">
         <div class="view-content">
             <div id="registrationContent">
                 
@@ -74,7 +103,7 @@
      </div>
     
     <!-- About information -->
-    <div id="tabstrip-about" data-role="view" data-init="populateAboutInfo" data-title="Registration">
+    <div id="tabstrip-about" data-role="view" data-init="app.populateAboutInfo" data-title="Registration">
         <div class="view-content">
             <div id="aboutContent">
                 <ul>

@@ -7,7 +7,7 @@
     display: none;
 }
 
-div.error-message p {
+#appBody div.error-message p {
     color: red;
 }
 
@@ -16,12 +16,12 @@ div.error-message p {
      font-weight: bold;
  }
 
-#tabstrip-events .km-favourite-true
+#appbody .km-favourite-true
 {
     color: red;
     }
 
-#tabstrip-events .km-favourite-false
+#appbody .km-favourite-false
 {
     color: blue;
     }
