@@ -19,6 +19,7 @@
     {
         $j("#tabstrip-home li." + classToEnable).show();
         $j("#appFooter a." + classToEnable).show();
+        $j("#appFooter a." + classToEnable).css('display', 'block');
     }
     
     document.addEventListener("deviceready", onDeviceReady, true);
