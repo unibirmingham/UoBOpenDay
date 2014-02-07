@@ -12,16 +12,25 @@
 }
 
 /*Events listings */
- #tabstrip-events .event-title{
+#appBody .event-title{
      font-weight: bold;
  }
 
-#appbody .km-favourite-true
+#appBody .km-favourite-true
 {
     color: red;
     }
 
-#appbody .km-favourite-false
+#appBody .km-favourite-false
 {
     color: blue;
     }
+
+#appBody .event-favourite
+{
+    float: right;
+    font-size: 2em;
+    margin-right: .5em;
+    padding-left: .2em;
+    float: right;   
+}

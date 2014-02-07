@@ -27,7 +27,7 @@
                 transport: {
                     read: {
                         url: openDayEventsUrl,
-                        timeout: 30000,
+                        timeout: 15000,
                         dataType: "json"
                     }
                 },
