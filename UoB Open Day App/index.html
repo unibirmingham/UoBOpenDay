@@ -29,7 +29,7 @@
         {
             content: "\e044";
         }
-        
+
     </style>
         <div class="view-content">
             <h1>Open Day Application</h1>
@@ -38,6 +38,7 @@
             <ul data-role="listview" datatype="group">
                 <li class="webServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li class="webServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
+                <li class="webServiceButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="webServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
                 <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
@@ -49,38 +50,36 @@
     <!--Events screen-->
     <div id="tabstrip-events" data-role="view" data-init="app.populateEventList" data-title="Activities">
         <style>
-        .km-favourite-true:after,
-        .km-favourite-true:before
-        {
-            content: "\e044";
-        }
-        .km-favourite-false:after,
-        .km-favourite-false:before
-        {
-            content: "\e045";
-        }
-        
-    </style>
+            .km-favourite:after,
+            .km-favourite:before
+            {
+                content: "\e044";
+            }
+            .km-personalschedule:after,
+            .km-personalschedule:before
+            {
+                content: "\e0d2";
+            }      
+        </style>
         <div class="events-title">Open Day Activities</div>
         <div class="error-message"></div>
         <ul id="open-day-events-view" class="events-list"></ul>
         
     </div>
 
-    <!--Favourites screen (data-show event used as it needs to -->
+    <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
     <div id="tabstrip-favourites" data-role="view" data-show="app.populateFavouriteEventList" data-title="Favourites">
         <style>
-            .km-favourite-true:after,
-            .km-favourite-true:before
+            .km-favourite:after,
+            .km-favourite:before
             {
                 content: "\e044";
             }
-            .km-favourite-false:after,
-            .km-favourite-false:before
+            .km-personalschedule:after,
+            .km-personalschedule:before
             {
-                content: "\e045";
-            }
-            
+                content: "\e0d2";
+            }      
         </style>
         <div class="events-title">Favourite Open Day Activities</div>
         <div class="error-message"></div>
@@ -88,6 +87,25 @@
         
     </div>
     
+    <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
+    <div id="tabstrip-schedule" data-role="view" data-show="app.populateScheduleEventList" data-title="Personal Schedule">
+        <style>
+            .km-favourite:after,
+            .km-favourite:before
+            {
+                content: "\e044";
+            }
+            .km-personalschedule:after,
+            .km-personalschedule:before
+            {
+                content: "\e0d2";
+            }      
+        </style>
+        <div class="events-title">Personal Schedule</div>
+        <div class="error-message"></div>
+        <ul id="open-day-schedule-events-view" class="events-list"></ul>
+    </div>
+        
     <!--Map screen-->
     <div id="tabstrip-map" data-role="view" data-init="mapInit" data-title="Map">
         <h3>Map</h3>

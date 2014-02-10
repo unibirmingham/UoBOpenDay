@@ -7,7 +7,7 @@
     
     var _retrievedEventsData;
     var _eventsDataSource;
-    var favouriteEventsLocalStorage = "favouriteEvents";
+    var eventsLocalStoragePrefix = "uob-events-";
 
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
@@ -58,7 +58,7 @@
         }
     };
     
-    var getEventsData = function ()
+    var getEventItems = function ()
     {
         if (_retrievedEventsData){
              return _retrievedEventsData;
@@ -73,7 +73,7 @@
         
         var eventsListViewId = "open-day-events-view";
         var eventsListDataSource = new kendo.data.DataSource({
-                data: getEventsData(),
+                data: getEventItems(),
                 pageSize: 10000
             });
         
@@ -85,8 +85,11 @@
                     operator: "contains"
                 },
             dataBound: function(){
-                setUpFavouriteIcons(eventsListViewId, eventsListDataSource);
-                setUpClickEventOnFavouriteIcons(eventsListViewId, eventsListDataSource);
+                setUpIcons(eventsListViewId, 'favourite', eventsListDataSource);
+                setUpClickEventOnSelectedIcons(eventsListViewId, 'favourite', eventsListDataSource);
+                  setUpIcons(eventsListViewId, 'schedule', eventsListDataSource);
+                setUpClickEventOnSelectedIcons(eventsListViewId, 'schedule', eventsListDataSource, validateSelectionOfScheduledEvent);
+                  
             } 
             
         });
@@ -98,7 +101,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: getFavouriteEvents(),
+                data: getSelectedEvents('favourite'),
                 pageSize: 10000
             });
         
@@ -106,17 +109,74 @@
             dataSource: eventsListDataSource,
             template: $j("#events-template").text(),
             dataBound: function(){
-                setUpFavouriteIcons(eventsListViewId, eventsListDataSource);
+                setUpIcons(eventsListViewId, 'favourite',eventsListDataSource);
+                setUpIcons(eventsListViewId, 'schedule',eventsListDataSource);
+                reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
             } 
             
         });
         
     };
     
-    var setUpFavouriteIcons = function(listViewId, dataSource){
+    app.populateScheduleEventList = function (e){
+        
+        var eventsListViewId = "open-day-schedule-events-view";
+        
+        var eventsListDataSource = new kendo.data.DataSource({
+                data: getSelectedEvents('schedule'),
+                pageSize: 10000
+            });
+        
+        $j("#" + eventsListViewId).kendoMobileListView({
+            dataSource: eventsListDataSource,
+            template: $j("#events-template").text(),
+            dataBound: function(){
+                setUpIcons(eventsListViewId, 'favourite',eventsListDataSource);
+                setUpIcons(eventsListViewId, 'schedule',eventsListDataSource);
+                reportNoData(eventsListViewId, this.dataSource.data(), "You have no scheduled activities selected.");
+            } 
+            
+        });
+        
+    };
+    
+    var reportNoData = function(listViewId, thisDataSourceData, noDataMessage)
+    {
+        if(thisDataSourceData.length === 0){
+            //custom logic
+            $("#" + listViewId).append("<p class='error-message'>" + noDataMessage+ "</p>");
+        }    
+    };
+    
+    var validateSelectionOfScheduledEvent = function(eventGroup, eventItem)
+    {
+        
+        var existingScheduleItems = getSelectedEvents(eventGroup);
+        
+        var clashingEvents = $j.grep(existingScheduleItems, function(e){ 
+            
+            return (eventItem.StartDate>=e.StartDate && eventItem.StartDate<=e.EndDate)
+                    ||
+                    (eventItem.EndDate>=e.StartDate && eventItem.EndDate<=e.EndDate)
+                    ||
+                    (eventItem.StartDate<=e.StartDate && eventItem.EndDate>=e.EndDate)
+        });
+        
+        if (clashingEvents && clashingEvents.length >0)
+        {
+            navigator.notification.alert("Event clashes with another event in the schedule", null,"Schedule clash", 'OK');
+            
+            return false;
+
+        }
+        
+        return true;
+    }
+    
+    var setUpIcons = function(listViewId, eventGroup, dataSource){
         
         console.log("Setup favourite icons");
-        $j("#" + listViewId + " span.event-favourite").each(function() {
+        $j("#" + listViewId + " span.event-" + eventGroup).each(function() {
             
             var span = this;
 
@@ -125,143 +185,161 @@
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(span, isContentIdFavourite(eventItem.ContentId));
+                setupIconSpan(eventGroup, span, isContentIdSelected(eventGroup, eventItem.ContentId));
             }
             
         });
     }
     
 
-    var setUpClickEventOnFavouriteIcons=function(listViewId, dataSource)
+    var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, dataSource, selectionValidationFunction)
     {
         console.log("Set up favourite icons");
-        var favouriteSpans = $j("#" + listViewId + " span.event-favourite");
+        var selectedEventSpans = $j("#" + listViewId + " span.event-" + eventGroup);
         
-        console.log("Favourite spans = " + favouriteSpans.length);
+        console.log("Selected " + eventGroup + " spans = " + selectedEventSpans.length);
         
-        $j(favouriteSpans).click(function(){
+        $j(selectedEventSpans).click(function(){
             var span=this;
             
             var uid = $j(span).parent().parent().parent().attr('data-uid');
             
             var eventItem = dataSource.getByUid(uid);
-                        
-            if ($j(span).hasClass("km-favourite-true"))
+            
+            if ($j(span).hasClass(eventGroup + "-true"))
             {
-                setupIconSpan(span, false);
-                removeEventFromFavourites(eventItem);
+                setupIconSpan(eventGroup, span, false);
+                removeEventFromSelectedData(eventGroup, eventItem);
             }
             else{
-                setupIconSpan(span, true);
-                addEventToFavourites(eventItem);
+                
+                if (typeof selectionValidationFunction === 'function')
+                {
+                    if (!selectionValidationFunction(eventGroup, eventItem))
+                    {
+                         return;
+                    }
+                }
+                
+                setupIconSpan(eventGroup, span, true);
+                addEventToSelectedData(eventGroup, eventItem);
             }
             
         });
     };
 
-    var setupIconSpan = function (span, isFavourite)
+    var setupIconSpan = function (eventGroup, span, isSelected)
     {
-        if (isFavourite)
+        var trueClass = eventGroup + "-true";
+        var falseClass = eventGroup  + "-false";
+        
+        if (isSelected)
         {
-            $j(span).removeClass("km-favourite-false");
-            $j(span).addClass("km-favourite-true");   
+            $j(span).removeClass(falseClass);
+            $j(span).addClass(trueClass);   
         }
         else{
-             $j(span).removeClass("km-favourite-true");
-            $j(span).addClass("km-favourite-false");
+             $j(span).removeClass(trueClass);
+            $j(span).addClass(falseClass);
         }
     }
     
-    var removeEventFromFavourites = function(eventItem)
+    var removeEventFromSelectedData = function(eventGroup, eventItem)
     {
-        var favourites= getFavourites();
+        var selectedEventData= getSelectedEventData(eventGroup);
         
-        if (favourites)
+        var contentId = eventItem.ContentId;
+        
+        if (selectedEventData)
         {
-            var contentIdIndex = favourites.indexOf(eventItem.ContentId);
+            console.log('Removing Content id: ' + eventItem.ContentId + ' from ' + eventGroup +' with ' + selectedEventData.length + ' entries.');
             
-            if (contentIdIndex > -1) {
-                console.log('Removing Content id: ' + eventItem.ContentId + ' from favourites.');   
-                favourites = favourites.filter(function(i) {
-	                return i != eventItem.ContentId;
-                });
-            }
-            else{
-                console.log('Content id: ' + eventItem.ContentId + ' for removal from favourites not found');
-            }
+            var eventsWithoutContentId = $j.grep(selectedEventData, function(e){ return e.ContentId !== contentId; });
+            
+            console.log('Setting selected event data for ' + eventGroup + ' with ' + eventsWithoutContentId.length + 'entries');
+            
+            setSelectedEventData(eventGroup, eventsWithoutContentId);
         }
         else{
-            console.log('Attempt to remove event from non-existent favourite with content id: ' + eventItem.ContentId);
+            console.log('Attempt to remove event from non-existent group ' + eventGroup + ' with content id: ' + contentId);
         }
-        setFavourites(favourites);
     }
     
-    var addEventToFavourites = function(eventItem)
+    var addEventToSelectedData = function(eventGroup, eventItem)
     {
-        var favourites= getFavourites();
+        var selectedEventData= getSelectedEventData(eventGroup);
         
-        if (!favourites)
+        if (!selectedEventData)
         {
-            console.log("Initialising favourites");
-            favourites = [];
+            console.log("Initialising selected event data for " + eventGroup);
+            selectedEventData = [];
         }
-        console.log('Adding content id ' + eventItem.ContentId + ' to favourites');
-        favourites.push(eventItem.ContentId);   
+        console.log('Adding content id ' + eventItem.ContentId + ' to ' + eventGroup);
+        var selectedDataItem = {
+                          ContentId: eventItem.ContentId  
+        };
+        selectedEventData.push(selectedDataItem);   
         
-        setFavourites(favourites);
+        setSelectedEventData(eventGroup, selectedEventData);
     
+    }
+    
+    var isContentIdSelected = function(eventGroup, contentId)
+    {
+        var selectedEventData = getSelectedEventData(eventGroup);
+        
+        var eventsWithContentId = $j.grep(selectedEventData, function(e){ return e.ContentId === contentId; });
+        if (eventsWithContentId && eventsWithContentId.length){
+            
+            return true;
+        }
+        return false;
     }
        
-    var getFavouriteEvents = function ()
+    var getSelectedEvents = function (eventGroup)
     {
-        var eventItems = getEventsData();
+        var eventItems = getEventItems();
         
-        var favouriteEvents = [];
+        var selectedEventItems = [];
         
         if (!eventItems){
-            console.log("No event items to filter for favourites");
+            console.log("No event items to filter for selection");
             return;
         }
 
-        var favourites= getFavourites();
-        if (!favourites){
-            console.log("No favourites so nothing to retrieve");
-            return favouriteEvents;
+        var selectedEventData= getSelectedEventData(eventGroup);
+        if (!selectedEventData){
+            console.log("No selected events so nothing to retrieve");
+            return selectedEventItems;
         }
         
         for (index = 0; index < eventItems.length; ++index) {
             var event = eventItems[index];
             var contentId = event.ContentId;
-            if (favourites.indexOf(contentId)!=-1)
+            if (isContentIdSelected(eventGroup, contentId))
             {
-                favouriteEvents.push(event);
+                selectedEventItems.push(event);
             }
             
         }
-        console.log("Returning " + favouriteEvents.length + " favourite events");
-        return favouriteEvents;
+        console.log("Returning " + selectedEventItems.length + " selected events for " + eventGroup);
+        return selectedEventItems;
     }
-        
-    var setFavourites = function(favourites)
+
+      
+    var setSelectedEventData = function(eventGroup, eventData)
     {
-        var stringFavourites = JSON.stringify(favourites);
-        localStorage.setItem(favouriteEventsLocalStorage, stringFavourites);    
+        var stringEventData = JSON.stringify(eventData);
+        localStorage.setItem(eventsLocalStoragePrefix + eventGroup, stringEventData);    
     }
     
-    var getFavourites = function()
+    var getSelectedEventData = function(eventGroup)
     {
-        var stringFavourites = localStorage.getItem(favouriteEventsLocalStorage);
-        return JSON.parse(stringFavourites);
-    }
-   
-    var isContentIdFavourite = function(contentId)
-    {
-        
-        var favourites = getFavourites();
-        if (favourites){
-            return (favourites.indexOf(contentId)!=-1);
+        var stringEventData = localStorage.getItem(eventsLocalStoragePrefix + eventGroup);
+        if (stringEventData){
+            return JSON.parse(stringEventData);
         }
-        return false;
+        return [];
         
     }
     

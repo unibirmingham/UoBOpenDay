@@ -16,17 +16,9 @@
      font-weight: bold;
  }
 
-#appBody .km-favourite-true
-{
-    color: red;
-    }
 
-#appBody .km-favourite-false
-{
-    color: blue;
-    }
-
-#appBody .event-favourite
+#appBody .event-favourite,
+#appBody .event-schedule
 {
     float: right;
     font-size: 2em;
@@ -34,3 +26,24 @@
     padding-left: .2em;
     float: right;   
 }
+
+#appBody .favourite-true
+{
+    color: red;
+    }
+
+#appBody .favourite-false
+{
+    color: blue;
+    }
+
+
+#appBody .schedule-false
+{
+    color: blue;
+    }
+
+#appBody .schedule-true
+{
+    color: green;
+    }
