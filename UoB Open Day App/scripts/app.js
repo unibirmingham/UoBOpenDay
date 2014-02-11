@@ -39,7 +39,7 @@
                                     ||navigator.network.connection.type==Connection.UNKNOWN)  
         {
             //No network so leave disabled.
-            addErrorMessage("This application requires an internet connection of 3G or higher. Please connect your device to the internet and restart.");
+            app.addErrorMessage("This application requires an internet connection of 3G or higher. Please connect your device to the internet and restart.");
         }                            
         else
         {
