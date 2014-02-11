@@ -101,20 +101,30 @@
         var eventsListViewId = "open-day-favourite-events-view";
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: getSelectedEvents('favourite'),
+                data:  getSelectedEvents('favourite'),
                 pageSize: 10000
             });
         
-        $j("#" + eventsListViewId).kendoMobileListView({
-            dataSource: eventsListDataSource,
-            template: $j("#events-template").text(),
-            dataBound: function(){
-                setUpIcons(eventsListViewId, 'favourite',eventsListDataSource);
-                setUpIcons(eventsListViewId, 'schedule',eventsListDataSource);
-                reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
-            } 
+        if ($j("#" + eventsListViewId).data("kendoMobileListView"))
+        {
+            console.log("Updating favourites list view data source");
+            $j("#" + eventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
+        }
+        else{
             
-        });
+            console.log("Initialising favourites list view");
+            $j("#" + eventsListViewId).kendoMobileListView({
+                dataSource: eventsListDataSource,
+                template: $j("#events-template").text(),
+                dataBound: function(){
+                    hideIcons(eventsListViewId, 'favourite');
+                    setUpIcons(eventsListViewId, 'schedule',eventsListDataSource);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, 'schedule', eventsListDataSource, validateSelectionOfScheduledEvent);
+                    reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
+                } 
+                
+            });
+        }
         
     };
     
@@ -127,18 +137,51 @@
                 pageSize: 10000
             });
         
-        $j("#" + eventsListViewId).kendoMobileListView({
-            dataSource: eventsListDataSource,
-            template: $j("#events-template").text(),
-            dataBound: function(){
-                setUpIcons(eventsListViewId, 'favourite',eventsListDataSource);
-                setUpIcons(eventsListViewId, 'schedule',eventsListDataSource);
-                reportNoData(eventsListViewId, this.dataSource.data(), "You have no scheduled activities selected.");
-            } 
+        if ($j("#" + eventsListViewId).data("kendoMobileListView"))
+        {
+            console.log("Updating schedule list view data source");
+            $j("#" + eventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
+        }
+        else{
+            
+            console.log("Initialising schedules list view");
+            $j("#" + eventsListViewId).kendoMobileListView({
+                dataSource: eventsListDataSource,
+                template: $j("#events-schedule-template").text(),
+                dataBound: function(){
+                    hideIcons(eventsListViewId, 'favourite');
+                    hideIcons(eventsListViewId, 'schedule');
+                    setupMoveUpAndDown(eventsListViewId, eventsListDataSource);
+                    reportNoData(eventsListViewId, this.dataSource.data(), "You have no scheduled activities selected.");
+                } 
+                
+            });
+        }    
+    };
+    
+    var setupMoveUpAndDown = function(listViewId, dataSource){
+        
+        console.log("Setup move up and down icons");
+        $j("#" + listViewId + " div.schedule-movers").each(function() {
+            
+            var div = this;
+
+            var uid = $j(div).parent().parent().attr('data-uid');
+            
+            var eventItem = dataSource.getByUid(uid);
+            
+            if (isAllDayEvent(eventItem))
+            {
+                $j(div).find('span.event-move-up').removeClass('moveup-false').addClass('moveup-true');
+                $j(div).find('span.event-move-down').removeClass('movedown-false').addClass('movedown-true');
+            }
+            else{
+                $j(div).find('span.event-move-up').removeClass('moveup-true').addClass('moveup-false');
+                $j(div).find('span.event-move-down').removeClass('movedown-true').addClass('movedown-false');
+            }
             
         });
-        
-    };
+    }
     
     var reportNoData = function(listViewId, thisDataSourceData, noDataMessage)
     {
@@ -153,24 +196,38 @@
         
         var existingScheduleItems = getSelectedEvents(eventGroup);
         
-        var clashingEvents = $j.grep(existingScheduleItems, function(e){ 
+        if (isAllDayEvent(eventItem)){
+                console.log("User has scheduled an all day event so no need to look for clashes");
+                return true;
+            }
+        else{
+            var clashingEvents = $j.grep(existingScheduleItems, function(e){ 
+                
+                
+                if (isAllDayEvent(e)){
+                    console.log("This is an all day event so cannot clash.");
+                    return false;
+                }
+                
+                return (eventItem.StartDate>=e.StartDate && eventItem.StartDate<=e.EndDate)
+                        ||
+                        (eventItem.EndDate>=e.StartDate && eventItem.EndDate<=e.EndDate)
+                        ||
+                        (eventItem.StartDate<=e.StartDate && eventItem.EndDate>=e.EndDate);
+            });
             
-            return (eventItem.StartDate>=e.StartDate && eventItem.StartDate<=e.EndDate)
-                    ||
-                    (eventItem.EndDate>=e.StartDate && eventItem.EndDate<=e.EndDate)
-                    ||
-                    (eventItem.StartDate<=e.StartDate && eventItem.EndDate>=e.EndDate)
-        });
-        
-        if (clashingEvents && clashingEvents.length >0)
-        {
-            navigator.notification.alert("Event clashes with another event in the schedule", null,"Schedule clash", 'OK');
-            
-            return false;
-
+            if (clashingEvents && clashingEvents.length >0)
+            {
+                navigator.notification.alert("Event clashes with another event in the schedule", null,"Schedule clash", 'OK');
+                return false;
+            }
         }
-        
         return true;
+    }
+    
+    var hideIcons = function (listViewId, eventGroup)
+    {
+        $j("#" + listViewId + " span.event-" + eventGroup).hide();    
     }
     
     var setUpIcons = function(listViewId, eventGroup, dataSource){
@@ -282,6 +339,19 @@
         
         setSelectedEventData(eventGroup, selectedEventData);
     
+    }
+    
+    var isAllDayEvent = function (eventItem)
+    {
+        if (eventItem 
+            && (Math.abs(
+                        kendo.parseDate(eventItem.EndDate)-kendo.parseDate(eventItem.StartDate)
+                        ) / 36e5 > 6)
+            )
+        {
+            return true;
+        }
+        return false;
     }
     
     var isContentIdSelected = function(eventGroup, contentId)

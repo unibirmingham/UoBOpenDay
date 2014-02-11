@@ -47,3 +47,16 @@
 {
     color: green;
     }
+
+#appBody .moveup-false,
+#appBody .movedown-false
+{
+    display: none;
+    }
+
+#appBody .moveup-true,
+#appBody .movedown-true
+{
+    display: block;
+    color: green;
+    }

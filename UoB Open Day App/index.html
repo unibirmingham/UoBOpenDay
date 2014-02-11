@@ -90,15 +90,15 @@
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
     <div id="tabstrip-schedule" data-role="view" data-show="app.populateScheduleEventList" data-title="Personal Schedule">
         <style>
-            .km-favourite:after,
-            .km-favourite:before
+            .km-moveup:after,
+            .km-moveup:before
             {
-                content: "\e044";
+                content: "\e011";
             }
-            .km-personalschedule:after,
-            .km-personalschedule:before
+            .km-movedown:after,
+            .km-movedown:before
             {
-                content: "\e0d2";
+                content: "\e012";
             }      
         </style>
         <div class="events-title">Personal Schedule</div>
@@ -170,6 +170,7 @@
     <script>
         //load templates
         templateLoader.loadExtTemplate("templates/events.tmpl.html");
+        templateLoader.loadExtTemplate("templates/events-schedule.tmpl.html");
     </script>
 
 </body>

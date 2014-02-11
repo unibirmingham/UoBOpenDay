@@ -1,0 +1,36 @@
+<!--Events template-->
+<script type="text/x-kendo-tmpl" id="events-schedule-template">
+    <div>
+        <div class="position-right schedule-movers">
+            <span class="event-move-up km-icon km-moveup moveup-false"></span>
+            <span class="event-move-down km-icon km-movedown movedown-false"></span>
+        </div>
+        <div>
+            <p>
+        
+                <span class="event-info date">#= kendo.toString(kendo.parseDate(StartDate), 'HH:mm')#</span>
+                <span class="event-title">#:Title#</span>
+                # //Events longer than 6 hours effectively last for all the open day.
+                if ((Math.abs(kendo.parseDate(EndDate)-kendo.parseDate(StartDate)) / 36e5)> 6){#
+                        <span class="event-duration-description">(All day)</span> 
+                #}
+                else{
+                    if (DurationDescription.length){ #
+                        
+                        <span class="event-duration-description">(${DurationDescription})</span>
+                    # }
+                }#
+            </p>
+        </div>
+        
+        <div class="event-details">
+            <p>
+                # if (Location.length){ #
+                <span class="event-location">${Location}: </span>
+                # } #
+                <span class="event-description">${Description}</span>
+            </p>
+        </div>
+    </div>
+</script>
+    
