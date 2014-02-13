@@ -8,6 +8,10 @@
     var _retrievedEventsData;
     var _eventsDataSource;
     var eventsLocalStoragePrefix = "uob-events-";
+    
+    var scheduleEventsListViewId = "open-day-schedule-events-view";
+    var scheduleEventGroup = 'schedule';
+    var favouriteEventGroup = favouriteEventGroup;
 
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
@@ -85,10 +89,10 @@
                     operator: "contains"
                 },
             dataBound: function(){
-                setUpIcons(eventsListViewId, 'favourite', eventsListDataSource);
-                setUpClickEventOnSelectedIcons(eventsListViewId, 'favourite', eventsListDataSource);
-                  setUpIcons(eventsListViewId, 'schedule', eventsListDataSource);
-                setUpClickEventOnSelectedIcons(eventsListViewId, 'schedule', eventsListDataSource, validateSelectionOfScheduledEvent);
+                setUpIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
+                setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
+                  setUpIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource);
+                setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, validateSelectionOfScheduledEvent);
                   
             } 
             
@@ -101,7 +105,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  getSelectedEvents('favourite'),
+                data:  getSelectedEventItems(favouriteEventGroup),
                 pageSize: 10000
             });
         
@@ -117,12 +121,11 @@
                 dataSource: eventsListDataSource,
                 template: $j("#events-template").text(),
                 dataBound: function(){
-                    hideIcons(eventsListViewId, 'favourite');
-                    setUpIcons(eventsListViewId, 'schedule',eventsListDataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, 'schedule', eventsListDataSource, validateSelectionOfScheduledEvent);
+                    hideIcons(eventsListViewId, favouriteEventGroup);
+                    setUpIcons(eventsListViewId, scheduleEventGroup,eventsListDataSource);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, validateSelectionOfScheduledEvent);
                     reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
                 } 
-                
             });
         }
         
@@ -130,29 +133,30 @@
     
     app.populateScheduleEventList = function (e){
         
-        var eventsListViewId = "open-day-schedule-events-view";
-        
         var eventsListDataSource = new kendo.data.DataSource({
-                data: getSelectedEvents('schedule'),
+                data: getSelectedEventItems(scheduleEventGroup),
+                sort: [
+                    { field: "ScheduleDate", dir: "asc" },
+                    { field: "Title", dir: "asc" }
+                  ],
                 pageSize: 10000
             });
         
-        if ($j("#" + eventsListViewId).data("kendoMobileListView"))
+        if ($j("#" + scheduleEventsListViewId).data("kendoMobileListView"))
         {
             console.log("Updating schedule list view data source");
-            $j("#" + eventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
+            $j("#" + scheduleEventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
         }
         else{
-            
             console.log("Initialising schedules list view");
-            $j("#" + eventsListViewId).kendoMobileListView({
+            $j("#" + scheduleEventsListViewId).kendoMobileListView({
                 dataSource: eventsListDataSource,
                 template: $j("#events-schedule-template").text(),
                 dataBound: function(){
-                    hideIcons(eventsListViewId, 'favourite');
-                    hideIcons(eventsListViewId, 'schedule');
-                    setupMoveUpAndDown(eventsListViewId, eventsListDataSource);
-                    reportNoData(eventsListViewId, this.dataSource.data(), "You have no scheduled activities selected.");
+                    hideIcons(scheduleEventsListViewId, favouriteEventGroup);
+                    hideIcons(scheduleEventsListViewId, scheduleEventGroup);
+                    setupMoveUpAndDown(scheduleEventsListViewId, this.dataSource);
+                    reportNoData(scheduleEventsListViewId, this.dataSource.data(), "You have no scheduled activities selected.");
                 } 
                 
             });
@@ -169,20 +173,114 @@
             var uid = $j(div).parent().parent().attr('data-uid');
             
             var eventItem = dataSource.getByUid(uid);
+            var moveUp = false;
+            var moveDown = false;
             
             if (isAllDayEvent(eventItem))
             {
-                $j(div).find('span.event-move-up').removeClass('moveup-false').addClass('moveup-true');
-                $j(div).find('span.event-move-down').removeClass('movedown-false').addClass('movedown-true');
-            }
-            else{
-                $j(div).find('span.event-move-up').removeClass('moveup-true').addClass('moveup-false');
-                $j(div).find('span.event-move-down').removeClass('movedown-true').addClass('movedown-false');
+                console.log("Make move up visible");
+                var data = {dataSource: dataSource};
+                if (kendo.parseDate(eventItem.ScheduleDate)>kendo.parseDate(eventItem.StartDate)){
+                    moveUp = true;
+                }
+                if (kendo.parseDate(eventItem.ScheduleDate)<kendo.parseDate(eventItem.EndDate)){
+                    moveDown = true;
+                }
             }
             
+            if (moveUp)
+            {
+                $j(div).find('span.event-move-up').removeClass('moveup-false').addClass('moveup-true').on('click',data, scheduleMoveClick);
+            }
+            else{
+                //Hide and remove click bindings
+                $j(div).find('span.event-move-up').removeClass('moveup-true').addClass('moveup-false').off('click');
+            }
+            
+            if (moveDown){
+                 $j(div).find('span.event-move-down').removeClass('movedown-false').addClass('movedown-true').on('click', data, scheduleMoveClick);
+            }
+            else{
+                $j(div).find('span.event-move-down').removeClass('movedown-true').addClass('movedown-false').off('click');      
+            }
+             
         });
     }
     
+    var scheduleMoveClick = function(event)
+    {
+        var span=this;
+        var currentDiv = $j(span).parent().parent().parent();
+        var dataSource = event.data.dataSource;   
+        var uid = $j(currentDiv).attr('data-uid');
+        
+        var eventItem = dataSource.getByUid(uid);
+        
+        var minutesToChangeBy;
+        
+        if ($j(span).hasClass('event-move-up'))
+        {
+            minutesToChangeBy = -15;
+        }
+        else{
+            minutesToChangeBy = +15;
+        }
+        
+        var newDate = findNonClashingScheduleDate(scheduleEventGroup, eventItem, minutesToChangeBy);
+                       
+        if (newDate>= kendo.parseDate(eventItem.StartDate) && newDate <=kendo.parseDate(eventItem.EndDate))
+        {
+            console.log("Changing event schedule: " + eventItem.Title + " from " + eventItem.ScheduleDate + " " + newDate);
+            setScheduleDate(eventItem, newDate);
+            updateEventInSelectedData(scheduleEventGroup, eventItem);
+        }
+        else{
+            console.log("Cannot change event: " + eventItem.Title + " to schedule: " + newDate);
+        }        
+        
+        app.populateScheduleEventList();
+        
+    };
+    
+    var findNonClashingScheduleDate = function(eventGroup, eventItem, minutesToChangeBy)
+    {
+        
+        newDate = new Date(kendo.parseDate(eventItem.ScheduleDate).getTime() + (minutesToChangeBy *60000));
+        
+        //Cycle through all currently selected events and check that there's not a clash
+        var selectedEventItems = getSelectedEventItems(eventGroup);
+        
+        var newDateToTestForClashes;
+        do
+        {
+            if (newDateToTestForClashes)
+            {
+                newDate = newDateToTestForClashes;
+            }
+            else{
+                newDateToTestForClashes = newDate;
+            }
+            
+            for (index = 0; index <selectedEventItems.length; ++index) {
+            
+                var selectedEventItem = selectedEventItems[index];
+                if (eventItem.ContentId!==selectedEventItem.ContentId){
+                    if (isClashingDate(selectedEventItem, newDate))
+                    {
+                        newDateToTestForClashes = new Date(kendo.parseDate(newDate).getTime() + (minutesToChangeBy *60000));
+                        console.log("New date to test for clashes: " + newDateToTestForClashes);
+                    }
+                }
+            }            
+        }
+     
+        while (newDate!==newDateToTestForClashes);
+        
+        return newDate;
+        
+    }
+    
+        
     var reportNoData = function(listViewId, thisDataSourceData, noDataMessage)
     {
         if(thisDataSourceData.length === 0){
@@ -194,7 +292,7 @@
     var validateSelectionOfScheduledEvent = function(eventGroup, eventItem)
     {
         
-        var existingScheduleItems = getSelectedEvents(eventGroup);
+        var existingScheduleItems = getSelectedEventItems(eventGroup);
         
         if (isAllDayEvent(eventItem)){
                 console.log("User has scheduled an all day event so no need to look for clashes");
@@ -203,17 +301,12 @@
         else{
             var clashingEvents = $j.grep(existingScheduleItems, function(e){ 
                 
-                
                 if (isAllDayEvent(e)){
                     console.log("This is an all day event so cannot clash.");
                     return false;
                 }
                 
-                return (eventItem.StartDate>=e.StartDate && eventItem.StartDate<=e.EndDate)
-                        ||
-                        (eventItem.EndDate>=e.StartDate && eventItem.EndDate<=e.EndDate)
-                        ||
-                        (eventItem.StartDate<=e.StartDate && eventItem.EndDate>=e.EndDate);
+                return isClashingEvent(eventItem, e);
             });
             
             if (clashingEvents && clashingEvents.length >0)
@@ -248,7 +341,6 @@
         });
     }
     
-
     var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, dataSource, selectionValidationFunction)
     {
         console.log("Set up favourite icons");
@@ -341,6 +433,31 @@
     
     }
     
+    var updateEventInSelectedData = function(eventGroup, eventItem)
+    {
+     
+        var existingSelectedEventData = getSelectedEventData(eventGroup);
+        var newSelectedEventData = [];
+        
+        if (existingSelectedEventData){
+            for (index = 0; index < existingSelectedEventData.length; ++index) {
+                
+                var selectedEventDataItem = existingSelectedEventData[index];
+                
+                if (selectedEventDataItem.ContentId === eventItem.ContentId)
+                {
+                    if (eventGroup===scheduleEventGroup)
+                    {
+                        selectedEventDataItem.ScheduleDate = new Date((eventItem.ScheduleDate? kendo.parseDate(eventItem.ScheduleDate): kendo.parseDate(eventItem.StartDate)));
+                    }
+                }
+                newSelectedEventData.push(selectedEventDataItem);
+            }
+        }
+        
+        setSelectedEventData(eventGroup, newSelectedEventData);
+    }
+    
     var isAllDayEvent = function (eventItem)
     {
         if (eventItem 
@@ -354,25 +471,59 @@
         return false;
     }
     
+    var isClashingEvent = function(eventItem1, eventItem2)
+    {
+         if (isAllDayEvent(eventItem1) || isAllDayEvent(eventItem2)){
+            console.log("One event is an all day event so cannot clash.");
+            return false;
+        }
+
+        return (eventItem1.StartDate>=eventItem2.StartDate && eventItem1.StartDate<eventItem2.EndDate)
+            ||
+            (eventItem1.EndDate>=eventItem2.StartDate && eventItem1.EndDate<eventItem2.EndDate)
+            ||
+            (eventItem1.StartDate<=eventItem2.StartDate && eventItem1.EndDate>=eventItem2.EndDate);
+
+        
+    }
+    
+    var isClashingDate = function(eventItem, date)
+    {
+        if (isAllDayEvent(eventItem)){
+            return false;
+        }
+        if (kendo.parseDate(date)>=kendo.parseDate(eventItem.StartDate) && kendo.parseDate(date) <kendo.parseDate(eventItem.EndDate))
+        {
+            return true;
+        }
+        return false;
+    }
+    
     var isContentIdSelected = function(eventGroup, contentId)
+    {
+        return (getSelectedEventDataForContentId(eventGroup, contentId));
+    }
+    
+    var getSelectedEventDataForContentId = function(eventGroup, contentId)
     {
         var selectedEventData = getSelectedEventData(eventGroup);
         
         var eventsWithContentId = $j.grep(selectedEventData, function(e){ return e.ContentId === contentId; });
         if (eventsWithContentId && eventsWithContentId.length){
             
-            return true;
+            return eventsWithContentId[0];
         }
-        return false;
+        return null;
+        
     }
        
-    var getSelectedEvents = function (eventGroup)
+    var getSelectedEventItems = function (eventGroup)
     {
-        var eventItems = getEventItems();
+        var allEventItems = getEventItems();
         
         var selectedEventItems = [];
         
-        if (!eventItems){
+        if (!allEventItems){
             console.log("No event items to filter for selection");
             return;
         }
@@ -380,22 +531,32 @@
         var selectedEventData= getSelectedEventData(eventGroup);
         if (!selectedEventData){
             console.log("No selected events so nothing to retrieve");
-            return selectedEventItems;
+            return selectedEventData;
         }
         
-        for (index = 0; index < eventItems.length; ++index) {
-            var event = eventItems[index];
-            var contentId = event.ContentId;
-            if (isContentIdSelected(eventGroup, contentId))
+        for (index = 0; index < allEventItems.length; ++index) {
+            var eventItem = allEventItems[index];
+            var contentId = eventItem.ContentId;
+            var selectedEventDataItem = getSelectedEventDataForContentId(eventGroup, contentId)
+            if (selectedEventDataItem)
             {
-                selectedEventItems.push(event);
+                //Supplement the event data with that from the event group:
+                if (eventGroup===scheduleEventGroup)
+                {
+                    console.log("Set Schedule date if got one, otherwise set to Start Date");
+                    setScheduleDate(eventItem, selectedEventDataItem.ScheduleDate);
+                }
+                selectedEventItems.push(eventItem);
             }
-            
         }
-        console.log("Returning " + selectedEventItems.length + " selected events for " + eventGroup);
+        console.log("Returning " + selectedEventData.length + " selected events for " + eventGroup);
         return selectedEventItems;
     }
 
+    var setScheduleDate = function(eventItem, scheduleDate)
+    {
+        eventItem.ScheduleDate = new Date((scheduleDate? kendo.parseDate(scheduleDate): kendo.parseDate(eventItem.StartDate)));
+    }
       
     var setSelectedEventData = function(eventGroup, eventData)
     {
