@@ -6,13 +6,17 @@
     <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
     <link href="styles/main.css" rel="stylesheet" />
     <link href="styles/app.css" rel="stylesheet" />
+    <link href="styles/map.css" rel="stylesheet" />
     <script src="cordova.js"></script>
     <script src="kendo/js/jquery.min.js"></script>
     <script src="kendo/js/kendo.mobile.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
+    <!-- App scripts -->
     <script src="scripts/contentRetrieval.js"></script>
     <script src="scripts/settings.js"></script>
     <script src="scripts/app.js"></script>
     <script src="scripts/events.js"></script>
+    <script src="scripts/map.js"></script>
     <script src="scripts/registrationinfo.js"></script>
     <script src="scripts/about.js"></script>
 </head>
@@ -39,7 +43,7 @@
                 <li class="webServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li class="webServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="webServiceButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="webServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
                 <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
             </ul>
@@ -106,11 +110,26 @@
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
     </div>
         
-    <!--Map screen-->
-    <div id="tabstrip-map" data-role="view" data-init="mapInit" data-title="Map">
-        <h3>Map</h3>
+    <!--Campus Map-->
+    <div id="tabstrip-map"
+        data-role="view"
+        data-title="Campus Map"
+        data-init="app.campusMapService.initialise"
+        data-show="app.campusMapService.show"
+        data-hide="app.campusMapService.hide"
+        data-model="app.campusMapService.viewModel"
+        data-stretch="true">
+
+        <div id="no-map" data-bind="invisible: isGoogleMapsInitialized">
+            Campus map requires internet connection to display.
+        </div>
+        <div id="map-search-wrap" data-bind="visible: isGoogleMapsInitialized">
+            <button id="map-navigate-home" data-bind="click: onNavigateHome"></button>
+        </div>
+        <div id="map-canvas" data-bind="visible: isGoogleMapsInitialized"></div>
+
     </div>
-  
+      
     <!-- Registration information -->
     <div id="tabstrip-registration" data-role="view" data-init="app.populateRegistrationInfo" data-title="Registration">
         <div class="view-content">

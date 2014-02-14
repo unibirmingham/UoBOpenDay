@@ -43,6 +43,7 @@
         }                            
         else
         {
+            app.enableLinks('webConnectionButton');
             checkWebsite();
         }
     }
