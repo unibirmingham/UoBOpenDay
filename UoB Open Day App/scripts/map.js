@@ -1,6 +1,6 @@
 (function (global, $j) {
     
-    var map,
+    var googleMap,
         campusMap,
         CampusMapViewModel,
         app = global.app = global.app || {};
@@ -9,6 +9,7 @@
     CampusMapViewModel = kendo.data.ObservableObject.extend({
         _lastMarker: null,
         _isLoading: false,
+        _centerToRetain: null,
         _watchId: "",
         address: "",
         isGoogleMapsInitialized: false,
@@ -22,6 +23,7 @@
         hideLoading: function () {
             app.application.hideLoading();
         },
+        
         trackUser: function(){
             var that = this;
             if (!that._watchId){
@@ -43,6 +45,37 @@
             }
         }
         ,
+        returnToCampus: function()
+        {
+            if (googleMap){
+                googleMap.setZoom(15);
+                googleMap.setCenter(campusMap.latLngBounds.getCenter());
+             }
+        },
+        trackCenter: function()
+        {
+            var centerToRetain = campusMap.centerToRetain;
+            
+            if (centerToRetain!==undefined && centerToRetain!==null)
+            {
+                var center = googleMap.getCenter();
+                 if (!center.equals(centerToRetain)){
+                     
+                     var newCenter = centerToRetain;
+                     campusMap.centerToRetain = null;
+                     console.log("Resetting center from " + center + " to " + newCenter);
+                     googleMap.setCenter(newCenter);
+                 }
+ 
+            }
+        },
+        keepCurrentCenter: function(){
+            
+            var center = googleMap.getCenter();
+            
+            campusMap.centerToRetain = new google.maps.LatLng( center.lat(), center.lng());
+            console.log("Retaining center: " + campusMap.centerToRetain);
+        },
         _showPositionOnMap: function (position) {
             var that = this;
 
@@ -54,7 +87,7 @@
             
             console.log("Putting marker in for current position");
             that._lastMarker = new google.maps.Marker({
-                map: map,
+                map: googleMap,
                 position: positionLatLng
             });
         },
@@ -121,11 +154,16 @@
                     streetViewControl: false
                 };
 
-                map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+                googleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
                 
-                app.campusMapService.viewModel.trackUser();
+                var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',
+                                                    {preserveViewport: true, suppressInfoWindows: true});
                 
-                app.campusMapService.viewModel.hideLoading();
+                helpPointsLayer.setMap(googleMap);
+                //Track centers so that we can retain them
+                google.maps.event.addListener(googleMap, 'center_changed', app.campusMapService.viewModel.trackCenter );
+                
+                app.campusMapService.showMap();
                 
             }).error(function(jqXHR, textStatus, errorThrown) {
                 $j('#no-map').text('Error initialising map: Map data retrieval error');
@@ -138,22 +176,41 @@
             if (!app.campusMapService.viewModel.get("isGoogleMapsInitialized")) {
                 return;
             }
-
-            //show loading mask in case the location is not loaded yet 
-            //and the user returns to the same tab
-            app.campusMapService.viewModel.showLoading();
-
-            //resize the map in case the orientation has been changed while showing other tab
-            google.maps.event.trigger(map, "resize");
-            app.campusMapService.viewModel.trackUser();
+            
+            //In case of orientation change
+            app.campusMapService.viewModel.keepCurrentCenter();
+            
+            app.campusMapService.showMap();
+            
         },
 
+        orientationchange: function()
+        {
+            console.log("Orientation change");
+            app.campusMapService.viewModel.keepCurrentCenter();
+        },
+        
         hide: function () {
+            
+            
+            //Get rid of events which aren't needed when map is not visible.
+            app.campusMapService.viewModel.untrackUser();
+            global.removeEventListener('orientationchange', app.campusMapService.orientationchange);
+        
             //hide loading mask if user changed the tab as it is only relevant to location tab
             app.campusMapService.viewModel.hideLoading();
-            app.campusMapService.viewModel.untrackUser();
+            
         },
-
+        
+        showMap: function()
+        {
+            
+            global.addEventListener('orientationchange', app.campusMapService.orientationchange);
+            //Setup user geolocation tracking
+            app.campusMapService.viewModel.trackUser();
+            app.campusMapService.viewModel.hideLoading();
+         }
+        ,
         viewModel: new CampusMapViewModel()
     };
     

@@ -123,8 +123,8 @@
         <div id="no-map" data-bind="invisible: isGoogleMapsInitialized">
             Campus map requires internet connection to display.
         </div>
-        <div id="map-search-wrap" data-bind="visible: isGoogleMapsInitialized">
-            <button id="map-navigate-home" data-bind="click: onNavigateHome"></button>
+        <div id="map-header" data-bind="visible: isGoogleMapsInitialized">
+            <button id="map-return-to-campus" data-bind="click: returnToCampus"></button>
         </div>
         <div id="map-canvas" data-bind="visible: isGoogleMapsInitialized"></div>
 
