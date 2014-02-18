@@ -11,7 +11,7 @@
     
     var scheduleEventsListViewId = "open-day-schedule-events-view";
     var scheduleEventGroup = 'schedule';
-    var favouriteEventGroup = favouriteEventGroup;
+    var favouriteEventGroup = 'favourite';
 
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
@@ -91,7 +91,7 @@
             dataBound: function(){
                 setUpIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
                 setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
-                  setUpIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource);
+                setUpIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource);
                 setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, validateSelectionOfScheduledEvent);
                   
             } 

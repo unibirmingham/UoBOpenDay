@@ -149,6 +149,25 @@
                 console.log("Setting google map initialised");
                 app.campusMapService.viewModel.set("isGoogleMapsInitialized", true);
 
+                var googleMapStyling = [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [
+                            { visibility: "off" }
+                        ]
+                    },
+                    {
+                        featureType: "landscape.man_made",
+                        elementType: "labels",
+                        stylers: [
+                          { visibility: "off" }
+                        ]
+                    }
+                ];
+                
+                var campusMapStyle = new google.maps.StyledMapType(googleMapStyling, { name: "Campus Map" });
+                
                 mapOptions = {
                     zoom: 15,
                     center: campusMap.latLngBounds().getCenter(),
@@ -156,12 +175,15 @@
                     zoomControlOptions: {
                         position: google.maps.ControlPosition.LEFT_BOTTOM
                     },
-
                     mapTypeControl: false,
-                    streetViewControl: false
+                    streetViewControl: false,
+                    mapTypeControlOptions: {mapTypeIds: ['Campus Map']}
                 };
 
                 campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+                
+                campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
+                campusGoogleMap.setMapTypeId('Campus Map');
                 
                 app.campusMapService.showHelpPoints();
                 
@@ -203,8 +225,18 @@
                         building.googlePolygon = getPolygon(googleBuildingCoords, building.Colour);
                     }
                     
+                    if (typeof building.googleMapLabels === "undefined"){
+                        
+                        var center = getPolygonCenter(building.googlePolygon);
+                        var labelText = building.BuildingName;
+                        building.googleMapLabels = getMapLabels(labelText, center);
+                    }
+                                        
                     building.googlePolygon.setMap(campusGoogleMap);
-
+                    for (var iml in building.googleMapLabels){
+                        var mapLabel = building.googleMapLabels[iml];
+                        mapLabel.setMap(campusGoogleMap);
+                    }
                 }
                 
             }
@@ -288,6 +320,53 @@
         return googlePolygon;
                     
     }
+    
+    var getMapLabels = function(text, latLng)
+    {
+        var mapLabels = [];
+        //First chop up the text into two word chunks
+        var formattedText = text.replace(/(\w+\W+\w+)\W+/ig,"$1\n");
+        
+        var labelTexts = formattedText.split("\n");
+        
+        if (labelTexts){
+            for (index = 0; index <labelTexts.length; ++index) {
+                
+                var labelText = labelTexts[index];
+                var lat = latLng.lat() + ((labelTexts.length/2 - index) * .000125);
+                var lng = latLng.lng();
+                var mapLatLng = new google.maps.LatLng(lat, lng);
+                
+                var mapLabel = getMapLabel(labelText, mapLatLng);
+                
+                mapLabels.push(mapLabel);
+            }
+        }
+        
+       return mapLabels;
+    }
+    
+    var getMapLabel = function(text, latLng)
+    {
+       var mapLabel = new MapLabel({
+          text: text,
+          position: latLng,
+          fontSize: 10,
+          minZoom: 16,
+          align: 'center'
+        });
+    
+       return mapLabel;
+    }
+    
+    var getPolygonCenter = function (polygon){
+        
+        var bounds = new google.maps.LatLngBounds()
+        polygon.getPath().forEach(function(element,index){bounds.extend(element)})
+        
+        return bounds.getCenter();
+    }
+    
     
 }
 )(window, jQuery);
