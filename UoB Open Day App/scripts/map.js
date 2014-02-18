@@ -1,6 +1,6 @@
 (function (global, $j) {
     
-    var googleMap,
+    var campusGoogleMap,
         campusMap,
         CampusMapViewModel,
         app = global.app = global.app || {};
@@ -47,9 +47,9 @@
         ,
         returnToCampus: function()
         {
-            if (googleMap){
-                googleMap.setZoom(15);
-                googleMap.setCenter(campusMap.latLngBounds.getCenter());
+            if (campusGoogleMap){
+                campusGoogleMap.setZoom(15);
+                campusGoogleMap.setCenter(campusMap.latLngBounds().getCenter());
              }
         },
         trackCenter: function()
@@ -58,20 +58,20 @@
             
             if (centerToRetain!==undefined && centerToRetain!==null)
             {
-                var center = googleMap.getCenter();
+                var center = campusGoogleMap.getCenter();
                  if (!center.equals(centerToRetain)){
                      
                      var newCenter = centerToRetain;
                      campusMap.centerToRetain = null;
                      console.log("Resetting center from " + center + " to " + newCenter);
-                     googleMap.setCenter(newCenter);
+                     campusGoogleMap.setCenter(newCenter);
                  }
  
             }
         },
         keepCurrentCenter: function(){
             
-            var center = googleMap.getCenter();
+            var center = campusGoogleMap.getCenter();
             
             campusMap.centerToRetain = new google.maps.LatLng( center.lat(), center.lng());
             console.log("Retaining center: " + campusMap.centerToRetain);
@@ -87,7 +87,7 @@
             
             console.log("Putting marker in for current position");
             that._lastMarker = new google.maps.Marker({
-                map: googleMap,
+                map: campusGoogleMap,
                 position: positionLatLng
             });
         },
@@ -98,6 +98,11 @@
     });
 
     app.campusMapService = {
+        
+        helpPointsLayer: new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true, suppressInfoWindows: true}),
+        
+        buildings:{},
+        
         initialise: function () {
             
             $j('#no-map').text('Initialising map ...');
@@ -131,7 +136,9 @@
                 }
                 
                 if (campusMap) {
-                    campusMap.latLngBounds = getLatLngBounds(campusMap.SouthWestLatitude, campusMap.SouthWestLongitude, campusMap.NorthEastLatitude, campusMap.NorthEastLongitude);
+                    campusMap.latLngBounds = function(){
+                         return getLatLngBounds(this.SouthWestLatitude, this.SouthWestLongitude, this.NorthEastLatitude, this.NorthEastLongitude);
+                    }
                 }
                 else{
                     //No campus map so exit:
@@ -144,7 +151,7 @@
 
                 mapOptions = {
                     zoom: 15,
-                    center: campusMap.latLngBounds.getCenter(),
+                    center: campusMap.latLngBounds().getCenter(),
                     zoomControl: true,
                     zoomControlOptions: {
                         position: google.maps.ControlPosition.LEFT_BOTTOM
@@ -154,14 +161,14 @@
                     streetViewControl: false
                 };
 
-                googleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+                campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
                 
-                var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',
-                                                    {preserveViewport: true, suppressInfoWindows: true});
+                app.campusMapService.showHelpPoints();
                 
-                helpPointsLayer.setMap(googleMap);
+                app.campusMapService.showBuildings();
+                
                 //Track centers so that we can retain them
-                google.maps.event.addListener(googleMap, 'center_changed', app.campusMapService.viewModel.trackCenter );
+                google.maps.event.addListener(campusGoogleMap, 'center_changed', app.campusMapService.viewModel.trackCenter );
                 
                 app.campusMapService.showMap();
                 
@@ -171,7 +178,49 @@
                 console.log("incoming Text " + jqXHR.responseText);
             })
         },
+        
+        showHelpPoints: function(){this.helpPointsLayer.setMap(campusGoogleMap);},
+        
+        showBuildings: function(){
+            
+            if (app.campusMapService.buildings.length)
+            {
+                console.log("Showing building data");
+                for (var i in app.campusMapService.buildings) {
 
+                    var building = app.campusMapService.buildings[i];
+                    
+                    if (typeof building.googlePolygon === "undefined") {
+                        
+                        var polygonCoordinates = building.PolygonCoordinatesAsArrayList;
+
+                        var googleBuildingCoords = [];
+
+                        for (var pci in polygonCoordinates) {
+                            var coords = polygonCoordinates[pci];
+                            googleBuildingCoords.push(new google.maps.LatLng(coords[0], coords[1]));
+                        }
+                        building.googlePolygon = getPolygon(googleBuildingCoords, building.Colour);
+                    }
+                    
+                    building.googlePolygon.setMap(campusGoogleMap);
+
+                }
+                
+            }
+            else{
+                console.log("Retrieving building data");
+                $j.getJSON(app.UoBEventsService + 'buildings/', function(buildingData) {
+
+                    console.log("Setting building data");
+                    app.campusMapService.buildings = buildingData;
+                    //Now call self again to show them :
+                    app.campusMapService.showBuildings();
+                });
+            }
+
+        },
+        
         show: function () {
             if (!app.campusMapService.viewModel.get("isGoogleMapsInitialized")) {
                 return;
@@ -209,8 +258,8 @@
             //Setup user geolocation tracking
             app.campusMapService.viewModel.trackUser();
             app.campusMapService.viewModel.hideLoading();
-         }
-        ,
+         },
+        
         viewModel: new CampusMapViewModel()
     };
     
@@ -220,7 +269,25 @@
         var nwLatLng = new google.maps.LatLng(neLat, neLng);
         return new google.maps.LatLngBounds(swLatLng, nwLatLng);
     };
-
+    
+    var getPolygon = function (googlePolygonCoords, colour) {
+    
+        var strokeWeight = 1;
+        var strokeOpacity = 1;
+        var fillOpacity = 0.5;
+        
+        var googlePolygon = new google.maps.Polygon({
+            paths: googlePolygonCoords,
+            strokeColor: colour,
+            strokeOpacity: strokeOpacity,
+            strokeWeight: strokeWeight,
+            fillColor: colour,
+            fillOpacity: fillOpacity
+        });
+        
+        return googlePolygon;
+                    
+    }
     
 }
 )(window, jQuery);
