@@ -41,10 +41,10 @@
             <p id="welcome-message">Welcome to the Open Day Application.</p>
             <div class="error-message"></div>
             <ul data-role="listview" datatype="group">
-                <li class="webServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
-                <li class="webServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
-                <li class="webServiceButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="eventServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
+                <li class="eventServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
+                <li class="eventServiceButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
+                <li class="mapServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
                 <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
             </ul>
@@ -148,6 +148,7 @@
                     <li>Connection type: <span class="connectionTypeData">Loading ...</span></li>
                     <li>Birmingham Web Site: <span class="birminghamWebSite">Loading ...</span></li>
                     <li>Events Web Service: <span class="eventsWebService">Loading ...</span></li>
+                    <li>Maps Web Service: <span class="mapsWebService">Loading ...</span></li>
                 </ul>
             </div>
         </div>
@@ -170,7 +171,7 @@
         <div id="appFooter" data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
-                <a class="webServiceButton" href="#tabstrip-events" data-icon="cal">Events</a>
+                <a class="eventServiceButton" href="#tabstrip-events" data-icon="cal">Events</a>
                 <a href="#tabstrip-about" data-icon="about">About</a>
             </div>
         </div>

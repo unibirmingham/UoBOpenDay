@@ -40,8 +40,8 @@
                     console.log('Change event');
                     if (data.items){
                         if (data.items.length>0){
-                            console.log("Retrieved " + data.items.length + " items");
-                            app.enableLinks("webServiceButton");
+                            console.log("Retrieved " + data.items.length + " event items");
+                            app.enableLinks("eventServiceButton");
                             _retrievedEventsData = data.items;
                         }
                         else{

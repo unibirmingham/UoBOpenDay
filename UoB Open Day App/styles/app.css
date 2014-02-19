@@ -1,10 +1,10 @@
 /*Initialise the buttons that are internet-based to hide.*/
 #tabstrip-home li.webSiteButton,
-#tabstrip-home li.webServiceButton,
-#tabstrip-home li.webConnectionButton,
+#tabstrip-home li.eventServiceButton,
+#tabstrip-home li.mapServiceButton,
 #appFooter a.webSiteButton,
-#appFooter a.webServiceButton,
-#appFooter a.webConnectionButton
+#appFooter a.eventServiceButton,
+#appFooter a.mapServiceButton
 {
     display: none;
 }

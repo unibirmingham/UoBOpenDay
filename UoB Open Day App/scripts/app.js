@@ -34,16 +34,15 @@
         //Initialise without any functions relating to internets:
         //disableWebServiceButtons();
         //disableWebSiteButtons();
-        if (navigator.network.connection.type == Connection.NONE
-                                    ||navigator.network.connection.type == Connection.CELL_2G
-                                    ||navigator.network.connection.type==Connection.UNKNOWN)  
+        if (navigator.network.connection.type === Connection.NONE
+                                    ||navigator.network.connection.type === Connection.CELL_2G
+                                    ||navigator.network.connection.type ===Connection.UNKNOWN)  
         {
             //No network so leave disabled.
             app.addErrorMessage("This application requires an internet connection of 3G or higher. Please connect your device to the internet and restart.");
         }                            
         else
         {
-            app.enableLinks('webConnectionButton');
             checkWebsite();
         }
     }

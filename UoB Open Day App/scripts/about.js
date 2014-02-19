@@ -12,6 +12,7 @@
         //Where is data coming from:
         $j('#aboutContent .birminghamWebSite').text(app.UoBWebSite); 
         $j('#aboutContent .eventsWebService').text(app.UoBEventsService); 
+        $j('#aboutContent .mapsWebService').text(app.UoBMapsService); 
         
     }
    
