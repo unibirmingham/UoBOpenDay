@@ -214,11 +214,18 @@
             
         },
         
-        getEventItems: function ()
+        getEventItems: function (filteringFunction)
         {
             var that = this;
             if (that._retrievedEventsData){
+                
+                if (filteringFunction){
+                     console.log("Retrieving items with filtering function");
+                    return $j.grep(that._retrievedEventsData, filteringFunction);
+                }
+                else{
                  return that._retrievedEventsData;
+                }
             }
             else{
                 app.addErrorMessage("Request for data source before initilisation is complete");
@@ -293,23 +300,57 @@
 
         uob.eventsService.initialise();
     }
-    
-   
+      
     app.populateEventList = function (e){
         
         var eventsListViewId = "open-day-events-view";
+        
+        var activityFilter = $j("#event-activity-type-filter").data("kendoDropDownList");
+        
+        var filterFunction = null;
+        
+        if (!activityFilter){
+        
+            var activityTypes = [
+                            {activityTypeDescription: "All", activityTypeKeyword: ""},
+                            {activityTypeDescription: "Subject related", activityTypeKeyword: "Open-Day-Subject"},
+                            {activityTypeDescription: "General", activityTypeKeyword: "Open-Day-General"}
+                            ];
+            
+            $j("#event-activity-type-filter").kendoDropDownList({
+                dataTextField: "activityTypeDescription",
+                dataValueField: "activityTypeKeyword",
+                dataSource: activityTypes,
+                change: app.populateEventList
+            });            
+        }        
+        else{
+            console.log("Filtering by " + activityFilter.value());
+            filterFunction = function(e){
+                var filter = activityFilter.value();
+                console.log("Filter value: " + filter);
+                if (filter){
+                    return (e.Keywords.indexOf(filter) >=0);
+                }
+                //There's no filter
+                return true;
+            };
+        }
+        
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.eventsService.getEventItems(),
+                data: uob.eventsService.getEventItems(filterFunction),
                 pageSize: 10000
             });
         
-        $j("#event-activity-type-filter").kendoDropDownList();
+        var eventsListView = $j("#" + eventsListViewId).data("kendoMobileListView");
         
-        if ($j("#" + eventsListViewId).data("kendoMobileListView"))
+        if (eventsListView)
         {
             console.log("Updating activities list view data source");
-            $j("#" + eventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
-            
+            //Copy the current search filter across:
+            var filter = eventsListView.dataSource.filter();
+            eventsListDataSource.filter(filter);
+            eventsListView.setDataSource(eventsListDataSource);
         }
         else{
             $j("#" + eventsListViewId).kendoMobileListView({
@@ -328,7 +369,7 @@
                 } 
                 
             });
-            }
+       }
         
     };
 
