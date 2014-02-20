@@ -155,7 +155,7 @@
                     console.log("Map data retrieved");                
                     var uobMaps = mapData;
                     if (!uobMaps) {
-                        app.addError('Error initialising map: Map data not found');
+                        app.addErrorMessage('Error initialising map: Map data not found');
                         return;
                     }
                     else{
@@ -177,7 +177,7 @@
                     }
                     else{
                         //No campus map so exit:
-                        app.addError('Error initialising map: Edgbaston Campus Map data not found');
+                        app.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
                         return;
                     }
                 
@@ -186,7 +186,7 @@
                     that.viewModel.hideLoading();
                 
                 }).fail(function(jqXHR, textStatus, errorThrown) {
-                        app.addError('Error initialising map: Map data retrieval error');
+                        app.addErrorMessage('Error initialising map: Map data retrieval error');
                         console.log("error " + textStatus);
                         console.log("incoming Text " + jqXHR.responseText);
                     that.viewModel.hideLoading();

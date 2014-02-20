@@ -14,10 +14,12 @@
 }
 
 /*Events listings */
-#appBody .event-title{
-     font-weight: bold;
- }
 
+#appBody .events-type .k-dropdown
+{
+    width: 50%;
+    top: 60%
+}
 
 #appBody .event-favourite,
 #appBody .event-schedule

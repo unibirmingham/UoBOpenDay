@@ -5,10 +5,9 @@
     
     app = global.app = global.app || {};
     
-    var _retrievedEventsData;
-    var _eventsDataSource;
-    var eventsLocalStoragePrefix = "uob-events-";
+    uob = global.uob = global.uob || {};
     
+       
     var scheduleEventsListViewId = "open-day-schedule-events-view";
     var scheduleEventGroup = 'schedule';
     var favouriteEventGroup = 'favourite';
@@ -16,87 +15,320 @@
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
     
-    function onDeviceReady() {
-
-        initialiseEventsDataSource();
-    }
-    
-    var initialiseEventsDataSource = function ()
-    {
-        app.application.showLoading();    
-        var openDayEventsUrl = app.UoBEventsService + '?category=Open Day';
-                
-        if (!_eventsDataSource){
-            _eventsDataSource = new kendo.data.DataSource({
-                transport: {
-                    read: {
-                        url: openDayEventsUrl,
-                        timeout: 15000,
-                        dataType: "json"
+    uob.eventsService = {
+        
+        _retrievedEventsData: null,
+        _eventsDataSource: null,
+        _eventsLocalStoragePrefix: "uob-events-",
+            
+        initialise: function ()
+        {
+            var that = this;
+            app.application.showLoading();    
+            var openDayEventsUrl = app.UoBEventsService + '?category=Open Day';
+                    
+            if (!that._eventsDataSource){
+                that._eventsDataSource = new kendo.data.DataSource({
+                    transport: {
+                        read: {
+                            url: openDayEventsUrl,
+                            timeout: 15000,
+                            dataType: "json"
+                        }
+                    },
+                    pageSize: 10000,
+                    change: function (data) {
+                        console.log('Change event');
+                        if (data.items){
+                            if (data.items.length>0){
+                                console.log("Retrieved " + data.items.length + " event items");
+                                app.enableLinks("eventServiceButton");
+                                that._retrievedEventsData = data.items;
+                            }
+                            else{
+                                 app.addErrorMessage("Error retrieving events. No items found");   
+                            }
+                        }                      
+                        app.application.hideLoading();
+                    },
+                    error: function(e) {
+                        var statusCode = e.status;
+                        var errorThrown = e.errorThrown;
+                        app.addErrorMessage("Error retrieving events: " + statusCode + " (" + errorThrown + ")");
+                        app.application.hideLoading();
                     }
-                },
-                pageSize: 10000,
-                change: function (data) {
-                    console.log('Change event');
-                    if (data.items){
-                        if (data.items.length>0){
-                            console.log("Retrieved " + data.items.length + " event items");
-                            app.enableLinks("eventServiceButton");
-                            _retrievedEventsData = data.items;
-                        }
-                        else{
-                             app.addErrorMessage("Error retrieving events. No items found");   
-                        }
-                    }                      
-                    app.application.hideLoading();
-                },
-                error: function(e) {
-                    var statusCode = e.status;
-                    var errorThrown = e.errorThrown;
-                    app.addErrorMessage("Error retrieving events: " + statusCode + " (" + errorThrown + ")");
-                    app.application.hideLoading();
+                });
+                console.log("Requesting events data");
+                that._eventsDataSource.fetch();
+            }
+        },
+        findNonClashingScheduleDate: function(eventGroup, eventItem, minutesToChangeBy)
+        {
+        
+            var that = this;
+            newDate = new Date(kendo.parseDate(eventItem.ScheduleDate).getTime() + (minutesToChangeBy *60000));
+            
+            //Cycle through all currently selected events and check that there's not a clash
+            var selectedEventItems = that.getSelectedEventItems(eventGroup, true);
+            
+            var newDateToTestForClashes;
+            do
+            {
+                if (newDateToTestForClashes)
+                {
+                    newDate = newDateToTestForClashes;
                 }
-            });
-            console.log("Requesting events data");
-            _eventsDataSource.fetch();
+                else{
+                    newDateToTestForClashes = newDate;
+                }
+                
+                for (index = 0; index <selectedEventItems.length; ++index) {
+                
+                    var selectedEventItem = selectedEventItems[index];
+                    if (eventItem.ContentId!==selectedEventItem.ContentId){
+                        if (isClashingDate(selectedEventItem, newDate))
+                        {
+                            newDateToTestForClashes = new Date(kendo.parseDate(newDate).getTime() + (minutesToChangeBy *60000));
+                            console.log("New date to test for clashes: " + newDateToTestForClashes);
+                        }
+                    }
+                }            
+            }
+         
+            while (newDate!==newDateToTestForClashes);
+            
+            return newDate;
+            
+        },
+        doesEventClashWithScheduledEvent: function(eventGroup, eventItem)
+        {
+            var that = this;
+            var existingScheduleItems = that.getSelectedEventItems(eventGroup, true);
+            
+            if (isAllDayEvent(eventItem)){
+                    console.log("User has scheduled an all day event so no need to look for clashes");
+                    return true;
+                }
+            else{
+                var clashingEvents = $j.grep(existingScheduleItems, function(e){ 
+                    
+                    if (isAllDayEvent(e)){
+                        console.log("This is an all day event so cannot clash.");
+                        return false;
+                    }
+                    
+                    return isClashingEvent(eventItem, e);
+                });
+                
+                if (clashingEvents && clashingEvents.length >0)
+                {
+                    navigator.notification.alert("Event clashes with another event in the schedule", null,"Schedule clash", 'OK');
+                    return false;
+                }
+            }
+            return true;
+        },
+        removeEventFromSelectedData: function(eventGroup, eventItem)
+        {
+            var that = this;
+            var selectedEventData= that.getSelectedEventData(eventGroup);
+            
+            var contentId = eventItem.ContentId;
+            
+            if (selectedEventData)
+            {
+                console.log('Removing Content id: ' + eventItem.ContentId + ' from ' + eventGroup +' with ' + selectedEventData.length + ' entries.');
+                
+                var eventsWithoutContentId = $j.grep(selectedEventData, function(e){ return e.ContentId !== contentId; });
+                
+                console.log('Setting selected event data for ' + eventGroup + ' with ' + eventsWithoutContentId.length + 'entries');
+                
+                that.setSelectedEventData(eventGroup, eventsWithoutContentId);
+            }
+            else{
+                console.log('Attempt to remove event from non-existent group ' + eventGroup + ' with content id: ' + contentId);
+            }
+        },
+    
+        addEventToSelectedData: function(eventGroup, eventItem)
+        {
+            var that = this;
+            var selectedEventData= that.getSelectedEventData(eventGroup);
+            
+            if (!selectedEventData)
+            {
+                console.log("Initialising selected event data for " + eventGroup);
+                selectedEventData = [];
+            }
+            console.log('Adding content id ' + eventItem.ContentId + ' to ' + eventGroup);
+            var selectedDataItem = {
+                              ContentId: eventItem.ContentId  
+            };
+            selectedEventData.push(selectedDataItem);   
+            
+            that.setSelectedEventData(eventGroup, selectedEventData);
+        
+        },
+    
+        updateEventInSelectedData: function(eventGroup, eventItem, setScheduleDate)
+        {
+            var that = this;
+            var existingSelectedEventData = that.getSelectedEventData(eventGroup);
+            var newSelectedEventData = [];
+            
+            if (existingSelectedEventData){
+                for (index = 0; index < existingSelectedEventData.length; ++index) {
+                    
+                    var selectedEventDataItem = existingSelectedEventData[index];
+                    
+                    if (selectedEventDataItem.ContentId === eventItem.ContentId)
+                    {
+                        if (setScheduleDate)
+                        {
+                            selectedEventDataItem.ScheduleDate = new Date((eventItem.ScheduleDate? kendo.parseDate(eventItem.ScheduleDate): kendo.parseDate(eventItem.StartDate)));
+                        }
+                    }
+                    newSelectedEventData.push(selectedEventDataItem);
+                }
+            }
+            
+            that.setSelectedEventData(eventGroup, newSelectedEventData);
+        },
+        isContentIdSelected: function(eventGroup, contentId)
+        {
+            var that = this;
+            return (that.getSelectedEventDataForContentId(eventGroup, contentId));
+        },
+        
+        getSelectedEventDataForContentId: function(eventGroup, contentId)
+        {
+            var that = this;
+            var selectedEventData = that.getSelectedEventData(eventGroup);
+            
+            var eventsWithContentId = $j.grep(selectedEventData, function(e){ return e.ContentId === contentId; });
+            if (eventsWithContentId && eventsWithContentId.length){
+                
+                return eventsWithContentId[0];
+            }
+            return null;
+            
+        },
+        
+        getEventItems: function ()
+        {
+            var that = this;
+            if (that._retrievedEventsData){
+                 return that._retrievedEventsData;
+            }
+            else{
+                app.addErrorMessage("Request for data source before initilisation is complete");
+            }
+            return null;
+         },
+        
+        getSelectedEventItems: function (eventGroup, setScheduleDate)
+        {
+            var that = this;
+            var allEventItems = that.getEventItems();
+            
+            var selectedEventItems = [];
+            
+            if (!allEventItems){
+                console.log("No event items to filter for selection");
+                return;
+            }
+
+            var selectedEventData= that.getSelectedEventData(eventGroup);
+            if (!selectedEventData){
+                console.log("No selected events so nothing to retrieve");
+                return selectedEventData;
+            }
+            
+            for (index = 0; index < allEventItems.length; ++index) {
+                var eventItem = allEventItems[index];
+                var contentId = eventItem.ContentId;
+                var selectedEventDataItem = that.getSelectedEventDataForContentId(eventGroup, contentId)
+                if (selectedEventDataItem)
+                {
+                    //Supplement the event data with that from the event group:
+                    if (setScheduleDate)
+                    {
+                        console.log("Set Schedule date if got one, otherwise set to Start Date");
+                        that.setScheduleDate(eventItem, selectedEventDataItem.ScheduleDate);
+                    }
+                    selectedEventItems.push(eventItem);
+                }
+            }
+            console.log("Returning " + selectedEventData.length + " selected events for " + eventGroup);
+            return selectedEventItems;
+        },
+
+        setScheduleDate: function(eventItem, scheduleDate)
+        {
+            eventItem.ScheduleDate = new Date((scheduleDate? kendo.parseDate(scheduleDate): kendo.parseDate(eventItem.StartDate)));
+        },
+          
+        setSelectedEventData: function(eventGroup, eventData)
+        {
+            var that = this;
+            var stringEventData = JSON.stringify(eventData);
+            localStorage.setItem(that.eventsLocalStoragePrefix + eventGroup, stringEventData);    
+        },
+        
+        getSelectedEventData: function(eventGroup)
+        {
+            var that = this;
+            var stringEventData = localStorage.getItem(that.eventsLocalStoragePrefix + eventGroup);
+            if (stringEventData){
+                return JSON.parse(stringEventData);
+            }
+            return [];
+            
         }
+        
     };
     
-    var getEventItems = function ()
-    {
-        if (_retrievedEventsData){
-             return _retrievedEventsData;
-        }
-        else{
-            app.addErrorMessage("Request for data source before initilisation is complete");
-        }
-        return null;
-     };
     
+    function onDeviceReady() {
+
+        uob.eventsService.initialise();
+    }
+    
+   
     app.populateEventList = function (e){
         
         var eventsListViewId = "open-day-events-view";
         var eventsListDataSource = new kendo.data.DataSource({
-                data: getEventItems(),
+                data: uob.eventsService.getEventItems(),
                 pageSize: 10000
             });
         
-        $j("#" + eventsListViewId).kendoMobileListView({
-            dataSource: eventsListDataSource,
-            template: $j("#events-template").text(),
-             filterable: {
-                    field: "Title",
-                    operator: "contains"
-                },
-            dataBound: function(){
-                setUpIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
-                setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
-                setUpIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource);
-                setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, validateSelectionOfScheduledEvent);
-                  
-            } 
+        $j("#event-activity-type-filter").kendoDropDownList();
+        
+        if ($j("#" + eventsListViewId).data("kendoMobileListView"))
+        {
+            console.log("Updating activities list view data source");
+            $j("#" + eventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
             
-        });
+        }
+        else{
+            $j("#" + eventsListViewId).kendoMobileListView({
+                dataSource: eventsListDataSource,
+                template: $j("#events-template").text(),
+                 filterable: {
+                        field: "Title",
+                        operator: "contains"
+                    },
+                dataBound: function(){
+                    setUpIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
+                    setUpIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, true);
+                      
+                } 
+                
+            });
+            }
         
     };
 
@@ -105,7 +337,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  getSelectedEventItems(favouriteEventGroup),
+                data:  uob.eventsService.getSelectedEventItems(favouriteEventGroup),
                 pageSize: 10000
             });
         
@@ -123,7 +355,7 @@
                 dataBound: function(){
                     hideIcons(eventsListViewId, favouriteEventGroup);
                     setUpIcons(eventsListViewId, scheduleEventGroup,eventsListDataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, validateSelectionOfScheduledEvent);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, true);
                     reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
                 } 
             });
@@ -134,7 +366,7 @@
     app.populateScheduleEventList = function (e){
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: getSelectedEventItems(scheduleEventGroup),
+                data: uob.eventsService.getSelectedEventItems(scheduleEventGroup, true),
                 sort: [
                     { field: "ScheduleDate", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -226,13 +458,13 @@
             minutesToChangeBy = +15;
         }
         
-        var newDate = findNonClashingScheduleDate(scheduleEventGroup, eventItem, minutesToChangeBy);
+        var newDate = uob.eventsService.findNonClashingScheduleDate(scheduleEventGroup, eventItem, minutesToChangeBy);
                        
         if (newDate>= kendo.parseDate(eventItem.StartDate) && newDate <=kendo.parseDate(eventItem.EndDate))
         {
             console.log("Changing event schedule: " + eventItem.Title + " from " + eventItem.ScheduleDate + " " + newDate);
-            setScheduleDate(eventItem, newDate);
-            updateEventInSelectedData(scheduleEventGroup, eventItem);
+            uob.eventsService.setScheduleDate(eventItem, newDate);
+            uob.eventsService.updateEventInSelectedData(scheduleEventGroup, eventItem, true);
         }
         else{
             console.log("Cannot change event: " + eventItem.Title + " to schedule: " + newDate);
@@ -241,45 +473,6 @@
         app.populateScheduleEventList();
         
     };
-    
-    var findNonClashingScheduleDate = function(eventGroup, eventItem, minutesToChangeBy)
-    {
-        
-        newDate = new Date(kendo.parseDate(eventItem.ScheduleDate).getTime() + (minutesToChangeBy *60000));
-        
-        //Cycle through all currently selected events and check that there's not a clash
-        var selectedEventItems = getSelectedEventItems(eventGroup);
-        
-        var newDateToTestForClashes;
-        do
-        {
-            if (newDateToTestForClashes)
-            {
-                newDate = newDateToTestForClashes;
-            }
-            else{
-                newDateToTestForClashes = newDate;
-            }
-            
-            for (index = 0; index <selectedEventItems.length; ++index) {
-            
-                var selectedEventItem = selectedEventItems[index];
-                if (eventItem.ContentId!==selectedEventItem.ContentId){
-                    if (isClashingDate(selectedEventItem, newDate))
-                    {
-                        newDateToTestForClashes = new Date(kendo.parseDate(newDate).getTime() + (minutesToChangeBy *60000));
-                        console.log("New date to test for clashes: " + newDateToTestForClashes);
-                    }
-                }
-            }            
-        }
-     
-        while (newDate!==newDateToTestForClashes);
-        
-        return newDate;
-        
-    }
-    
         
     var reportNoData = function(listViewId, thisDataSourceData, noDataMessage)
     {
@@ -288,35 +481,6 @@
             $("#" + listViewId).append("<p class='error-message'>" + noDataMessage+ "</p>");
         }    
     };
-    
-    var validateSelectionOfScheduledEvent = function(eventGroup, eventItem)
-    {
-        
-        var existingScheduleItems = getSelectedEventItems(eventGroup);
-        
-        if (isAllDayEvent(eventItem)){
-                console.log("User has scheduled an all day event so no need to look for clashes");
-                return true;
-            }
-        else{
-            var clashingEvents = $j.grep(existingScheduleItems, function(e){ 
-                
-                if (isAllDayEvent(e)){
-                    console.log("This is an all day event so cannot clash.");
-                    return false;
-                }
-                
-                return isClashingEvent(eventItem, e);
-            });
-            
-            if (clashingEvents && clashingEvents.length >0)
-            {
-                navigator.notification.alert("Event clashes with another event in the schedule", null,"Schedule clash", 'OK');
-                return false;
-            }
-        }
-        return true;
-    }
     
     var hideIcons = function (listViewId, eventGroup)
     {
@@ -335,13 +499,13 @@
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(eventGroup, span, isContentIdSelected(eventGroup, eventItem.ContentId));
+                setupIconSpan(eventGroup, span, uob.eventsService.isContentIdSelected(eventGroup, eventItem.ContentId));
             }
             
         });
     }
     
-    var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, dataSource, selectionValidationFunction)
+    var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, dataSource, checkScheduleForClash)
     {
         console.log("Set up favourite icons");
         var selectedEventSpans = $j("#" + listViewId + " span.event-" + eventGroup);
@@ -358,20 +522,20 @@
             if ($j(span).hasClass(eventGroup + "-true"))
             {
                 setupIconSpan(eventGroup, span, false);
-                removeEventFromSelectedData(eventGroup, eventItem);
+                uob.eventsService.removeEventFromSelectedData(eventGroup, eventItem);
             }
             else{
                 
-                if (typeof selectionValidationFunction === 'function')
+                if (checkScheduleForClash)
                 {
-                    if (!selectionValidationFunction(eventGroup, eventItem))
+                    if (!uob.eventsService.doesEventClashWithScheduledEvent(eventGroup, eventItem))
                     {
                          return;
                     }
                 }
                 
                 setupIconSpan(eventGroup, span, true);
-                addEventToSelectedData(eventGroup, eventItem);
+                uob.eventsService.addEventToSelectedData(eventGroup, eventItem);
             }
             
         });
@@ -393,71 +557,7 @@
         }
     }
     
-    var removeEventFromSelectedData = function(eventGroup, eventItem)
-    {
-        var selectedEventData= getSelectedEventData(eventGroup);
-        
-        var contentId = eventItem.ContentId;
-        
-        if (selectedEventData)
-        {
-            console.log('Removing Content id: ' + eventItem.ContentId + ' from ' + eventGroup +' with ' + selectedEventData.length + ' entries.');
-            
-            var eventsWithoutContentId = $j.grep(selectedEventData, function(e){ return e.ContentId !== contentId; });
-            
-            console.log('Setting selected event data for ' + eventGroup + ' with ' + eventsWithoutContentId.length + 'entries');
-            
-            setSelectedEventData(eventGroup, eventsWithoutContentId);
-        }
-        else{
-            console.log('Attempt to remove event from non-existent group ' + eventGroup + ' with content id: ' + contentId);
-        }
-    }
-    
-    var addEventToSelectedData = function(eventGroup, eventItem)
-    {
-        var selectedEventData= getSelectedEventData(eventGroup);
-        
-        if (!selectedEventData)
-        {
-            console.log("Initialising selected event data for " + eventGroup);
-            selectedEventData = [];
-        }
-        console.log('Adding content id ' + eventItem.ContentId + ' to ' + eventGroup);
-        var selectedDataItem = {
-                          ContentId: eventItem.ContentId  
-        };
-        selectedEventData.push(selectedDataItem);   
-        
-        setSelectedEventData(eventGroup, selectedEventData);
-    
-    }
-    
-    var updateEventInSelectedData = function(eventGroup, eventItem)
-    {
-     
-        var existingSelectedEventData = getSelectedEventData(eventGroup);
-        var newSelectedEventData = [];
-        
-        if (existingSelectedEventData){
-            for (index = 0; index < existingSelectedEventData.length; ++index) {
-                
-                var selectedEventDataItem = existingSelectedEventData[index];
-                
-                if (selectedEventDataItem.ContentId === eventItem.ContentId)
-                {
-                    if (eventGroup===scheduleEventGroup)
-                    {
-                        selectedEventDataItem.ScheduleDate = new Date((eventItem.ScheduleDate? kendo.parseDate(eventItem.ScheduleDate): kendo.parseDate(eventItem.StartDate)));
-                    }
-                }
-                newSelectedEventData.push(selectedEventDataItem);
-            }
-        }
-        
-        setSelectedEventData(eventGroup, newSelectedEventData);
-    }
-    
+       
     var isAllDayEvent = function (eventItem)
     {
         if (eventItem 
@@ -499,79 +599,6 @@
         return false;
     }
     
-    var isContentIdSelected = function(eventGroup, contentId)
-    {
-        return (getSelectedEventDataForContentId(eventGroup, contentId));
-    }
     
-    var getSelectedEventDataForContentId = function(eventGroup, contentId)
-    {
-        var selectedEventData = getSelectedEventData(eventGroup);
-        
-        var eventsWithContentId = $j.grep(selectedEventData, function(e){ return e.ContentId === contentId; });
-        if (eventsWithContentId && eventsWithContentId.length){
-            
-            return eventsWithContentId[0];
-        }
-        return null;
-        
-    }
-       
-    var getSelectedEventItems = function (eventGroup)
-    {
-        var allEventItems = getEventItems();
-        
-        var selectedEventItems = [];
-        
-        if (!allEventItems){
-            console.log("No event items to filter for selection");
-            return;
-        }
-
-        var selectedEventData= getSelectedEventData(eventGroup);
-        if (!selectedEventData){
-            console.log("No selected events so nothing to retrieve");
-            return selectedEventData;
-        }
-        
-        for (index = 0; index < allEventItems.length; ++index) {
-            var eventItem = allEventItems[index];
-            var contentId = eventItem.ContentId;
-            var selectedEventDataItem = getSelectedEventDataForContentId(eventGroup, contentId)
-            if (selectedEventDataItem)
-            {
-                //Supplement the event data with that from the event group:
-                if (eventGroup===scheduleEventGroup)
-                {
-                    console.log("Set Schedule date if got one, otherwise set to Start Date");
-                    setScheduleDate(eventItem, selectedEventDataItem.ScheduleDate);
-                }
-                selectedEventItems.push(eventItem);
-            }
-        }
-        console.log("Returning " + selectedEventData.length + " selected events for " + eventGroup);
-        return selectedEventItems;
-    }
-
-    var setScheduleDate = function(eventItem, scheduleDate)
-    {
-        eventItem.ScheduleDate = new Date((scheduleDate? kendo.parseDate(scheduleDate): kendo.parseDate(eventItem.StartDate)));
-    }
-      
-    var setSelectedEventData = function(eventGroup, eventData)
-    {
-        var stringEventData = JSON.stringify(eventData);
-        localStorage.setItem(eventsLocalStoragePrefix + eventGroup, stringEventData);    
-    }
-    
-    var getSelectedEventData = function(eventGroup)
-    {
-        var stringEventData = localStorage.getItem(eventsLocalStoragePrefix + eventGroup);
-        if (stringEventData){
-            return JSON.parse(stringEventData);
-        }
-        return [];
-        
-    }
     
 })(window, jQuery);

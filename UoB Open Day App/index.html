@@ -10,6 +10,9 @@
     <script src="cordova.js"></script>
     <script src="kendo/js/jquery.min.js"></script>
     <script src="kendo/js/kendo.mobile.min.js"></script>
+    <script src="kendo/js/kendo.popup.min.js"></script>
+    <script src="kendo/js/kendo.list.min.js"></script>
+    <script src="kendo/js/kendo.dropdownlist.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
     <script src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/maplabel/src/maplabel-compiled.js"></script>
     <!-- App scripts -->
@@ -53,7 +56,7 @@
     </div>
     
     <!--Events screen-->
-    <div id="tabstrip-events" data-role="view" data-init="app.populateEventList" data-title="Activities">
+    <div id="tabstrip-events" data-role="view" data-init="app.populateEventList" data-title="Open Day Activities">
         <style>
             .km-favourite:after,
             .km-favourite:before
@@ -64,16 +67,30 @@
             .km-personalschedule:before
             {
                 content: "\e0d2";
-            }      
+            }
+            
+
         </style>
-        <div class="events-title">Open Day Activities</div>
         <div class="error-message"></div>
+        <div class="events-type">
+            <ul data-role="listview" data-style="inset">
+                <li>
+                    <label>Activities to show:
+                        <select id="event-activity-type-filter">
+                            <option>All</option>
+                            <option>Subject related</option>
+                            <option>General</option>
+                        </select>
+                    </label>
+                </li>
+            </ul>
+        </div>
         <ul id="open-day-events-view" class="events-list"></ul>
         
     </div>
 
     <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
-    <div id="tabstrip-favourites" data-role="view" data-show="app.populateFavouriteEventList" data-title="Favourites">
+    <div id="tabstrip-favourites" data-role="view" data-show="app.populateFavouriteEventList" data-title="Favourite Activities">
         <style>
             .km-favourite:after,
             .km-favourite:before
@@ -86,7 +103,6 @@
                 content: "\e0d2";
             }      
         </style>
-        <div class="events-title">Favourite Open Day Activities</div>
         <div class="error-message"></div>
         <ul id="open-day-favourite-events-view" class="events-list"></ul>
         
@@ -106,7 +122,6 @@
                 content: "\e012";
             }      
         </style>
-        <div class="events-title">Personal Schedule</div>
         <div class="error-message"></div>
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
     </div>
