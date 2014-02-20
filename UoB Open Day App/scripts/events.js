@@ -328,7 +328,6 @@
             console.log("Filtering by " + activityFilter.value());
             filterFunction = function(e){
                 var filter = activityFilter.value();
-                console.log("Filter value: " + filter);
                 if (filter){
                     return (e.Keywords.indexOf(filter) >=0);
                 }
