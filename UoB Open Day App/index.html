@@ -21,7 +21,7 @@
     <script src="scripts/app.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/map.js"></script>
-    <script src="scripts/registrationinfo.js"></script>
+    <script src="scripts/faqs.js"></script>
     <script src="scripts/about.js"></script>
 </head>
 
@@ -48,7 +48,7 @@
                 <li class="eventServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="eventServiceButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
-                <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-registration" data-transition="slide">Registration info</a></li>
+                <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
                 <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
             </ul>
             <div class="img"></div>
@@ -144,16 +144,16 @@
     </div>
       
     <!-- Registration information -->
-    <div id="tabstrip-registration" data-role="view" data-init="app.populateRegistrationInfo" data-title="Registration">
+    <div id="tabstrip-faqs" data-role="view" data-init="app.populateFAQs" data-title="FAQs">
         <div class="view-content">
-            <div id="registrationContent">
+            <div id="faqsContent">
                 
             </div>
         </div>
      </div>
     
     <!-- About information -->
-    <div id="tabstrip-about" data-role="view" data-init="app.populateAboutInfo" data-title="Registration">
+    <div id="tabstrip-about" data-role="view" data-init="app.populateAboutInfo" data-title="About">
         <div class="view-content">
             <div id="aboutContent">
                 <ul>
