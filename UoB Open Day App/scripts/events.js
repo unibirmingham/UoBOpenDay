@@ -633,8 +633,8 @@
         
             var activityTypes = [
                             {activityTypeDescription: "All", activityTypeKeyword: ""},
-                            {activityTypeDescription: "Subject related", activityTypeKeyword: "Open-Day-Subject"},
-                            {activityTypeDescription: "General", activityTypeKeyword: "Open-Day-General"}
+                            {activityTypeDescription: "Subject events", activityTypeKeyword: "Open-Day-Subject"},
+                            {activityTypeDescription: "General events", activityTypeKeyword: "Open-Day-General"}
                             ];
             
             $j("#event-activity-type-filter").kendoDropDownList({
