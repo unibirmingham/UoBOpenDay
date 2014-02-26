@@ -7,17 +7,20 @@
         </div>
         <div>
             <p>
-                <span class="event-info date">#= kendo.toString(kendo.parseDate(ScheduleDate), 'HH:mm') #</span>
+                <span class="event-info date">#= kendo.toString(kendo.parseDate(getScheduleStartDate()), 'HH:mm') #</span>
                 <span class="event-title">#:Title#</span>
                 # //Events longer than 6 hours effectively last for all the open day.
-                if ((Math.abs(kendo.parseDate(EndDate)-kendo.parseDate(StartDate)) / 36e5)> 6){#
-                        <span class="event-duration-description">(All day)</span> 
-                #}
+                if (isAllDayEvent()){
+                     if (AttendanceDuration>0){
+                #<span class="event-duration-description">(All day - Allow ${AttendanceDuration} minutes)</span>#
+                      }
+                      else{
+                #<span class="event-duration-description">(All day)</span>#
+                      }
+                }
                 else{
-                    if (DurationDescription.length){ #
-                        
-                        <span class="event-duration-description">(${DurationDescription})</span>
-                    # }
+                
+                #<span class="event-duration-description">(${DurationDescription})</span>#
                 }#
             </p>
         </div>
