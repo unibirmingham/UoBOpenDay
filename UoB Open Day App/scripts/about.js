@@ -1,8 +1,8 @@
 
 (function (global, $j) {
     
-    app = global.app = global.app || {};
-    
+    uob = global.uob = global.uob || {};
+    url = uob.url = uob.url || {};
 
     app.populateAboutInfo = function(e)  {
         
@@ -10,9 +10,9 @@
         $j('#aboutContent .connectionTypeData').text(navigator.network.connection.type);  
         
         //Where is data coming from:
-        $j('#aboutContent .birminghamWebSite').text(app.UoBWebSite); 
-        $j('#aboutContent .eventsWebService').text(app.UoBEventsService); 
-        $j('#aboutContent .mapsWebService').text(app.UoBMapsService); 
+        $j('#aboutContent .birminghamWebSite').text(uob.url.WebSite); 
+        $j('#aboutContent .eventsWebService').text(uob.url.EventsService); 
+        $j('#aboutContent .mapsWebService').text(uob.url.MapsService); 
         
     }
    

@@ -1,8 +1,9 @@
 (function (global, $j) {
     
     var CampusMapViewModel,
-        app = global.app = global.app || {};
-
+    app = global.app = global.app || {};
+    uob = global.uob = global.uob || {};
+    url = uob.url = uob.url || {};
     //Initialise map data:
     document.addEventListener("deviceready", onDeviceReady, true);
     
@@ -150,7 +151,7 @@
             console.log("Requesting map data");
             that.viewModel.showLoading();
             
-            $j.getJSON(app.UoBMapsService, function (mapData) {
+            $j.getJSON(uob.url.MapsService, function (mapData) {
 
                     console.log("Map data retrieved");                
                     var uobMaps = mapData;
@@ -266,6 +267,8 @@
         
         showBuildings: function(){
             
+            var that = this;
+            
             if (app.campusMapService.buildings.length)
             {
                 console.log("Showing building data");
@@ -303,17 +306,64 @@
             }
             else{
                 console.log("Retrieving building data");
-                $j.getJSON(app.UoBEventsService + 'buildings/', function(buildingData) {
+                $j.getJSON(uob.url.EventsService + 'buildings/', function(buildingData) {
 
-                    console.log("Setting building data");
-                    app.campusMapService.buildings = buildingData;
-                    //Now call self again to show them :
-                    app.campusMapService.showBuildings();
-                });
+                        if (buildingData.length===0)
+                        {
+                            console.log("Building data is empty");
+                            that._retrieveBuildingsFromLocalStorage();
+                        }
+                        console.log("Setting building data");
+                        app.campusMapService.buildings = buildingData;
+                        //Put into the cache:
+                        that._setLocalStorageBuildings(buildingData);
+                        //Now call self again to show them :
+                        app.campusMapService.showBuildings();
+                    }
+            
+            
+                    ).fail(function(jqXHR, textStatus, errorThrown) {
+                    
+                        console.log("Failure retrieving events building data: Error " + textStatus + " incoming Text " + jqXHR.responseText);
+                        that._retrieveBuildingsFromLocalStorage();
+                        that.viewModel.hideLoading();
+                    }
+                );
             }
+            
 
         },
-        
+        _setLocalStorageBuildings: function(eventBuildings){
+            var stringEventBuildingData = JSON.stringify(eventBuildings);
+            localStorage.setItem("uob-events-map-buildings", stringEventBuildingData);    
+        },
+        _retrieveBuildingsFromLocalStorage: function()
+        {
+            console.log("Attempting to retrieve event building data from local storage cache");
+            var stringEventBuildingData = localStorage.getItem("uob-events-map-buildings");
+            if (stringEventBuildingData){
+                var buildingData = JSON.parse(stringEventBuildingData);
+                if (buildingData.length>0){
+                    app.addErrorMessage('Using local cache of events building data');
+                    app.campusMapService.buildings = buildingData;
+                    app.campusMapService.showBuildings();
+                    return;
+                }
+            }
+            console.log("Attempting to load local copy of data");
+            $j.getJSON('data/events-buildings.json', function(buildingData) {
+
+                console.log("Setting building data from local copy");
+                app.campusMapService.buildings = buildingData;
+                //Now call self again to show them :
+                app.campusMapService.showBuildings();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+            
+                app.addErrorMessage("Failure retrieving events building data from local: Error " + textStatus + " incoming Text " + jqXHR.responseText);
+                that.viewModel.hideLoading();
+            });
+            
+        },
         show: function () {
             if (!app.campusMapService.viewModel.get("isGoogleMapsInitialized")) {
                 return;

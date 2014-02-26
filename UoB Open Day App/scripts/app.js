@@ -1,6 +1,8 @@
 (function (global, $j) {
     
     app = global.app = global.app || {};
+    uob = global.uob = global.uob || {};
+    url = uob.url = uob.url || {};
     
     app.addErrorMessage = function (textMessage)
     {
@@ -49,7 +51,7 @@
     
     function checkWebsite()
     {
-        checkUrl("University of Birmingham Website", 'http://' + app.UoBWebSite  + '/index.aspx', "webSiteButton");
+        checkUrl("University of Birmingham Website", 'http://' + uob.url.WebSite  + '/index.aspx', "webSiteButton");
     }
     
     function checkUrl(serviceDescription, url, buttonClass)

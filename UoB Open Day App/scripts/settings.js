@@ -1,10 +1,12 @@
 (function (global) {
  
-    app = global.app = global.app || {};
+    uob = global.uob = global.uob || {};
     
-    app.UoBEventsService = 'http://www.birminghamdev1.bham.ac.uk/web_services/Events.svc/';
-    app.UoBMapsService = 'http://www.bhamlive2.bham.ac.uk/web_services/Maps.svc/';
-    app.UoBWebSite = 'www.birmingham.ac.uk';
+    url = uob.url = uob.url || {};
+    
+    uob.url.EventsService = 'http://www.birminghamdev1.bham.ac.uk/web_services/Events.svc/';
+    uob.url.MapsService = 'http://www.bhamlive2.bham.ac.uk/web_services/Maps.svc/';
+    uob.url.WebSite = 'www.birmingham.ac.uk';
     
 }
 )(window);

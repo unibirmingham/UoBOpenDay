@@ -6,6 +6,7 @@
     app = global.app = global.app || {};
     
     uob = global.uob = global.uob || {};
+    url = uob.url = uob.url || {};
     
        
     var scheduleEventsListViewId = "open-day-schedule-events-view";
@@ -15,7 +16,7 @@
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
     
-    uob.eventsService = {
+    uob.eventsRepository = {
         
         EventType : {
           ALLDAY: "AllDay",
@@ -23,17 +24,16 @@
           FIXED: "Fixed"
         },
         
-        _retrievedEventsData: null,
+        _retrievedEventItems: null,
         _eventsDataSource: null,
         _eventsLocalStoragePrefix: "uob-events-",
-        
         scheduleChunksInMinutes: 15,
-            
+        
         initialise: function ()
         {
             var that = this;
             app.application.showLoading();    
-            var openDayEventsUrl = app.UoBEventsService + '?category=Open Day';
+            var openDayEventsUrl = uob.url.EventsService + '?category=Open Day';
                     
             if (!that._eventsDataSource){
                 that._eventsDataSource = new kendo.data.DataSource({
@@ -49,14 +49,12 @@
                         console.log('Change event');
                         if (data.items){
                             if (data.items.length>0){
-                                console.log("Retrieved " + data.items.length + " event items");
-                                app.enableLinks("eventServiceButton");
-                                var eventItems = data.items;
-                                that._setupEventItemsFunctions(eventItems);
-                                that._retrievedEventsData = eventItems;
+                                that._setEventItemsCache(data.items);
+                                that._setRetrievedEventItems(data.items);
                             }
                             else{
-                                 app.addErrorMessage("Error retrieving events. No items found");   
+                                console.log("Error retrieving events: No events returned by service.");
+                                that._retrieveEventItemsFromCache();
                             }
                         }                      
                         app.application.hideLoading();
@@ -64,7 +62,8 @@
                     error: function(e) {
                         var statusCode = e.status;
                         var errorThrown = e.errorThrown;
-                        app.addErrorMessage("Error retrieving events: " + statusCode + " (" + errorThrown + ")");
+                        console.log("Error retrieving events: " + statusCode + " (" + errorThrown + ")");
+                        that._retrieveEventItemsFromCache();
                         app.application.hideLoading();
                     }
                 });
@@ -72,7 +71,58 @@
                 that._eventsDataSource.fetch();
             }
         },
+        _setEventItemsCache: function(eventItems)
+        {
+            var that = this;
+            var stringEventItems = JSON.stringify(eventItems);
+            localStorage.setItem(that._eventsLocalStoragePrefix + "-alldata", stringEventItems);
+        },
+        _retrieveEventItemsFromCache: function()
+        {
+            var that = this;
+            var stringEventData = localStorage.getItem(that._eventsLocalStoragePrefix + "-alldata");
+            if (stringEventData){
+                app.addErrorMessage("Currently using events local cache");
+                var eventItems = JSON.parse(stringEventData);
+                console.log("Setting event items from local storage");
+                that._setRetrievedEventItems(eventItems);
+                return;
+            }
+            else
+            {
+                app.addErrorMessage("Retrieving events data from local");
+                var dataSource = new kendo.data.DataSource({
+                    change: function (data) {
+                        console.log('Retrieving Local events data');
+                        if (data.items){
+                            if (data.items.length>0){
+                                that._setRetrievedEventItems(data.items);
+                            }
+                            else{
+                                 app.addErrorMessage("Error retrieving local events. No items found");   
+                            }
+                        }                      
+                        app.application.hideLoading();
+                    },
+                    transport: {
+                        read: {
+                            url: "data/events.json",
+                            timeout: 15000,
+                            dataType: "json"
+                        }
+                    }
+                });
+                dataSource.fetch();
+            }
+        },
         
+        _setRetrievedEventItems: function(eventItems){
+            var that = this;
+            console.log("Retrieved " + eventItems.length + " event items");
+            app.enableLinks("eventServiceButton");
+            that._setupEventItemsFunctions(eventItems);
+            that._retrievedEventItems = eventItems;    
+        },
         _setupEventItemsFunctions: function(eventItems)
         {
             var that = this;
@@ -227,12 +277,12 @@
             var selectedEventItems = that.getSelectedEventItems(eventGroup, true);
             
             var newDate = that._getScheduleStartDateForItem(eventItem, selectedEventItems, minutesToChangeBy);
-                       
+            
             if (newDate)
             {
                 console.log("Changing event schedule: " + eventItem.Title + " from " + eventItem.getScheduleStartDate() + " to " + newDate);
                 eventItem.setScheduleStartDate(newDate);
-                uob.eventsService.updateEventInSelectedData(scheduleEventGroup, eventItem, true);
+                uob.eventsRepository.updateEventInSelectedData(scheduleEventGroup, eventItem, true);
                 return true;
             }
             else{
@@ -538,14 +588,14 @@
         getEventItems: function (filteringFunction)
         {
             var that = this;
-            if (that._retrievedEventsData){
+            if (that._retrievedEventItems){
                 
                 if (filteringFunction){
                      console.log("Retrieving items with filtering function");
-                    return $j.grep(that._retrievedEventsData, filteringFunction);
+                    return $j.grep(that._retrievedEventItems, filteringFunction);
                 }
                 else{
-                 return that._retrievedEventsData;
+                 return that._retrievedEventItems;
                 }
             }
             else{
@@ -618,7 +668,7 @@
     
     function onDeviceReady() {
 
-        uob.eventsService.initialise();
+        uob.eventsRepository.initialise();
     }
       
     app.populateEventList = function (e){
@@ -657,7 +707,7 @@
         }
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.eventsService.getEventItems(filterFunction),
+                data: uob.eventsRepository.getEventItems(filterFunction),
                 pageSize: 10000
             });
         
@@ -697,7 +747,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  uob.eventsService.getSelectedEventItems(favouriteEventGroup),
+                data:  uob.eventsRepository.getSelectedEventItems(favouriteEventGroup),
                 pageSize: 10000
             });
         
@@ -726,7 +776,7 @@
     app.populateScheduleEventList = function (e){
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.eventsService.getSelectedEventItems(scheduleEventGroup, true),
+                data: uob.eventsRepository.getSelectedEventItems(scheduleEventGroup, true),
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -812,10 +862,10 @@
         
         if ($j(span).hasClass('event-move-up'))
         {
-            moveEvent = uob.eventsService.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = uob.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }
         else{
-            moveEvent = uob.eventsService.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = uob.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
         }
 
         if (!moveEvent)
@@ -852,7 +902,7 @@
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(eventGroup, span, uob.eventsService.isContentIdSelected(eventGroup, eventItem.ContentId));
+                setupIconSpan(eventGroup, span, uob.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
             }
             
         });
@@ -875,10 +925,10 @@
             if ($j(span).hasClass(eventGroup + "-true"))
             {
                 setupIconSpan(eventGroup, span, false);
-                uob.eventsService.removeEventFromSelectedData(eventGroup, eventItem);
+                uob.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
             }
             else{
-                if(uob.eventsService.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+                if(uob.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
                 {
                     setupIconSpan(eventGroup, span, true);
                 }
