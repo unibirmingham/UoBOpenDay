@@ -152,7 +152,12 @@
             console.log("Requesting map data");
             that.viewModel.showLoading();
             
-            $j.getJSON(uob.url.MapsService, function (mapData) {
+            var url = uob.url.MapsService;
+            
+                $j.ajax({
+                        dataType: "json",
+                        url: url,
+                        success:function(mapData) {
 
                     console.log("Map data retrieved");                
                     var uobMaps = mapData;
@@ -187,10 +192,12 @@
                     app.enableLinks("mapServiceButton");
                     that.viewModel.hideLoading();
                 
-                }).fail(function(jqXHR, textStatus, errorThrown) {
+                },
+                timeout: 10000
+                }).fail( function( xhr, status ) {
                         app.addErrorMessage('Error initialising map: Map data retrieval error');
-                        console.log("error " + textStatus);
-                        console.log("incoming Text " + jqXHR.responseText);
+                        console.log("error " + status);
+                        console.log("incoming Text " + xhr.responseText);
                     that.viewModel.hideLoading();
                 }
             );
@@ -367,7 +374,11 @@
             }
             else{
                 console.log("Retrieving building data");
-                $j.getJSON(uob.url.EventsService + 'buildings/?category=Open Day', function(buildingData) {
+                var url = uob.url.EventsService + 'buildings/?category=Open Day';
+                $j.ajax({
+                        dataType: "json",
+                        url: url,
+                        success:function(buildingData) {
 
                         if (buildingData.length===0)
                         {
@@ -381,16 +392,13 @@
                         that._setLocalStorageBuildings(buildingData);
                         //Now call self again to show them :
                         app.campusMapService.showBuildings(buildingId);
-                    }
-            
-            
-                    ).fail(function(jqXHR, textStatus, errorThrown) {
-                    
-                        console.log("Failure retrieving events building data: Error " + textStatus + " incoming Text " + jqXHR.responseText);
+                    },
+                    timeout: 10000
+                    }).fail( function( xhr, status ) {
+                        console.log("Failure retrieving events building data: Error status: " + status + " incoming Text " + xhr.responseText);
                         that._retrieveBuildingsFromLocalStorage();
                         that.viewModel.hideLoading();
-                    }
-                );
+                    });
             }
             
 
@@ -407,7 +415,7 @@
             if (stringEventBuildingData){
                 var buildingData = JSON.parse(stringEventBuildingData);
                 if (buildingData.length>0){
-                    app.addErrorMessage('Using local cache of events building data');
+                    app.addErrorMessage('Events building data is from local cache');
                     app.campusMapService.buildings = buildingData;
                     app.campusMapService.showBuildings();
                     return;
@@ -416,24 +424,26 @@
                     console.log("Failed to retrieve local storage buildings data cache.");
                 }
             }
-            console.log("Attempting to load local copy of data");
-            $j.getJSON('data/events-buildings.json', function(buildingData) {
-
-                console.log("Setting building data from local copy");
-                if (buildingData.length>0){
-                    app.campusMapService.buildings = buildingData;
-                    //Now call self again to show them :
-                    app.campusMapService.showBuildings();
-                }
-                else {
-                    app.addErrorMessage("Retrieved building data from local file but was empty.");
-                    that.viewModel.hideLoading();
-                }
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                app.addErrorMessage("Failure retrieving events building data from local: Error " + textStatus + " incoming Text " + jqXHR.responseText);
-                that.viewModel.hideLoading();
-            });
             
+            if (uob.testMode){
+                console.log("In test mode: retrieving building data from local file")
+                $j.getJSON('data/events-buildings.json', function(buildingData) {
+
+                    if (buildingData.length>0){
+                        app.addErrorMessage("Events building data is from local file.");
+                        app.campusMapService.buildings = buildingData;
+                        //Now call self again to show them :
+                        app.campusMapService.showBuildings();
+                    }
+                    else {
+                        app.addErrorMessage("Retrieved building data from local file but was empty.");
+                        that.viewModel.hideLoading();
+                    }
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    app.addErrorMessage("Failure retrieving events building data from local file: Error " + textStatus + " incoming Text " + jqXHR.responseText);
+                    that.viewModel.hideLoading();
+                });
+            }
         },
         show: function (e) {
             console.log("Map show");

@@ -40,23 +40,23 @@
                     transport: {
                         read: {
                             url: openDayEventsUrl,
-                            timeout: 15000,
+                            timeout: 10000,
                             dataType: "json"
                         }
                     },
                     pageSize: 10000,
                     change: function (data) {
-                        console.log('Change event');
-                        if (data.items){
-                            if (data.items.length>0){
+                        
+                        if (data.items && data.items.length>0){
+                                console.log('Events service data retrieved');
                                 that._setEventItemsCache(data.items);
                                 that._setRetrievedEventItems(data.items);
-                            }
-                            else{
-                                console.log("Error retrieving events: No events returned by service.");
-                                that._retrieveEventItemsFromCache();
-                            }
-                        }                      
+                        }
+                        else{
+                            console.log("Error retrieving events: No events returned by service.");
+                            that._retrieveEventItemsFromCache();
+                        }
+                        
                         app.application.hideLoading();
                     },
                     error: function(e) {
@@ -82,7 +82,7 @@
             var that = this;
             var stringEventData = localStorage.getItem(that._eventsLocalStoragePrefix + "-alldata");
             if (stringEventData){
-                app.addErrorMessage("Currently using events local cache");
+                app.addErrorMessage("Events data: Currently using local cache");
                 var eventItems = JSON.parse(stringEventData);
                 console.log("Setting event items from local storage");
                 that._setRetrievedEventItems(eventItems);
@@ -90,30 +90,32 @@
             }
             else
             {
-                console.log("Looking for events data from local file");
-                var dataSource = new kendo.data.DataSource({
-                    change: function (data) {
-                        console.log('Retrieving Local events data');
-                        if (data.items){
-                            if (data.items.length>0){
-                                app.addErrorMessage("Retrieving events data from local file");
-                                that._setRetrievedEventItems(data.items);
+                if (uob.testMode){
+                    console.log("Test mode: Looking for events data from local file");
+                    var dataSource = new kendo.data.DataSource({
+                        change: function (data) {
+                            console.log('Retrieving Local events data');
+                            if (data.items){
+                                if (data.items.length>0){
+                                    app.addErrorMessage("Events data: Currently using local file");
+                                    that._setRetrievedEventItems(data.items);
+                                }
+                                else{
+                                     app.addErrorMessage("Error retrieving local events. No items found");   
+                                }
+                            }                      
+                            app.application.hideLoading();
+                        },
+                        transport: {
+                            read: {
+                                url: "data/events.json",
+                                timeout: 15000,
+                                dataType: "json"
                             }
-                            else{
-                                 app.addErrorMessage("Error retrieving local events. No items found");   
-                            }
-                        }                      
-                        app.application.hideLoading();
-                    },
-                    transport: {
-                        read: {
-                            url: "data/events.json",
-                            timeout: 15000,
-                            dataType: "json"
                         }
-                    }
-                });
-                dataSource.fetch();
+                    });
+                    dataSource.fetch();
+                }
             }
         },
         
