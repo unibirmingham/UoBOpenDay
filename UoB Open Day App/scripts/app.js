@@ -11,17 +11,10 @@
         }        
     }
     
-    app.disableLinks = function (classToDisable)
-    {
-        $j("#tabstrip-home li." + classToDisable).hide();
-        $j("#appFooter a." + classToDisable).hide();
-    }
-    
     app.enableLinks = function(classToEnable)
     {
-        $j("#tabstrip-home li." + classToEnable).show();
-        $j("#appFooter a." + classToEnable).show();
-        $j("#appFooter a." + classToEnable).css('display', 'block');
+        $j("#tabstrip-home li." + classToEnable).removeClass(classToEnable);
+        $j("#appFooter a." + classToEnable).removeClass(classToEnable);
     }
     
     document.addEventListener("deviceready", onDeviceReady, true);

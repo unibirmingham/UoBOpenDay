@@ -90,12 +90,13 @@
             }
             else
             {
-                app.addErrorMessage("Retrieving events data from local");
+                console.log("Looking for events data from local file");
                 var dataSource = new kendo.data.DataSource({
                     change: function (data) {
                         console.log('Retrieving Local events data');
                         if (data.items){
                             if (data.items.length>0){
+                                app.addErrorMessage("Retrieving events data from local file");
                                 that._setRetrievedEventItems(data.items);
                             }
                             else{

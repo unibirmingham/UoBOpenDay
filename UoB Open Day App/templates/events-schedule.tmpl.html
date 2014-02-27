@@ -27,9 +27,14 @@
         
         <div class="event-details">
             <p>
-                # if (Location.length){ #
-                <span class="event-location">${Location}: </span>
-                # } #
+                # if (Location.length){ 
+                    if (BuildingIds.length){
+                #<span class="event-location"><a href="\\#tabstrip-map?buildingId=${BuildingIds[0]}">${Location}: </a></span>#
+                    }
+                    else{
+                #<span class="event-location">${Location}: </span>#
+                    }    
+                } #
                 <span class="event-description">${Description}</span>
             </p>
         </div>
