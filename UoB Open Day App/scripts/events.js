@@ -123,19 +123,26 @@
             var that = this;
             console.log("Retrieved " + eventItems.length + " event items");
             app.enableLinks("eventServiceButton");
-            that._setupEventItemsFunctions(eventItems);
+            that._setupEventItems(eventItems);
             that._retrievedEventItems = eventItems;    
         },
-        _setupEventItemsFunctions: function(eventItems)
+        _setupEventItems: function(eventItems)
         {
             var that = this;
             
             for(var i in eventItems)
             {
                 var eventItem = eventItems[i];
+                that._setupEventItemDates(eventItem);
                 that._setupEventItemFunctions(eventItem);
                     
             }
+        },
+        
+        _setupEventItemDates: function(eventItem)
+        {
+            eventItem.StartDate = kendo.parseDate(eventItem.StartDate);
+            eventItem.EndDate = kendo.parseDate(eventItem.EndDate);
         },
         
         _setupEventItemFunctions: function(eventItem)
@@ -146,7 +153,7 @@
                 {
                     var eventItem = this;
                     if (eventItem 
-                        && (Math.abs(kendo.parseDate(eventItem.EndDate)-kendo.parseDate(eventItem.StartDate)) / 36e5 > 6))
+                        && (Math.abs(eventItem.EndDate-eventItem.StartDate) / 36e5 > 6))
                     {
                         if (eventItem.AttendanceDuration ===0)
                         {
@@ -185,7 +192,7 @@
                 eventItem.setScheduleStartDate =  function(scheduleStartDate)
                 {
                     var eventItem = this;
-                    eventItem._scheduleStartDate = new Date((scheduleStartDate? kendo.parseDate(scheduleStartDate): kendo.parseDate(eventItem.StartDate)));
+                    eventItem._scheduleStartDate = new Date((scheduleStartDate? kendo.parseDate(scheduleStartDate): eventItem.StartDate));
                 }
                 
                 //When does this end in the schedule
@@ -195,7 +202,7 @@
                     if (eventItem.getEventType()===that.EventType.FIXED)
                     {
                         //Fixed events end when their end date is
-                        return new Date(kendo.parseDate(eventItem.EndDate));
+                        return eventItem.EndDate;
                     }
                     if (eventItem.getEventType()===that.EventType.ALLDAY)
                     {
@@ -203,7 +210,7 @@
                         return eventItem.getScheduleStartDate();
                     }
                     //Events with attendance duration need that taking into account.
-                    var scheduleEndDate = new Date(kendo.parseDate(eventItem.getScheduleStartDate()).getTime() + (eventItem.AttendanceDuration *60000));
+                    var scheduleEndDate = new Date(eventItem.getScheduleStartDate().getTime() + (eventItem.AttendanceDuration *60000));
                     return scheduleEndDate;
                 }
                 
@@ -323,7 +330,7 @@
             if (minutesToChangeBy)
             {
                 //Let's try moving it in the direction intended to start off with
-                eventItemToTest.setScheduleStartDate(new Date(kendo.parseDate(eventItemToTest.getScheduleStartDate()).getTime() + (minutesToChangeBy *60000)));
+                eventItemToTest.setScheduleStartDate(new Date(eventItemToTest.getScheduleStartDate().getTime() + (minutesToChangeBy *60000)));
             }
             else
             {
@@ -347,19 +354,19 @@
                             if (minutesToChangeBy <0){
                                 //we're going earlier so use the earliest start date
                                 if (selectedEventItem.getScheduleStartDate()<eventItemToTest.getScheduleStartDate()){
-                                    eventItemToTest.setScheduleStartDate(new Date(kendo.parseDate(selectedEventItem.getScheduleStartDate()).getTime() + (minutesToChangeBy *60000)));
+                                    eventItemToTest.setScheduleStartDate(new Date(selectedEventItem.getScheduleStartDate().getTime() + (minutesToChangeBy *60000)));
                                 }
                                 else{
-                                    eventItemToTest.setScheduleStartDate(new Date(kendo.parseDate(eventItemToTest.getScheduleStartDate()).getTime() + (minutesToChangeBy *60000)));   
+                                    eventItemToTest.setScheduleStartDate(new Date(eventItemToTest.getScheduleStartDate().getTime() + (minutesToChangeBy *60000)));   
                                 }
                             }
                             else{
                                 //We're going later so try a later date -- you can start at the scheduled end date as the next thing can start at the point the previous one ended
                                 if (selectedEventItem.getScheduleStartDate()<selectedEventItem.getScheduleEndDate()){
-                                    eventItemToTest.setScheduleStartDate (new Date(kendo.parseDate(selectedEventItem.getScheduleEndDate())));
+                                    eventItemToTest.setScheduleStartDate (new Date(selectedEventItem.getScheduleEndDate()));
                                 }
                                 else{
-                                    eventItemToTest.setScheduleStartDate (new Date(kendo.parseDate(eventItemToTest.getScheduleStartDate()).getTime() + (minutesToChangeBy *60000)));
+                                    eventItemToTest.setScheduleStartDate (new Date(eventItemToTest.getScheduleStartDate().getTime() + (minutesToChangeBy *60000)));
                                 }
                             }
                             
@@ -367,16 +374,16 @@
                         }
                     }
                 }
-            //We carry on if there is a last date and If the last date is null then we drop out, or if it has a value which is different to the schedule date (as that means there's a new date to test).
-            }while (lastDate && (kendo.parseDate(lastDate)!==kendo.parseDate(eventItemToTest.getScheduleStartDate())));
+            //We carry on if there is a last date and it has a value which is different to the schedule date (as that means there's a new date to test).
+            }while (lastDate && (lastDate)!==eventItemToTest.getScheduleStartDate());
                         
-            if (kendo.parseDate(eventItemToTest.getScheduleEndDate())>kendo.parseDate(eventItem.EndDate))
+            if (eventItemToTest.getScheduleEndDate()>eventItem.EndDate)
             {
                 console.log("Cannot find a new schedule date which is before the end date -- returning null");
                 lastDate = null;
             }
             
-            if (kendo.parseDate(eventItemToTest.getScheduleStartDate())<kendo.parseDate(eventItem.StartDate))
+            if (eventItemToTest.getScheduleStartDate()<eventItem.StartDate)
             {
                 console.log("Cannot find a new schedule date which after the start date -- returning null");
                 lastDate = null;
@@ -827,10 +834,10 @@
             {
                 console.log("Make move up visible");
                 var data = {dataSource: dataSource};
-                if (kendo.parseDate(eventItem.getScheduleStartDate())>kendo.parseDate(eventItem.StartDate)){
+                if (eventItem.getScheduleStartDate()>eventItem.StartDate){
                     moveUp = true;
                 }
-                if (kendo.parseDate(eventItem.getScheduleEndDate())<kendo.parseDate(eventItem.EndDate)){
+                if (eventItem.getScheduleEndDate()<eventItem.EndDate){
                     moveDown = true;
                 }
             }
@@ -938,7 +945,7 @@
                     setupIconSpan(eventGroup, span, true);
                 }
                 else{
-                    navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(kendo.parseDate(eventItem.StartDate), 'HH:mm') + " - " + kendo.toString(kendo.parseDate(eventItem.EndDate), 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
+                    navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
                 }
             }
             
