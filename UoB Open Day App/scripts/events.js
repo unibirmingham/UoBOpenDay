@@ -733,9 +733,9 @@
                         operator: "contains"
                     },
                 dataBound: function(){
-                    setUpIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, eventsListDataSource);
-                    setUpIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource);
+                    setUpIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
+                    setUpIcons(eventsListViewId, scheduleEventGroup, this.dataSource);
                     setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, true);
                       
                 } 
@@ -767,8 +767,8 @@
                 template: $j("#events-template").text(),
                 dataBound: function(){
                     hideIcons(eventsListViewId, favouriteEventGroup);
-                    setUpIcons(eventsListViewId, scheduleEventGroup,eventsListDataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, true);
+                    setUpIcons(eventsListViewId, scheduleEventGroup,this.dataSource);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, this.dataSource, true);
                     reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
                 } 
             });
@@ -811,6 +811,8 @@
     var setupMoveUpAndDown = function(listViewId, dataSource){
         
         console.log("Setup move up and down icons");
+        
+        
         $j("#" + listViewId + " div.schedule-movers").each(function() {
             
             var div = this;
