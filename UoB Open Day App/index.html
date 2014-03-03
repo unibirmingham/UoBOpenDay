@@ -20,6 +20,7 @@
     <script src="scripts/contentRetrieval.js"></script>
     <script src="scripts/settings.js"></script>
     <script src="scripts/app.js"></script>
+    <script src="scripts/home.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/map.js"></script>
     <script src="scripts/faqs.js"></script>
@@ -42,8 +43,17 @@
     </style>
         <div class="view-content">
             <h1>Open Day Application</h1>
-            <p id="welcome-message">Welcome to the Open Day Application.</p>
             <div class="error-message"></div>
+            <div class="open-day-date-selector">
+                <ul data-role="listview" data-style="inset">
+                    <li>
+                        <label>Date:
+                            <select id="open-day-date">
+                            </select>
+                        </label>
+                    </li>
+                </ul>
+            </div>
             <ul data-role="listview" datatype="group">
                 <li class="eventServiceButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li class="eventServiceButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
@@ -72,7 +82,6 @@
             
 
         </style>
-        <div class="error-message"></div>
         <div class="events-type">
             <ul data-role="listview" data-style="inset">
                 <li>
@@ -101,7 +110,6 @@
                 content: "\e0d2";
             }      
         </style>
-        <div class="error-message"></div>
         <ul id="open-day-favourite-events-view" class="events-list"></ul>
         
     </div>
@@ -120,7 +128,6 @@
                 content: "\e012";
             }      
         </style>
-        <div class="error-message"></div>
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
     </div>
         

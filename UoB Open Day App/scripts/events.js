@@ -6,7 +6,11 @@
     app = global.app = global.app || {};
     
     uob = global.uob = global.uob || {};
+    
+    events = uob.events = uob.events || {};
+    
     url = uob.url = uob.url || {};
+    
     
        
     var scheduleEventsListViewId = "open-day-schedule-events-view";
@@ -16,7 +20,7 @@
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
     
-    uob.eventsRepository = {
+    uob.events.eventsRepository = {
         
         EventType : {
           ALLDAY: "AllDay",
@@ -292,7 +296,7 @@
             {
                 console.log("Changing event schedule: " + eventItem.Title + " from " + eventItem.getScheduleStartDate() + " to " + newDate);
                 eventItem.setScheduleStartDate(newDate);
-                uob.eventsRepository.updateEventInSelectedData(scheduleEventGroup, eventItem, true);
+                uob.events.eventsRepository.updateEventInSelectedData(scheduleEventGroup, eventItem, true);
                 return true;
             }
             else{
@@ -678,7 +682,7 @@
     
     function onDeviceReady() {
 
-        uob.eventsRepository.initialise();
+        uob.events.eventsRepository.initialise();
     }
       
     app.populateEventList = function (e){
@@ -717,7 +721,7 @@
         }
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.eventsRepository.getEventItems(filterFunction),
+                data: uob.events.eventsRepository.getEventItems(filterFunction),
                 pageSize: 10000
             });
         
@@ -757,7 +761,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  uob.eventsRepository.getSelectedEventItems(favouriteEventGroup),
+                data:  uob.events.eventsRepository.getSelectedEventItems(favouriteEventGroup),
                 pageSize: 10000
             });
         
@@ -786,7 +790,7 @@
     app.populateScheduleEventList = function (e){
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.eventsRepository.getSelectedEventItems(scheduleEventGroup, true),
+                data: uob.events.eventsRepository.getSelectedEventItems(scheduleEventGroup, true),
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -874,10 +878,10 @@
         
         if ($j(span).hasClass('event-move-up'))
         {
-            moveEvent = uob.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = uob.events.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }
         else{
-            moveEvent = uob.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = uob.events.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
         }
 
         if (!moveEvent)
@@ -914,7 +918,7 @@
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(eventGroup, span, uob.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
+                setupIconSpan(eventGroup, span, uob.events.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
             }
             
         });
@@ -937,10 +941,10 @@
             if ($j(span).hasClass(eventGroup + "-true"))
             {
                 setupIconSpan(eventGroup, span, false);
-                uob.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
+                uob.events.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
             }
             else{
-                if(uob.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+                if(uob.events.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
                 {
                     setupIconSpan(eventGroup, span, true);
                 }

@@ -67,7 +67,6 @@
                         }
                   },
                 error: function(jqXHR, textStatus, errorThrown){
-                    app.disableLinks(buttonClass);
                     app.addErrorMessage(serviceDescription + " is not responding.");
                 }
             });

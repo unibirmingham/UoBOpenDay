@@ -160,49 +160,88 @@
                         success:function(mapData) {
 
                     console.log("Map data retrieved");                
-                    var uobMaps = mapData;
-                    if (!uobMaps) {
-                        app.addErrorMessage('Error initialising map: Map data not found');
+                    if (!mapData) {
+                        console.log("Failed to retrieve map data from service.");
+                        that._retrieveMapsFromLocalStorage();
                         return;
                     }
                     else{
-                        console.log("Retrieved " + uobMaps.length + " maps");
+                        console.log("Retrieved " + mapData.length + " maps");
                     }
-                    
-                    for (var i in uobMaps) {
-                        //Setup the lat lng bounds on the uob maps:
-                        var uobMap = uobMaps[i];
-                        if (uobMap.MapName.indexOf("Edgbaston") !== -1) {
-                            that.campusMapData = uobMap;
-                        }
-                    }
-                    
-                    if (that.campusMapData) {
-                        that.campusMapData.latLngBounds = function(){
-                             return uob.google.getLatLngBounds(this.SouthWestLatitude, this.SouthWestLongitude, this.NorthEastLatitude, this.NorthEastLongitude);
-                        }
-                    }
-                    else{
-                        //No campus map so exit:
-                        app.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
-                        return;
-                    }
-                
-                    that.viewModel.mapData = that.campusMapData;
-                    app.enableLinks("mapServiceButton");
-                    that.viewModel.hideLoading();
-                
+                    that._setMapData(mapData);
                 },
                 timeout: 10000
                 }).fail( function( xhr, status ) {
-                        app.addErrorMessage('Error initialising map: Map data retrieval error');
-                        console.log("error " + status);
-                        console.log("incoming Text " + xhr.responseText);
-                    that.viewModel.hideLoading();
+                    console.log("Map data retrieval error: Status: " + status + " Text: " + xhr.responseText);
+                    that._retrieveMapsFromLocalStorage();
                 }
             );
         },
+        _setMapData: function(mapItems){
+            var that = this;
+            for (var i in mapItems) {
+                //Setup the lat lng bounds on the uob maps:
+                var mapItem = mapItems[i];
+                if (mapItem.MapName.indexOf("Edgbaston") !== -1) {
+                    that.campusMapData = mapItem;
+                }
+            }
+                    
+            if (that.campusMapData) {
+                that.campusMapData.latLngBounds = function(){
+                     return uob.google.getLatLngBounds(this.SouthWestLatitude, this.SouthWestLongitude, this.NorthEastLatitude, this.NorthEastLongitude);
+                }
+            }
+            else{
+                //No campus map so exit:
+                app.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
+                return;
+            }
         
+            that.viewModel.mapData = that.campusMapData;
+            app.enableLinks("mapServiceButton");
+            that.viewModel.hideLoading();
+        },
+        _setLocalStorageMaps: function(mapItems){
+            var stringMapItems = JSON.stringify(mapItems);
+            localStorage.setItem("uob-events-maps", stringMapItems);
+        },
+        _retrieveMapsFromLocalStorage: function()
+        {
+            console.log("Attempting to retrieve map data from local storage cache");
+            var stringMapsData = localStorage.getItem("uob-events-maps");
+            if (stringMapsData){
+                var mapsData = JSON.parse(stringMapsData);
+                if (mapsData.length>0){
+                    app.addErrorMessage('Maps data is from local cache');
+                    that._setMapData(mapsData);
+                    return;
+                }
+            }
+            
+            if (uob.testMode){
+                console.log("In test mode: retrieving building data from local file")
+                $j.getJSON('data/maps.json', function(mapData) {
+
+                    if (mapData.length>0){
+                        app.addErrorMessage("Map data is from local file.");
+                        that._setMapData(mapData);
+                    }
+                    else {
+                        app.addErrorMessage("Retrieved map data from local file but was empty.");
+                        that.viewModel.hideLoading();
+                    }
+                }).fail(function(jqXHR, textStatus, errorThrown) {
+                    app.addErrorMessage("Failure retrieving events building data from local file: Error " + textStatus + " incoming Text " + jqXHR.responseText);
+                    that.viewModel.hideLoading();
+                });
+            }
+            else{
+                app.addErrorMessage('No maps data available.');
+            }
+            that.viewModel.hideLoading();
+        }
+        ,
         initialise: function () {
                         
             $j('#no-map').text('Initialising map ...');

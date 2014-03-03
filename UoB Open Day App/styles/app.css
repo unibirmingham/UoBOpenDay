@@ -9,6 +9,11 @@
     display: none;
 }
 
+#tabstrip-home .open-day-date-selector
+{
+    display: none;
+}
+
 #appBody div.error-message p {
     color: red;
 }
