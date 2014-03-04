@@ -4,6 +4,11 @@
     app = global.app = global.app || {};
     uob = global.uob = global.uob || {};
     url = uob.url = uob.url || {};
+    
+    var date = new Date();
+    var year = date.getFullYear();
+    var buildingDataUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    
     //Initialise map data:
     document.addEventListener("deviceready", onDeviceReady, true);
     
@@ -413,10 +418,10 @@
             }
             else{
                 console.log("Retrieving building data");
-                var url = uob.url.EventsService + 'buildings/?category=Open Day';
+                
                 $j.ajax({
                         dataType: "json",
-                        url: url,
+                        url: buildingDataUrl,
                         success:function(buildingData) {
 
                         if (buildingData.length===0)

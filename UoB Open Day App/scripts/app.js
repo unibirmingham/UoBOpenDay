@@ -27,8 +27,6 @@
     function checkNetworkConnectivity()
     {
         //Initialise without any functions relating to internets:
-        //disableWebServiceButtons();
-        //disableWebSiteButtons();
         if (navigator.network.connection.type === Connection.NONE
                                     ||navigator.network.connection.type === Connection.CELL_2G
                                     ||navigator.network.connection.type ===Connection.UNKNOWN)  

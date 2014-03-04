@@ -11,12 +11,16 @@
     
     url = uob.url = uob.url || {};
     
-    
+    openDay = app.openDay = app.openDay || {};
        
     var scheduleEventsListViewId = "open-day-schedule-events-view";
     var scheduleEventGroup = 'schedule';
     var favouriteEventGroup = 'favourite';
-
+    
+    var date = new Date();
+    var year = date.getFullYear();
+    var openDayEventsUrl = uob.url.EventsService + '?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
     
@@ -37,8 +41,7 @@
         {
             var that = this;
             app.application.showLoading();    
-            var openDayEventsUrl = uob.url.EventsService + '?category=Open Day';
-                    
+                                
             if (!that._eventsDataSource){
                 that._eventsDataSource = new kendo.data.DataSource({
                     transport: {
@@ -618,11 +621,11 @@
             return null;
          },
         
-        getSelectedEventItems: function (eventGroup, scheduledEvents)
+        getSelectedEventItems: function (eventGroup, scheduledEvents, filteringFunction)
         {
             console.log("Get selected event items for " + eventGroup);
             var that = this;
-            var allEventItems = that.getEventItems();
+            var allEventItems = that.getEventItems(filteringFunction);
             
             var selectedEventItems = [];
             
@@ -707,18 +710,27 @@
                 dataSource: activityTypes,
                 change: app.populateEventList
             });            
+            
+            activityFilter =  $j("#event-activity-type-filter").data("kendoDropDownList");
         }        
-        else{
-            console.log("Filtering by " + activityFilter.value());
-            filterFunction = function(e){
-                var filter = activityFilter.value();
-                if (filter){
-                    return (e.Keywords.indexOf(filter) >=0);
-                }
-                //There's no filter
-                return true;
-            };
-        }
+        
+        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        console.log("Filtering by " + activityFilter.value() + " and date: " + openDayDate);
+        filterFunction = function(eventItem){
+            
+            //Make sure the day matches
+            if (!eventDatesMatch(eventItem.StartDate, openDayDate))
+            {
+                return false;
+            }
+            //Make sure the activity type filters:
+            var activityType = activityFilter.value();
+            if (activityType){
+                return (eventItem.Keywords.indexOf(activityType) >=0);
+            }
+            //There's no filter
+            return true;
+        };
         
         var eventsListDataSource = new kendo.data.DataSource({
                 data: uob.events.eventsRepository.getEventItems(filterFunction),
@@ -747,7 +759,7 @@
                     setUpIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
                     setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
                     setUpIcons(eventsListViewId, scheduleEventGroup, this.dataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, eventsListDataSource, true);
+                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, this.dataSource, true);
                       
                 } 
                 
@@ -760,8 +772,15 @@
         
         var eventsListViewId = "open-day-favourite-events-view";
         
+        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        var filterFunction = function(eventItem){
+            
+            //Make sure the day matches
+            return eventDatesMatch(eventItem.StartDate, openDayDate);
+        };
+        
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  uob.events.eventsRepository.getSelectedEventItems(favouriteEventGroup),
+                data:  uob.events.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, filterFunction),
                 pageSize: 10000
             });
         
@@ -789,8 +808,16 @@
     
     app.populateScheduleEventList = function (e){
         
+        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        
+         var filterFunction = function(eventItem){
+            
+            //Make sure the day matches
+            return eventDatesMatch(eventItem.StartDate, openDayDate);
+        };
+        
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.events.eventsRepository.getSelectedEventItems(scheduleEventGroup, true),
+                data: uob.events.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, filterFunction),
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -970,6 +997,11 @@
              $j(span).removeClass(trueClass);
             $j(span).addClass(falseClass);
         }
+    }
+    
+    var eventDatesMatch =  function(date1, date2)
+    {
+        return (date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDay() !== date2.getDay());
     }
 
 })(window, jQuery);

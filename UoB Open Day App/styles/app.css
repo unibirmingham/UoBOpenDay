@@ -2,9 +2,11 @@
 #tabstrip-home li.webSiteButton,
 #tabstrip-home li.eventServiceButton,
 #tabstrip-home li.mapServiceButton,
+#tabstrip-home li.startDatesButton,
 #appFooter a.webSiteButton,
 #appFooter a.eventServiceButton,
-#appFooter a.mapServiceButton
+#appFooter a.mapServiceButton,
+#appFooter a.startDatesButton
 {
     display: none;
 }

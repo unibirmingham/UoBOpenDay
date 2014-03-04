@@ -9,15 +9,19 @@
     var startDatesLocalStorageName = 'uob-openday-startdates';
     var openDayDateLocalStorageName = 'uob-openday-date';
     
+    var date = new Date();
+    var year = date.getFullYear();
+    var startDatesUrl = uob.url.EventsService + '/startdates/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    
     var setStartDates = function(startDates)
     {
         openDay.startDates = startDates;
         
         startDateItems = [];
         
-        for (var i in startDates)
-        {
-            var startDate = kendo.parseDate(startDates[i]);
+        for (var index = 0; index <startDates.length; ++index) {
+            var startDateValue = startDates[index];
+            var startDate = kendo.parseDate(startDateValue);
             var startDateDescription = kendo.toString(startDate, 'ddd, d MMMM');
             
             var startDateItem = {
@@ -26,10 +30,6 @@
             };
             startDateItems.push(startDateItem);
         }
-        
-        app.application.hideLoading();
-        //Show the open day date selector:
-        $j('#tabstrip-home .open-day-date-selector').removeClass("open-day-date-selector");
         
         var dataSource = new kendo.data.DataSource({
                 data: startDateItems,
@@ -41,29 +41,48 @@
                 dataTextField: "description",
                 dataValueField: "startDate", 
                 change: function(e){
-                    
-                    openDay.date = this.value();
-                    localStorage.setItem(openDayDateLocalStorageName, app.openDay.date);
-                    
+                    openDay.setOpenDayDate(this.value());
                 }
             });
         
-        var openDayDate = localStorage.getItem(openDayDateLocalStorageName);
+        var openDayDate = openDay.getOpenDayDate();
         if (openDayDate){
             $j("#open-day-date").data('kendoDropDownList').value(openDayDate);
         }
+        else{
+            //Initialise the stored value to the default one:
+            openDay.setOpenDayDate($j("#open-day-date").data('kendoDropDownList').value());
+        }
+        
+        //Show the open day date selector:
+        $j('#tabstrip-home .open-day-date-selector').removeClass("open-day-date-selector");
+        app.enableLinks('startDatesButton');
+        app.application.hideLoading();
         
     };
-      
+    
+    openDay.getOpenDayDate = function(){
+        return localStorage.getItem(openDayDateLocalStorageName);
+    }
+    
+    openDay.getOpenDayDateAsDate = function(){
+        var openDayDate = openDay.getOpenDayDate();
+        if (openDayDate)
+        {
+            return kendo.parseDate(openDayDate);
+        }
+        return null;
+    }
+    
+    openDay.setOpenDayDate = function(openDayDate)
+    {
+        localStorage.setItem(openDayDateLocalStorageName, openDayDate);
+    }
     
     var initialiseStartDate = function(){
 
         app.application.showLoading();
-        var date = new Date();
-        var year = date.getFullYear();
-
-        var startDatesUrl = uob.url.EventsService + '/startdates/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
-    
+                   
         startDatesDataSource = new kendo.data.DataSource({
             transport: {
                 read: {
