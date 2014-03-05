@@ -20,6 +20,10 @@
     color: red;
 }
 
+#appBody div.cache-message p {
+    color: orange;
+}
+
 /*Events listings */
 
 #appBody .events-type .k-dropdown

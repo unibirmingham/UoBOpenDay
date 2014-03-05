@@ -28,7 +28,7 @@
     
     var startDatesCacheSuccess = function(data)
     {
-        app.addErrorMessage("Start dates: Currently using local cache");
+        app.addCacheMessage("Start dates: Currently using local cache");
         setStartDates(data);
     }
     

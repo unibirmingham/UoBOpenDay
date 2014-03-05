@@ -4,11 +4,32 @@
     uob = global.uob = global.uob || {};
     url = uob.url = uob.url || {};
     
-    app.addErrorMessage = function (textMessage)
+    uob.cachedData = false;
+    
+    app.addErrorMessage = function (message)
     {
-        if (textMessage){
+        if (message){
             $j("div#tabstrip-home div.error-message").append("<p>" + textMessage + "</p>");
         }        
+    }
+    
+    app.addCacheMessage = function(message)
+    {
+        
+        if (!uob.cachedData)
+        {
+            $j("div#tabstrip-home div.cache-message").append("<p>Currently using cached data</p>");
+            uob.cachedData = true;
+        }
+        
+        app.addLogMessage(message);
+    }
+    
+    app.addLogMessage = function(message)
+    {
+        $j("div#tabstrip-about div#consoleLog").append("<p>" + message + "</p>");
+        console.log(message);
+        
     }
     
     app.enableLinks = function(classToEnable)
@@ -48,7 +69,7 @@
     function checkUrl(serviceDescription, url, buttonClass)
     {
      
-            //Check that the service is available:
+            app.addLogMessage(serviceDescription + ": Requesting from url: " + url);
             $j.ajax({
                 cache: false,
                 type: 'GET',

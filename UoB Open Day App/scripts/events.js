@@ -56,7 +56,7 @@
         _openDayEventsCacheSuccess:function(data)
         {
             var that = this;
-            app.addErrorMessage("Events data: Currently using local cache");
+            app.addCacheMessage("Events data: Currently using local cache");
             that._setEventItems(data)
         },
         _openDayEventsError: function()

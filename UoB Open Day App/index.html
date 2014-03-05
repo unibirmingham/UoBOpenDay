@@ -45,6 +45,7 @@
         <div class="view-content">
             <h1>Open Day Application</h1>
             <div class="error-message"></div>
+            <div class="cache-message"></div>
             <div class="open-day-date-selector">
                 <ul data-role="listview" data-style="inset">
                     <li>
@@ -165,12 +166,15 @@
     <div id="tabstrip-about" data-role="view" data-init="app.populateAboutInfo" data-title="About">
         <div class="view-content">
             <div id="aboutContent">
-                <ul>
+                <ul data-role="listview" data-style="inset">
                     <li>Connection type: <span class="connectionTypeData">Loading ...</span></li>
                     <li>Birmingham Web Site: <span class="birminghamWebSite">Loading ...</span></li>
                     <li>Events Web Service: <span class="eventsWebService">Loading ...</span></li>
                     <li>Maps Web Service: <span class="mapsWebService">Loading ...</span></li>
                 </ul>
+            </div>
+            <div id="consoleLog">
+                
             </div>
         </div>
      </div>

@@ -171,7 +171,7 @@
         _mapCacheSuccess: function(data)
         {
             var that = this;
-            app.addErrorMessage('Maps: Data is from cache');
+            app.addCacheMessage('Maps: Data is from cache');
             that._setMapData(data);            
         },
         _mapError: function(data)
@@ -390,7 +390,7 @@
         _eventBuildingsCacheSuccess: function(data)
         {
             var that = this;
-            app.addErrorMessage('Events building data: From local cache');
+            app.addCacheMessage('Events building data: From local cache');
             that._setBuildings(data);            
         },
         _eventBuildingsError: function(data)
