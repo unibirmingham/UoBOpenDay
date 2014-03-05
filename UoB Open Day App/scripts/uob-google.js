@@ -78,10 +78,12 @@
         return uob.google.getPolygonLatLngBounds(polygon).getCenter();
     }
     
-    uob.google.extendMapToShowPoints = function(googleMap, latLng1, latLng2){
+    uob.google.extendMapToShowPoints = function(googleMap, latLngArray){
         var bounds = new google.maps.LatLngBounds();
-        bounds.extend(latLng1);
-        bounds.extend(latLng2);
+        
+        for (var index = 0; index <latLngArray.length; ++index) {
+            bounds.extend(latLngArray[index]);
+        }
         googleMap.fitBounds(bounds);
     }
     

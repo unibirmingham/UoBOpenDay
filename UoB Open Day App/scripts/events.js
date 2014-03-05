@@ -20,6 +20,7 @@
     var date = new Date();
     var year = date.getFullYear();
     var openDayEventsUrl = uob.url.EventsService + '?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var openDayLocalFile = 'data/events.json';
     
     //Initialise events data:
     document.addEventListener("deviceready", onDeviceReady, true);
@@ -32,8 +33,7 @@
           FIXED: "Fixed"
         },
         
-        _retrievedEventItems: null,
-        _eventsDataSource: null,
+        _eventItems: null,
         _eventsLocalStoragePrefix: "uob-events-",
         scheduleChunksInMinutes: 15,
         
@@ -41,97 +41,37 @@
         {
             var that = this;
             app.application.showLoading();    
-                                
-            if (!that._eventsDataSource){
-                that._eventsDataSource = new kendo.data.DataSource({
-                    transport: {
-                        read: {
-                            url: openDayEventsUrl,
-                            timeout: 10000,
-                            dataType: "json"
-                        }
-                    },
-                    pageSize: 10000,
-                    change: function (data) {
-                        
-                        if (data.items && data.items.length>0){
-                                console.log('Events service data retrieved');
-                                that._setEventItemsCache(data.items);
-                                that._setRetrievedEventItems(data.items);
-                        }
-                        else{
-                            console.log("Error retrieving events: No events returned by service.");
-                            that._retrieveEventItemsFromCache();
-                        }
-                        
-                        app.application.hideLoading();
-                    },
-                    error: function(e) {
-                        var statusCode = e.status;
-                        var errorThrown = e.errorThrown;
-                        console.log("Error retrieving events: " + statusCode + " (" + errorThrown + ")");
-                        that._retrieveEventItemsFromCache();
-                        app.application.hideLoading();
-                    }
-                });
-                console.log("Requesting events data");
-                that._eventsDataSource.fetch();
+            
+            if (!that._eventItems){
+                
+                uob.json.getJSON("Open day events", openDayEventsUrl, openDayLocalFile, that._openDayEventsSuccess.bind(that), that._openDayEventsCacheSuccess.bind(that), that._openDayEventsError.bind(that));
+                
             }
         },
-        _setEventItemsCache: function(eventItems)
+        _openDayEventsSuccess: function(data)
         {
             var that = this;
-            var stringEventItems = JSON.stringify(eventItems);
-            localStorage.setItem(that._eventsLocalStoragePrefix + "-alldata", stringEventItems);
+            that._setEventItems(data);
         },
-        _retrieveEventItemsFromCache: function()
+        _openDayEventsCacheSuccess:function(data)
         {
             var that = this;
-            var stringEventData = localStorage.getItem(that._eventsLocalStoragePrefix + "-alldata");
-            if (stringEventData){
-                app.addErrorMessage("Events data: Currently using local cache");
-                var eventItems = JSON.parse(stringEventData);
-                console.log("Setting event items from local storage");
-                that._setRetrievedEventItems(eventItems);
-                return;
-            }
-            else
-            {
-                if (uob.testMode){
-                    console.log("Test mode: Looking for events data from local file");
-                    var dataSource = new kendo.data.DataSource({
-                        change: function (data) {
-                            console.log('Retrieving Local events data');
-                            if (data.items){
-                                if (data.items.length>0){
-                                    app.addErrorMessage("Events data: Currently using local file");
-                                    that._setRetrievedEventItems(data.items);
-                                }
-                                else{
-                                     app.addErrorMessage("Error retrieving local events. No items found");   
-                                }
-                            }                      
-                            app.application.hideLoading();
-                        },
-                        transport: {
-                            read: {
-                                url: "data/events.json",
-                                timeout: 15000,
-                                dataType: "json"
-                            }
-                        }
-                    });
-                    dataSource.fetch();
-                }
-            }
+            app.addErrorMessage("Events data: Currently using local cache");
+            that._setEventItems(data)
+        },
+        _openDayEventsError: function()
+        {
+            app.addErrorMessage("Error retrieving local events. No items found");   
+            app.application.hideLoading();    
         },
         
-        _setRetrievedEventItems: function(eventItems){
+        _setEventItems: function(eventItems){
             var that = this;
             console.log("Retrieved " + eventItems.length + " event items");
-            app.enableLinks("eventServiceButton");
             that._setupEventItems(eventItems);
-            that._retrievedEventItems = eventItems;    
+            that._eventItems = eventItems;
+            app.enableLinks("eventServiceButton");
+            app.application.hideLoading();  
         },
         _setupEventItems: function(eventItems)
         {
@@ -605,14 +545,14 @@
         getEventItems: function (filteringFunction)
         {
             var that = this;
-            if (that._retrievedEventItems){
+            if (that._eventItems){
                 
                 if (filteringFunction){
                      console.log("Retrieving items with filtering function");
-                    return $j.grep(that._retrievedEventItems, filteringFunction);
+                    return $j.grep(that._eventItems, filteringFunction);
                 }
                 else{
-                 return that._retrievedEventItems;
+                 return that._eventItems;
                 }
             }
             else{

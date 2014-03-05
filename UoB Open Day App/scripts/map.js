@@ -7,7 +7,9 @@
     
     var date = new Date();
     var year = date.getFullYear();
-    var buildingDataUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var eventBuildingsJsonUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    
+    var mapsJsonUrl = uob.url.MapsService;
     
     //Initialise map data:
     document.addEventListener("deviceready", onDeviceReady, true);
@@ -150,38 +152,35 @@
         campusMapData: null,
         
         campusGoogleMap: null,
+        _buildingIdToShow: null,
         
         loadMapData: function (){
             
             var that = this;
             console.log("Requesting map data");
             that.viewModel.showLoading();
-            
-            var url = uob.url.MapsService;
-            
-                $j.ajax({
-                        dataType: "json",
-                        url: url,
-                        success:function(mapData) {
+                        
+            uob.json.getJSON ("Maps", mapsJsonUrl, 'data/maps.json', that._mapSuccess.bind(that), that._mapCacheSuccess.bind(that), that._mapError.bind(that));
 
-                    console.log("Map data retrieved");                
-                    if (!mapData) {
-                        console.log("Failed to retrieve map data from service.");
-                        that._retrieveMapsFromLocalStorage();
-                        return;
-                    }
-                    else{
-                        console.log("Retrieved " + mapData.length + " maps");
-                    }
-                    that._setMapData(mapData);
-                },
-                timeout: 10000
-                }).fail( function( xhr, status ) {
-                    console.log("Map data retrieval error: Status: " + status + " Text: " + xhr.responseText);
-                    that._retrieveMapsFromLocalStorage();
-                }
-            );
         },
+        _mapSuccess: function(data)
+        {
+            var that = this;
+            that._setMapData(data);
+        },
+        _mapCacheSuccess: function(data)
+        {
+            var that = this;
+            app.addErrorMessage('Maps: Data is from cache');
+            that._setMapData(data);            
+        },
+        _mapError: function(data)
+        {
+            var that = this;
+            app.addErrorMessage('No maps data available.');
+            that.viewModel.hideLoading();
+        },
+        
         _setMapData: function(mapItems){
             var that = this;
             for (var i in mapItems) {
@@ -191,7 +190,6 @@
                     that.campusMapData = mapItem;
                 }
             }
-                    
             if (that.campusMapData) {
                 that.campusMapData.latLngBounds = function(){
                      return uob.google.getLatLngBounds(this.SouthWestLatitude, this.SouthWestLongitude, this.NorthEastLatitude, this.NorthEastLongitude);
@@ -207,46 +205,7 @@
             app.enableLinks("mapServiceButton");
             that.viewModel.hideLoading();
         },
-        _setLocalStorageMaps: function(mapItems){
-            var stringMapItems = JSON.stringify(mapItems);
-            localStorage.setItem("uob-events-maps", stringMapItems);
-        },
-        _retrieveMapsFromLocalStorage: function()
-        {
-            console.log("Attempting to retrieve map data from local storage cache");
-            var stringMapsData = localStorage.getItem("uob-events-maps");
-            if (stringMapsData){
-                var mapsData = JSON.parse(stringMapsData);
-                if (mapsData.length>0){
-                    app.addErrorMessage('Maps data is from local cache');
-                    that._setMapData(mapsData);
-                    return;
-                }
-            }
-            
-            if (uob.testMode){
-                console.log("In test mode: retrieving building data from local file")
-                $j.getJSON('data/maps.json', function(mapData) {
-
-                    if (mapData.length>0){
-                        app.addErrorMessage("Map data is from local file.");
-                        that._setMapData(mapData);
-                    }
-                    else {
-                        app.addErrorMessage("Retrieved map data from local file but was empty.");
-                        that.viewModel.hideLoading();
-                    }
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                    app.addErrorMessage("Failure retrieving events building data from local file: Error " + textStatus + " incoming Text " + jqXHR.responseText);
-                    that.viewModel.hideLoading();
-                });
-            }
-            else{
-                app.addErrorMessage('No maps data available.');
-            }
-            that.viewModel.hideLoading();
-        }
-        ,
+        
         initialise: function () {
                         
             $j('#no-map').text('Initialising map ...');
@@ -375,9 +334,9 @@
                     if (buildingId === building.ContentId)
                     {
                         
-                        var singleBuildingGoogleMap = googleMapForBuilding;
-                        
+                       
                         console.log("Setting center of map to center of " + building.BuildingName);
+                        var selectedBuilding = building;
                         var buildingCenter = uob.google.getPolygonCenter(building.googlePolygon);                        
                         
                         if (building.googleMapLabels){
@@ -395,7 +354,9 @@
                                                         
                                                         if (distanceFromBuildingToPosition <1.5){
                                                             console.log("Showing person on map as " + distanceFromBuildingToPosition + "km away");
-                                                            uob.google.extendMapToShowPoints(singleBuildingGoogleMap, positionLatLng, buildingCenter);
+                                                            var bounds =uob.google.getPolygonLatLngBounds(selectedBuilding.googlePolygon);
+                                                            bounds.extend(positionLatLng);
+                                                            googleMapForBuilding.fitBounds(bounds);
                                                         }
                                                         else{
                                                             console.log("Not showing person on map as " + distanceFromBuildingToPosition + "km away");
@@ -417,77 +378,33 @@
                 
             }
             else{
-                console.log("Retrieving building data");
-                
-                $j.ajax({
-                        dataType: "json",
-                        url: buildingDataUrl,
-                        success:function(buildingData) {
-
-                        if (buildingData.length===0)
-                        {
-                            console.log("Building data is empty");
-                            that._retrieveBuildingsFromLocalStorage();
-                            return;
-                        }
-                        console.log("Setting building data");
-                        app.campusMapService.buildings = buildingData;
-                        //Put into the cache:
-                        that._setLocalStorageBuildings(buildingData);
-                        //Now call self again to show them :
-                        app.campusMapService.showBuildings(buildingId);
-                    },
-                    timeout: 10000
-                    }).fail( function( xhr, status ) {
-                        console.log("Failure retrieving events building data: Error status: " + status + " incoming Text " + xhr.responseText);
-                        that._retrieveBuildingsFromLocalStorage();
-                        that.viewModel.hideLoading();
-                    });
+                that._buildingIdToShow = buildingId;
+                uob.json.getJSON ("Event Buildings", eventBuildingsJsonUrl, 'data/events-buildings.json', that._eventBuildingsSuccess.bind(that), that._eventBuildingsCacheSuccess.bind(that), that._eventBuildingsError.bind(that));
             }
-            
-
         },
-        
-        _setLocalStorageBuildings: function(eventBuildings){
-            var stringEventBuildingData = JSON.stringify(eventBuildings);
-            localStorage.setItem("uob-events-map-buildings", stringEventBuildingData);    
-        },
-        _retrieveBuildingsFromLocalStorage: function()
+        _eventBuildingsSuccess: function(data)
         {
-            console.log("Attempting to retrieve event building data from local storage cache");
-            var stringEventBuildingData = localStorage.getItem("uob-events-map-buildings");
-            if (stringEventBuildingData){
-                var buildingData = JSON.parse(stringEventBuildingData);
-                if (buildingData.length>0){
-                    app.addErrorMessage('Events building data is from local cache');
-                    app.campusMapService.buildings = buildingData;
-                    app.campusMapService.showBuildings();
-                    return;
-                }
-                else{
-                    console.log("Failed to retrieve local storage buildings data cache.");
-                }
-            }
-            
-            if (uob.testMode){
-                console.log("In test mode: retrieving building data from local file")
-                $j.getJSON('data/events-buildings.json', function(buildingData) {
-
-                    if (buildingData.length>0){
-                        app.addErrorMessage("Events building data is from local file.");
-                        app.campusMapService.buildings = buildingData;
-                        //Now call self again to show them :
-                        app.campusMapService.showBuildings();
-                    }
-                    else {
-                        app.addErrorMessage("Retrieved building data from local file but was empty.");
-                        that.viewModel.hideLoading();
-                    }
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                    app.addErrorMessage("Failure retrieving events building data from local file: Error " + textStatus + " incoming Text " + jqXHR.responseText);
-                    that.viewModel.hideLoading();
-                });
-            }
+            var that = this;
+            that._setBuildings(data);
+        },
+        _eventBuildingsCacheSuccess: function(data)
+        {
+            var that = this;
+            app.addErrorMessage('Events building data: From local cache');
+            that._setBuildings(data);            
+        },
+        _eventBuildingsError: function(data)
+        {
+            app.addErrorMessage('Events building data: Failed to retrieve data');
+        },
+        _setBuildings: function(data)
+        {
+            var that = this
+            app.campusMapService.buildings = data;
+            //Get the building to show if there is one:
+            var buildingId = that._buildingIdToShow;
+            that._buildingIdToShow = null;
+            that.showBuildings(buildingId);
         },
         show: function (e) {
             console.log("Map show");

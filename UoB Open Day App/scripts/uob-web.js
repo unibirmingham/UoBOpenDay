@@ -1,6 +1,8 @@
 (function ($j, global) {
     
-    app = global.app = global.app || {};
+    uob = global.uob = global.uob || {};
+    
+    web = uob.web = uob.web || {};
     
     var makeUrlAbsolute = function(relativeUrl, urlProtocol, urlDomain)
     {
@@ -11,7 +13,7 @@
         return newUrl;
     }
     
-    app.UoBInsertWebPage = function(divId, urlProtocol,  urlDomain, urlUri)
+    web.insertWebPageContent = function(divId, urlProtocol,  urlDomain, urlUri)
     {
         
         var $jcontentDiv = $j('#' + divId);        
