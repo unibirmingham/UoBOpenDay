@@ -1,8 +1,13 @@
 (function ($j, global) {
     
-    uob = global.uob = global.uob || {};
+    var uob = global.uob = global.uob || {};
     
-    web = uob.web = uob.web || {};
+    uob.web = uob.web || {};
+    
+    uob.screen = uob.screen || {};
+    
+    uob.log = uob.log || {};
+    
     
     var makeUrlAbsolute = function(relativeUrl, urlProtocol, urlDomain)
     {
@@ -13,7 +18,19 @@
         return newUrl;
     }
     
-    web.insertWebPageContent = function(divId, urlProtocol,  urlDomain, urlUri)
+    uob.web.is3GOrBetter = function()
+    {
+
+        if (navigator.network.connection.type === Connection.NONE
+                                    ||navigator.network.connection.type === Connection.CELL_2G
+                                    ||navigator.network.connection.type ===Connection.UNKNOWN)  
+        {
+            return false;
+        }
+        return true;
+    }
+    
+    uob.web.insertWebPageContent = function(divId, urlProtocol,  urlDomain, urlUri)
     {
         
         var $jcontentDiv = $j('#' + divId);        
@@ -70,5 +87,38 @@
             });    
         }
     };
+    
+    uob.web.checkUrl = function(serviceDescription, url, buttonClass)
+    {
+     
+        uob.log.addLogMessage(serviceDescription + ": Requesting from url: " + url);
+        
+        if (!uob.web.is3GOrBetter())
+        {
+            uob.log.addLogMessage(serviceDescription + ": No internet connection so not requesting url: " + url);
+            return;
+        }
+        
+        uob.log.addLogMessage(serviceDescription + ": Requesting from url: " + url);
+                
+        $j.ajax({
+            cache: false,
+            type: 'GET',
+            url: url,
+            timeout: 10000,
+            success: function(data, textStatus, XMLHttpRequest) {
+                if (!data) {
+                    uob.log.addErrorMessage(serviceDescription + " is not responding correctly.");
+                }
+                else{
+                    uob.log.addLogMessage("Successfully requested url " + url + " for " + serviceDescription + " with status: " + textStatus);
+                    uob.screen.enableLinks(buttonClass);
+                    }
+              },
+            error: function(jqXHR, textStatus, errorThrown){
+                uob.log.addErrorMessage(serviceDescription + " is not responding.");
+            }
+        });
+    }
     
 })(jQuery, window);

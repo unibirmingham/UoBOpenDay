@@ -1,7 +1,7 @@
 (function (global, $j) {
     //Library of useful google map functions:
-    uob = global.uob = global.uob || {};
-    uob.google = uob.google = uob.google || {};
+    var uob = global.uob = global.uob || {};
+    uob.google = uob.google || {};
          
     uob.google.getLatLngBounds = function (swLat, swLng, neLat, neLng) {
         var swLatLng = new google.maps.LatLng(swLat, swLng);

@@ -1,13 +1,23 @@
 (function ($j, global) {
     
-    uob = global.uob = global.uob || {};
-    
-    json = uob.json = uob.json || {};
+    var uob = global.uob = global.uob || {};
+    uob.json = uob.json || {};
+    uob.log = uob.log || {};
+    uob.web = uob.web || {};
     
     //This function assumes that an empty json response should be regarded as a failure.
     uob.json.getJSON = function(dataDescription, jsonUrl, localFile, successFunction, cacheSuccessFunction, errorFunction)
     {
-        app.addLogMessage(dataDescription + ": Requesting from url: " + jsonUrl);
+        
+        if (!uob.web.is3GOrBetter())
+        {
+            uob.log.addLogMessage(dataDescription + ": No internet connection so not requesting url: " + jsonUrl + " checking cache instead.");
+            retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, cacheSuccessFunction, errorFunction);
+            return;
+        }
+        
+        uob.log.addLogMessage(dataDescription + ": Requesting from url: " + jsonUrl);
+        
         $j.ajax({
             dataType: "json",
             url: jsonUrl,
@@ -19,13 +29,13 @@
                 retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, cacheSuccessFunction, errorFunction);
                 return;
             }
-            app.addLogMessage(dataDescription + ": " + jsonData.length + " items retrieved");
+            uob.log.addLogMessage(dataDescription + ": " + jsonData.length + " items retrieved");
             setDataInLocalCache(dataDescription, jsonUrl, jsonData);
             successFunction(jsonData);
         },
         timeout: 10000
         }).fail( function( xhr, status ) {
-            app.addLogMessage(dataDescription + ": Failure getting JSON data from " + jsonUrl + " Error status: " + status + " incoming Text " + xhr.responseText);
+            uob.log.addLogMessage(dataDescription + ": Failure getting JSON data from " + jsonUrl + " Error status: " + status + " incoming Text " + xhr.responseText);
             retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, cacheSuccessFunction, errorFunction);
         });
         
@@ -48,11 +58,11 @@
         if (stringJsonData){
             var jsonData = JSON.parse(stringJsonData);
             if (jsonData.length>0){
-                app.addLogMessage(dataDescription + ': data is from local storage cache.');
+                uob.log.addLogMessage(dataDescription + ': data is from local storage cache.');
                 cacheSuccessFunction(jsonData);
                 return;
             }
-            app.addLogMessage(dataDescription + ": no data in local storage cache.");
+            uob.log.addLogMessage(dataDescription + ": no data in local storage cache.");
             
         }
         if (uob.testMode){
@@ -79,7 +89,7 @@
             success:function(jsonData) {
                 if (jsonData.length>0)
                 {
-                    app.addLogMessage(dataDescription + ": data retrieved from local file");
+                    uob.log.addLogMessage(dataDescription + ": data retrieved from local file");
                     cacheSuccessFunction(jsonData);
                     return;
                 }
@@ -87,7 +97,7 @@
         },
         timeout: 10000
         }).fail( function( xhr, status ) {
-            app.addLogMessage(dataDescription + ": Failure getting JSON data from local file (" + localFile + ") Error status: " + status + " incoming Text " + xhr.responseText);
+            uob.log.addLogMessage(dataDescription + ": Failure getting JSON data from local file (" + localFile + ") Error status: " + status + " incoming Text " + xhr.responseText);
             errorFunction();
         });
         

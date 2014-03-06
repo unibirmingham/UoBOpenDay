@@ -16,16 +16,20 @@
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
     <script src="http://google-maps-utility-library-v3.googlecode.com/svn/trunk/maplabel/src/maplabel-compiled.js"></script>
     <!-- App scripts -->
+    <script src="scripts/uob-polyfill.js"></script>
+    <script src="scripts/uob-screen.js"></script>
+    <script src="scripts/uob-log.js"></script>
     <script src="scripts/uob-google.js"></script>
     <script src="scripts/uob-json.js"></script>
     <script src="scripts/uob-web.js"></script>
+    <script src="scripts/uob-events-eventsRepository.js"></script>
     <script src="scripts/settings.js"></script>
-    <script src="scripts/app.js"></script>
     <script src="scripts/home.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/map.js"></script>
     <script src="scripts/faqs.js"></script>
     <script src="scripts/about.js"></script>
+    <script src="scripts/appstart.js"></script>
 </head>
 
 <body id="appBody">
@@ -44,8 +48,8 @@
     </style>
         <div class="view-content">
             <h1>Open Day Application</h1>
-            <div class="error-message"></div>
-            <div class="cache-message"></div>
+            <div id="error-message"></div>
+            <div id="cache-message"></div>
             <div class="open-day-date-selector">
                 <ul data-role="listview" data-style="inset">
                     <li>

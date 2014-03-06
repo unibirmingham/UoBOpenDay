@@ -1,8 +1,8 @@
 (function (global, $j) {
     
-    app = global.app = global.app || {};
-    uob = global.uob = global.uob || {};
-    web = uob.web = uob.web || {};
+    var app = global.app = global.app || {};
+    var uob = global.uob = global.uob || {};
+    uob.web = uob.web || {};
 
     app.populateFAQs = function(e) {
         

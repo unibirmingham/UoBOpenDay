@@ -1,8 +1,8 @@
 
 (function (global, $j) {
     
-    uob = global.uob = global.uob || {};
-    url = uob.url = uob.url || {};
+    var uob = global.uob = global.uob || {};
+    uob.url = uob.url || {};
 
     app.populateAboutInfo = function(e)  {
         

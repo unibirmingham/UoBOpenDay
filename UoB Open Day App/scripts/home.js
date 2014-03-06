@@ -1,10 +1,12 @@
 (function (global, $j) {
     
-    app = global.app = global.app || {};
+    var app = global.app = global.app || {};
+    var openDay = app.openDay = app.openDay || {};
     
-    uob = global.uob = global.uob || {};
-    
-    openDay = app.openDay = app.openDay || {};
+    var uob = global.uob = global.uob || {};
+    uob.json = uob.json || {};
+    uob.log = uob.log || {};
+    uob.screen= uob.screen || {};      
     
     var openDayDateLocalStorageName = 'uob-openday-date';
     
@@ -13,10 +15,10 @@
     var startDatesUrl = uob.url.EventsService + '/startdates/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var localDataFile = "data/events-dates.json";
     
-    var initialiseStartDate = function(){
+    openDay.initialiseStartDate = function(){
 
         app.application.showLoading();
-        
+        uob.log.addLogMessage("Initialising Start Dates");
         uob.json.getJSON ('Open Day Start Dates', startDatesUrl, localDataFile, startDatesSuccess, startDatesCacheSuccess, startDatesError)
             
     }
@@ -28,13 +30,13 @@
     
     var startDatesCacheSuccess = function(data)
     {
-        app.addCacheMessage("Start dates: Currently using local cache");
+        uob.log.addCacheMessage("Start dates: Currently using local cache");
         setStartDates(data);
     }
     
     var startDatesError = function()
     {
-        app.addErrorMessage("Unable to retrieve start date data");
+        uob.log.addErrorMessage("Unable to retrieve start date data");
         app.application.hideLoading();
     }
     
@@ -79,7 +81,7 @@
         
         //Show the open day date selector:
         $j('#tabstrip-home .open-day-date-selector').removeClass("open-day-date-selector");
-        app.enableLinks('startDatesButton');
+        uob.screen.enableLinks('startDatesButton');
         app.application.hideLoading();
         
     };
@@ -103,7 +105,6 @@
     }
     
         
-    //Initialise events data:
-    document.addEventListener("deviceready", initialiseStartDate, true);
+
    
 })(window, jQuery);

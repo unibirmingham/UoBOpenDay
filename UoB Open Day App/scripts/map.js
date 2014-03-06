@@ -1,9 +1,14 @@
 (function (global, $j) {
     
-    var CampusMapViewModel,
-    app = global.app = global.app || {};
-    uob = global.uob = global.uob || {};
-    url = uob.url = uob.url || {};
+    var CampusMapViewModel;
+    var app = global.app = global.app || {};
+    
+    var uob = global.uob = global.uob || {};
+    uob.json = uob.json || {};
+    uob.log = uob.log || {};
+    uob.screen= uob.screen || {};
+    uob.url = uob.url || {};
+    
     
     var date = new Date();
     var year = date.getFullYear();
@@ -11,13 +16,6 @@
     
     var mapsJsonUrl = uob.url.MapsService;
     
-    //Initialise map data:
-    document.addEventListener("deviceready", onDeviceReady, true);
-    
-    function onDeviceReady() {
-
-        app.campusMapService.loadMapData();
-    }
         
     CampusMapViewModel = kendo.data.ObservableObject.extend({
         _googleMap: null,
@@ -153,16 +151,7 @@
         
         campusGoogleMap: null,
         _buildingIdToShow: null,
-        
-        loadMapData: function (){
-            
-            var that = this;
-            console.log("Requesting map data");
-            that.viewModel.showLoading();
-                        
-            uob.json.getJSON ("Maps", mapsJsonUrl, 'data/maps.json', that._mapSuccess.bind(that), that._mapCacheSuccess.bind(that), that._mapError.bind(that));
 
-        },
         _mapSuccess: function(data)
         {
             var that = this;
@@ -171,16 +160,25 @@
         _mapCacheSuccess: function(data)
         {
             var that = this;
-            app.addCacheMessage('Maps: Data is from cache');
+            uob.log.addCacheMessage('Maps: Data is from cache');
             that._setMapData(data);            
         },
         _mapError: function(data)
         {
             var that = this;
-            app.addErrorMessage('No maps data available.');
+            uob.log.addErrorMessage('No maps data available.');
             that.viewModel.hideLoading();
         },
         
+        loadMapData: function (){
+            
+            var that = this;
+            that.viewModel.showLoading();
+            uob.log.addLogMessage("Initialising Map Data");            
+            uob.json.getJSON ("Maps", mapsJsonUrl, 'data/maps.json', that._mapSuccess.bind(that), that._mapCacheSuccess.bind(that), that._mapError.bind(that));
+
+        },
+
         _setMapData: function(mapItems){
             var that = this;
             for (var i in mapItems) {
@@ -202,7 +200,7 @@
             }
         
             that.viewModel.mapData = that.campusMapData;
-            app.enableLinks("mapServiceButton");
+            uob.screen.enableLinks("mapServiceButton");
             that.viewModel.hideLoading();
         },
         
