@@ -22,6 +22,7 @@
         _lastMarker: null,
         _isLoading: false,
         _centerToRetain: null,
+        _latLngToTrack: null,
         _watchId: "",
         mapData: null,
         isGoogleMapsInitialized: false,
@@ -87,6 +88,11 @@
                 that._watchId = "";
             }
         },
+        trackLatLng: function(latLng)
+        {
+            var that = this;
+            that._latLngToTrack = latLng;
+        },
         returnToCampus: function()
         {
             var that = this;
@@ -134,6 +140,24 @@
                 map: that._googleMap,
                 position: positionLatLng
             });
+            
+            if (that._latLngToTrack)
+            {
+                var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, that._latLngToTrack);
+                var minutesToReach = distanceInKm/.060;
+                minutesToReach = Math.round(minutesToReach);
+                var mapMessage = minutesToReach + " minutes from destination";
+                if (minutesToReach===1){
+                    mapMessage = minutesToReach + " minute from destination";
+                }
+                if (minutesToReach===0){
+                    mapMessage = "You have reached your destination";
+                }
+                that._mapMessage(mapMessage);
+            }
+            else{
+                 that._mapMessage("");
+            }
         },
         _mapMessage: function(text){
             $j("#mapMessage").text(text);
@@ -295,6 +319,9 @@
             {
                 buildingId = parseInt(buildingId);
             }
+            else{
+                app.campusMapService.viewModel.trackLatLng(null);
+            }
             
             if (app.campusMapService.buildings.length)
             {
@@ -350,7 +377,7 @@
                         console.log("Setting center of map to center of " + building.BuildingName);
                         var selectedBuilding = building;
                         var buildingCenter = uob.google.getPolygonCenter(building.googlePolygon);                        
-                        
+                        app.campusMapService.viewModel.trackLatLng(buildingCenter);
                         if (building.googleMapLabels){
                             //Set the zoom to enable the labels to be seen:
                             googleMapForBuilding.setZoom(building.googleMapLabels[0].minZoom);

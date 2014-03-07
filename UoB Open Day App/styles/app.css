@@ -86,3 +86,12 @@
     display: block;
     color: green;
     }
+
+/* Map */
+
+#appBody #mapMessage
+{
+    padding-top: .5em;
+    padding-left: .3em;
+    color: white;
+}
