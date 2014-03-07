@@ -64,7 +64,7 @@
                 <li class="eventServiceButton startDatesButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li class="eventServiceButton startDatesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="eventServiceButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="mapServiceButton eventServiceButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="mapServiceButton eventServiceButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
                 <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
             </ul>
@@ -152,6 +152,7 @@
         </div>
         <div id="map-header" data-bind="visible: isGoogleMapsInitialized">
             <button id="map-return-to-campus" data-bind="click: returnToCampus"></button>
+            <div id="mapMessage"></div>
         </div>
         <div id="map-canvas" data-bind="visible: isGoogleMapsInitialized"></div>
 

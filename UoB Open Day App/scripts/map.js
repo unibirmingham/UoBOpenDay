@@ -71,7 +71,7 @@
             var that = this;
             if (!that._watchId){
                 var geoLocationOptions = {timeout: 30000, enableHighAccuracy: true};
-                that._watchId = navigator.geolocation.watchPosition(that._showPositionOnMap.bind(that), that._watchPositionError.bind(that), geoLocationOptions);
+                that._watchId = navigator.geolocation.watchPosition(that._showPositionOnMap.bind(that), that._watchPositionHighAccuracyError.bind(that), geoLocationOptions);
                 console.log("Tracking user with watch id: " + that._watchId);
             }
             else{
@@ -135,10 +135,24 @@
                 position: positionLatLng
             });
         },
-        
-        _watchPositionError: function(error){
-            console.log("Error watching position. Code: " + error.code + " Message: " + error.message);
+        _mapMessage: function(text){
+            $j("#mapMessage").text(text);
+        },
+        _watchPositionHighAccuracyError: function(error){
+            var that = this;
+            
+            uob.log.addLogWarning("Attempt to get High Accuracy location failed so trying low accuracy location Code: "+ error.code + " Message: " + error.message);
+            that.untrackUser();
+            var geoLocationOptions = {timeout: 30000, enableHighAccuracy: false};
+            
+            that._watchId = navigator.geolocation.watchPosition(that._showPositionOnMap.bind(that), that._watchPositionLowAccuracyError.bind(that), geoLocationOptions);
+            
+        },
+        _watchPositionLowAccuracyError: function(error)
+        {
+             uob.log.addLogWarning("Low accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
         }
+        
     });
 
     app.campusMapService = {
@@ -326,7 +340,7 @@
                     }
                     else
                     {
-                                building.googlePolygon.setOptions({fillOpacity:.5});
+                         building.googlePolygon.setOptions({fillOpacity:.5});
                     }
                     
                     if (buildingId === building.ContentId)

@@ -88,6 +88,19 @@
         }
     };
     
+    uob.web.checkWebConnection = function(buttonClass)
+    {
+        
+        if (uob.web.is3GOrBetter())
+        {
+            uob.log.addLogMessage("3G or better internet connection is present");
+            uob.screen.enableLinks(buttonClass);
+            return;
+        }
+        uob.log.addLogMessage("No web connection");
+        
+    }
+    
     uob.web.checkUrl = function(serviceDescription, url, buttonClass)
     {
      

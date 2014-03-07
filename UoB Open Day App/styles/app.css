@@ -3,10 +3,12 @@
 #tabstrip-home li.eventServiceButton,
 #tabstrip-home li.mapServiceButton,
 #tabstrip-home li.startDatesButton,
+#tabstrip-home li.webConnectionButton,
 #appFooter a.webSiteButton,
 #appFooter a.eventServiceButton,
 #appFooter a.mapServiceButton,
-#appFooter a.startDatesButton
+#appFooter a.startDatesButton,
+#appFooter a.webConnectionButton
 {
     display: none;
 }
@@ -16,11 +18,20 @@
     display: none;
 }
 
-#appBody div#error-message p {
+#appBody div#consoleLog p{
+    color: green;
+}
+
+#appBody div#error-message p,
+#appBody div#consoleLog p.logError
+ {
     color: red;
 }
 
-#appBody div#cache-message p {
+#appBody div#cache-message p,
+#appBody div#consoleLog p.logCache,
+#appBody div#consoleLog p.logWarning
+ {
     color: orange;
 }
 

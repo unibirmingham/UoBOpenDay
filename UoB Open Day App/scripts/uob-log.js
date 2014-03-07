@@ -9,16 +9,31 @@
     {
         if (message){
             $j("#error-message").append("<p>" + message + "</p>");
+            uob.log.addLogMessage(message, "Error");
         }        
     }
     
-    uob.log.addLogMessage = function(message)
+    uob.log.addLogMessage = function(message, level)
     {
-        $j("#consoleLog").append("<p>" + message + "</p>");
+        var messageClass = "logMessage";
+        if (level)
+        {
+             messageClass = "log" + level;   
+        }
+        $j("#consoleLog").append('<p class="' + messageClass + '">' + message + "</p>");
         console.log(message);
         
     }
     
+    uob.log.addLogWarning = function(message)
+    {
+        uob.log.addLogMessage(message, "Warning");
+    }
+    
+    uob.log.addLogError = function(message)
+    {
+        uob.log.addLogMessage(message, "Error");
+    }
     
     uob.log.addCacheMessage = function(message)
     {
@@ -29,7 +44,7 @@
             uob.log.cacheMessages = true;
         }
         
-        uob.log.addLogMessage(message);
+        uob.log.addLogMessage(message, "Cache");
     }
     
     

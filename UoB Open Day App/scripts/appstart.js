@@ -23,6 +23,8 @@
         
         $j.support.cors = true;
         
+        uob.web.checkWebConnection("webConnectionButton");
+        
         checkWebsite();
         
         //Initialise start dates:
