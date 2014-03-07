@@ -195,7 +195,7 @@
             }
             else{
                 //No campus map so exit:
-                app.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
+                uob.log.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
                 return;
             }
         
@@ -388,12 +388,12 @@
         _eventBuildingsCacheSuccess: function(data)
         {
             var that = this;
-            app.addCacheMessage('Events building data: From local cache');
+            uob.log.addCacheMessage('Events building data: From local cache');
             that._setBuildings(data);            
         },
         _eventBuildingsError: function(data)
         {
-            app.addErrorMessage('Events building data: Failed to retrieve data');
+            uob.log.addErrorMessage('Events building data: Failed to retrieve data');
         },
         _setBuildings: function(data)
         {
