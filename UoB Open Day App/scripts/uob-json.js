@@ -102,5 +102,27 @@
         });
         
     }
-    
+    uob.json.parseJsonDateWithoutTimezone = function(jsonDateValue)
+    {
+        if (!(jsonDateValue instanceof Date))
+        {
+            var timezoneStart = jsonDateValue.indexOf('+');
+            
+            if (timezoneStart ===-1)
+            {
+                timezoneStart = jsonDateValue.indexOf('-');
+            }
+            
+            if (timezoneStart >=0)
+            {
+                var timezoneEnd = jsonDateValue.indexOf(')', timezoneStart);
+                if (timezoneEnd>=0)
+                {
+                    jsonDateValue = jsonDateValue.substring(0,timezoneStart) + jsonDateValue.substring(timezoneEnd);
+                }
+                
+            }
+        }
+        return kendo.parseDate(jsonDateValue);
+    }
 })(jQuery, window);

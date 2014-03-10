@@ -46,7 +46,7 @@
         
         for (var index = 0; index <startDates.length; ++index) {
             var startDateValue = startDates[index];
-            var startDate = kendo.parseDate(startDateValue);
+            var startDate = uob.json.parseJsonDateWithoutTimezone(startDateValue);
             var startDateDescription = kendo.toString(startDate, 'ddd, d MMMM');
             
             var startDateItem = {
