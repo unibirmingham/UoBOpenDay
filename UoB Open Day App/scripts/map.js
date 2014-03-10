@@ -8,6 +8,7 @@
     uob.log = uob.log || {};
     uob.screen= uob.screen || {};
     uob.url = uob.url || {};
+    uob.map = uob.map || {};
     
     
     var date = new Date();
@@ -183,13 +184,9 @@
         
         helpPointsLayer: new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true, suppressInfoWindows: true}),
         
-        buildings:{},
-        
         campusMapData: null,
         
         campusGoogleMap: null,
-        _buildingIdToShow: null,
-
         _mapSuccess: function(data)
         {
             var that = this;
@@ -306,156 +303,39 @@
             app.campusMapService.showHelpPoints();
             
             app.campusMapService.viewModel.showMap();
-                
+            
+            uob.map.buildingAndFacilityMap.setGoogleMap(newCampusGoogleMap);
         },
         
         showHelpPoints: function(){this.helpPointsLayer.setMap(app.campusMapService.campusGoogleMap);},
         
-        showBuildings: function(buildingId){
-            
+        _showBuildingsSuccess: function(buildingId)
+        {
             var that = this;
-            
-            if (buildingId)
-            {
+            var center = null;
+            if (buildingId){
                 buildingId = parseInt(buildingId);
-            }
-            else{
-                app.campusMapService.viewModel.trackLatLng(null);
-            }
-            
-            if (app.campusMapService.buildings.length)
-            {
-                console.log("Showing building data with building Id: " + buildingId);
-                for (var i in app.campusMapService.buildings) {
-
-                    var building = app.campusMapService.buildings[i];
-                    
-                    if (typeof building.googlePolygon === "undefined") {
-                        
-                        var polygonCoordinates = building.PolygonCoordinatesAsArrayList;
-
-                        var googleBuildingCoords = [];
-
-                        for (var pci in polygonCoordinates) {
-                            var coords = polygonCoordinates[pci];
-                            googleBuildingCoords.push(new google.maps.LatLng(coords[0], coords[1]));
-                        }
-                        building.googleBuildingCoords = googleBuildingCoords;
-                        building.googlePolygon = uob.google.getPolygon(googleBuildingCoords, building.Colour);
-                    }
-                    
-                    if (typeof building.googleMapLabels === "undefined"){
-                        
-                        var center = uob.google.getPolygonCenter(building.googlePolygon);
-                        var labelText = building.BuildingName;
-                        building.googleMapLabels = uob.google.getMapLabels(labelText, center);
-                    }
-                    
-                    var googleMapForBuilding = app.campusMapService.campusGoogleMap;
-                    
-                    if (buildingId){
-                       if (buildingId===building.ContentId){
-                           
-                            //If a specified building is being asked for then hide other buildings
-                            building.googlePolygon.setOptions({fillOpacity:.7});  
-                            
-                        }
-                        else{
-                                //If a specified building is being asked for then hide other buildings
-                                building.googlePolygon.setOptions({fillOpacity:.2});  
-                            }
-                    }
-                    else
-                    {
-                         building.googlePolygon.setOptions({fillOpacity:.5});
-                    }
-                    
-                    if (buildingId === building.ContentId)
-                    {
-                        
-                       
-                        console.log("Setting center of map to center of " + building.BuildingName);
-                        var selectedBuilding = building;
-                        var buildingCenter = uob.google.getPolygonCenter(building.googlePolygon);                        
-                        app.campusMapService.viewModel.trackLatLng(buildingCenter);
-                        if (building.googleMapLabels){
-                            //Set the zoom to enable the labels to be seen:
-                            googleMapForBuilding.setZoom(building.googleMapLabels[0].minZoom);
-                        }
-                        googleMapForBuilding.setCenter(buildingCenter);
-                        
-                        if (that.campusMapData){
-                            //If we've got campus map data, see if we're on campus and if so show us and the building in relation.
-                            navigator.geolocation.getCurrentPosition(
-                                                    function(position){
-                                                        var positionLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                                                        var distanceFromBuildingToPosition = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, buildingCenter);
-                                                        
-                                                        if (distanceFromBuildingToPosition <1.5){
-                                                            console.log("Showing person on map as " + distanceFromBuildingToPosition + "km away");
-                                                            var bounds =uob.google.getPolygonLatLngBounds(selectedBuilding.googlePolygon);
-                                                            bounds.extend(positionLatLng);
-                                                            googleMapForBuilding.fitBounds(bounds);
-                                                        }
-                                                        else{
-                                                            console.log("Not showing person on map as " + distanceFromBuildingToPosition + "km away");
-                                                        }
-                                                    }, function(){
-                                                        console.log("Error getting current position");
-                                                    });
-                        }
-
-                        
-                    }
-                    
-                    building.googlePolygon.setMap(googleMapForBuilding);
-                    for (var iml in building.googleMapLabels){
-                        var mapLabel = building.googleMapLabels[iml];
-                        mapLabel.setMap(googleMapForBuilding);
-                    }
+                if (buildingId)
+                {
+                    center = uob.map.buildingAndFacilityMap.getBuildingCenterLatLng(buildingId);
                 }
-                
             }
-            else{
-                that._buildingIdToShow = buildingId;
-                uob.json.getJSON ("Event Buildings", eventBuildingsJsonUrl, 'data/events-buildings.json', that._eventBuildingsSuccess.bind(that), that._eventBuildingsCacheSuccess.bind(that), that._eventBuildingsError.bind(that));
-            }
+            that.viewModel.trackLatLng(center);
+            
         },
-        _eventBuildingsSuccess: function(data)
-        {
-            var that = this;
-            that._setBuildings(data);
-        },
-        _eventBuildingsCacheSuccess: function(data)
-        {
-            var that = this;
-            uob.log.addCacheMessage('Events building data: From local cache');
-            that._setBuildings(data);            
-        },
-        _eventBuildingsError: function(data)
-        {
-            uob.log.addErrorMessage('Events building data: Failed to retrieve data');
-        },
-        _setBuildings: function(data)
-        {
-            var that = this
-            app.campusMapService.buildings = data;
-            //Get the building to show if there is one:
-            var buildingId = that._buildingIdToShow;
-            that._buildingIdToShow = null;
-            that.showBuildings(buildingId);
-        },
+        
         show: function (e) {
+            
             console.log("Map show");
             if (!app.campusMapService.viewModel.get("isGoogleMapsInitialized")) {
                 return;
             }
             var buildingId = e.view.params.buildingId;
             
-            app.campusMapService.showBuildings(buildingId);
+            uob.map.buildingAndFacilityMap.showBuildings(eventBuildingsJsonUrl, 'data/events-buildings.json', buildingId, app.campusMapService._showBuildingsSuccess.bind(app.campusMapService) );
             
             //Tell map that is now visible
-            app.campusMapService.viewModel.showMap(buildingId);
+            app.campusMapService.viewModel.showMap();
             
         },
         
@@ -465,7 +345,6 @@
             app.campusMapService.viewModel.hideMap();
             
         },
-        
        
         viewModel: new CampusMapViewModel()
     };
