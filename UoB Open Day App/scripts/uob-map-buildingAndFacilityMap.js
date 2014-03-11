@@ -14,6 +14,7 @@
         _googleMap: null,
         _showBuildingBuildingId: null,
         _showBuildingSuccessFunction: null,
+        _buildingRequestInProgress: false,
         
         
         _setBuildings: function(data)
@@ -22,6 +23,7 @@
             if (!that.buildings){
                 that.buildings = data;
             }
+            that._buildingRequestInProgress = false;
             //Get the building to show if there is one:
             var buildingId = that._showBuildingBuildingId;
             var successFunction = that._showBuildingSuccessFunction;
@@ -72,7 +74,14 @@
             {
                 that._showBuildingBuildingId = buildingId;
                 that._showBuildingSuccessFunction = successFunction;
-                uob.json.getJSON ("Buildings", buildingsServiceUrl, buildingServiceLocalFile, that._getBuildingsSuccess.bind(that), that._getBuildingsCacheSuccess.bind(that), that._getBuildingsError.bind(that));
+                if (!that._buildingRequestInProgress)
+                {
+                    that._buildingRequestInProgress = true;
+                    uob.json.getJSON ("Buildings", buildingsServiceUrl, buildingServiceLocalFile, that._getBuildingsSuccess.bind(that), that._getBuildingsCacheSuccess.bind(that), that._getBuildingsError.bind(that));
+                }
+                else{
+                    console.log("Building request in progress.");
+                }
                 return;
             }
             
