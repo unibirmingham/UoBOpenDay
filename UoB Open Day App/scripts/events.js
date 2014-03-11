@@ -202,7 +202,10 @@
             
             if (moveUp)
             {
-                $j(div).find('span.event-move-up').removeClass('moveup-false').addClass('moveup-true').on('click',data, scheduleMoveClick);
+                $j(div).find('span.event-move-up').removeClass('moveup-false').addClass('moveup-true').kendoTouch({
+                         enableSwipe: false,
+                         touchstart: scheduleMoveClick
+                    });
             }
             else{
                 //Hide and remove click bindings
@@ -210,7 +213,10 @@
             }
             
             if (moveDown){
-                 $j(div).find('span.event-move-down').removeClass('movedown-false').addClass('movedown-true').on('click', data, scheduleMoveClick);
+                 $j(div).find('span.event-move-down').removeClass('movedown-false').addClass('movedown-true').kendoTouch({
+                         enableSwipe: false,
+                         touchstart: scheduleMoveClick
+                    });
             }
             else{
                 $j(div).find('span.event-move-down').removeClass('movedown-true').addClass('movedown-false').off('click');      
@@ -221,10 +227,13 @@
     
     var scheduleMoveClick = function(event)
     {
-        var span=this;
-        var currentDiv = $j(span).parent().parent().parent();
-        var dataSource = event.data.dataSource;   
-        var uid = $j(currentDiv).attr('data-uid');
+        var span=this.element[0];
+        //Get UID:
+        var currentLi = $j(span).parent().parent().parent();
+        var uid = $j(currentLi).attr('data-uid');
+        //Get datasource:
+        
+        var dataSource = currentLi.parent().data("kendoMobileListView").dataSource;   
         
         var eventItem = dataSource.getByUid(uid);
         
@@ -244,7 +253,7 @@
         }
         
         app.populateScheduleEventList();
-        
+        return false;
     };
         
     var reportNoData = function(listViewId, thisDataSourceData, noDataMessage)
@@ -285,28 +294,31 @@
         
         console.log("Selected " + eventGroup + " spans = " + selectedEventSpans.length);
         
-        $j(selectedEventSpans).click(function(){
-            var span=this;
-            
-            var uid = $j(span).parent().parent().parent().attr('data-uid');
-            
-            var eventItem = dataSource.getByUid(uid);
-            
-            if ($j(span).hasClass(eventGroup + "-true"))
-            {
-                setupIconSpan(eventGroup, span, false);
-                uob.events.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
-            }
-            else{
-                if(uob.events.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
-                {
-                    setupIconSpan(eventGroup, span, true);
-                }
-                else{
-                    navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
-                }
-            }
-            
+        $j(selectedEventSpans).kendoTouch({
+            enableSwipe: false,
+            touchstart: function (e){
+                    var span=this.element[0];
+                    
+                    var uid = $j(span).parent().parent().parent().attr('data-uid');
+                    
+                    var eventItem = dataSource.getByUid(uid);
+                    
+                    if ($j(span).hasClass(eventGroup + "-true"))
+                    {
+                        setupIconSpan(eventGroup, span, false);
+                        uob.events.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
+                    }
+                    else{
+                        if(uob.events.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+                        {
+                            setupIconSpan(eventGroup, span, true);
+                        }
+                        else{
+                            navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
+                        }
+                    }
+                return false;
+               }
         });
     };
 
