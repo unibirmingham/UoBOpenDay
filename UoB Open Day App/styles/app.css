@@ -35,13 +35,34 @@
     color: orange;
 }
 
-/*Events listings */
-
-#appBody .events-type .k-dropdown
+/* Drop down always appears too high */
+#appBody .k-dropdown
 {
     width: 50%;
-    top: 60%
+    top: 65%
 }
+
+/* iOS doesn't need to be so high */
+
+#appBody.km-on-ios .k-dropdown
+{
+    top: 60%;
+}
+
+/* iOS 7 needs highlighting */
+
+/* Drop down always appears too high */
+#appBody.km-on-ios.km-ios7 .k-dropdown
+{
+    background-color: #F4F4F4;
+    line-height: 1.2em;
+    border-radius: 5px;
+    top: 65%;
+    margin-right: .3em;
+}
+
+/*Events listings */
+
 
 #appBody .event-favourite,
 #appBody .event-schedule
