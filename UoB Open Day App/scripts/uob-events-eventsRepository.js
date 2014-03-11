@@ -74,8 +74,8 @@
         
         _setupEventItemDates: function(eventItem)
         {
-            eventItem.StartDate = uob.json.parseJsonDateWithoutTimezone(eventItem.StartDate);
-            eventItem.EndDate = uob.json.parseJsonDateWithoutTimezone(eventItem.EndDate);
+            eventItem.StartDate = uob.json.parseJsonDate(eventItem.StartDate);
+            eventItem.EndDate = uob.json.parseJsonDate(eventItem.EndDate);
         },
         
         _setupEventItemFunctions: function(eventItem)
@@ -125,7 +125,7 @@
                 eventItem.setScheduleStartDate =  function(scheduleStartDate)
                 {
                     var eventItem = this;
-                    eventItem._scheduleStartDate = new Date((scheduleStartDate? uob.json.parseJsonDateWithoutTimezone(scheduleStartDate): eventItem.StartDate));
+                    eventItem._scheduleStartDate = new Date((scheduleStartDate? uob.json.parseJsonDate(scheduleStartDate): eventItem.StartDate));
                 }
                 
                 //When does this end in the schedule

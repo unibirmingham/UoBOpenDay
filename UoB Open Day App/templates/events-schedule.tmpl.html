@@ -7,7 +7,7 @@
         </div>
         <div>
             <p>
-                <span class="event-info date">#= kendo.toString(kendo.parseDate(getScheduleStartDate()), 'HH:mm') #</span>
+                <span class="event-info date">#= uob.date.formatDateAsUK(getScheduleStartDate(), 'HH:mm') #</span>
                 <span class="event-title">#:Title#</span>
                 # //Events longer than 6 hours effectively last for all the open day.
                 if (isAllDayEvent()){

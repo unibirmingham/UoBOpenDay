@@ -4,6 +4,7 @@
     var openDay = app.openDay = app.openDay || {};
     
     var uob = global.uob = global.uob || {};
+    uob.date = uob.date || {};
     uob.json = uob.json || {};
     uob.log = uob.log || {};
     uob.screen= uob.screen || {};      
@@ -46,8 +47,8 @@
         
         for (var index = 0; index <startDates.length; ++index) {
             var startDateValue = startDates[index];
-            var startDate = uob.json.parseJsonDateWithoutTimezone(startDateValue);
-            var startDateDescription = kendo.toString(startDate, 'ddd, d MMMM');
+            var startDate = uob.json.parseJsonDate(startDateValue);
+            var startDateDescription = uob.date.formatDateAsUK(startDate,'ddd, DD MMM');
             
             var startDateItem = {
                 startDate: startDate,
