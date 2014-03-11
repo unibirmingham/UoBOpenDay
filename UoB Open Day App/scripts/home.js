@@ -47,7 +47,7 @@
         
         for (var index = 0; index <startDates.length; ++index) {
             var startDateValue = startDates[index];
-            var startDate = uob.json.parseJsonDate(startDateValue);
+            var startDate = startDateValue;
             var startDateDescription = uob.date.formatDateAsUK(startDate,'ddd, DD MMM');
             
             var startDateItem = {
@@ -95,7 +95,7 @@
         var openDayDate = openDay.getOpenDayDate();
         if (openDayDate)
         {
-            return kendo.parseDate(openDayDate);
+            return uob.json.parseJsonDate(openDayDate);
         }
         return null;
     }
