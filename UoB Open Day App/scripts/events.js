@@ -46,7 +46,7 @@
         filterFunction = function(eventItem){
             
             //Make sure the day matches
-            if (!eventDatesMatch(eventItem.StartDate, openDayDate))
+            if (!uob.date.daysMatchInUK(eventItem.StartDate, openDayDate))
             {
                 return false;
             }
@@ -103,7 +103,7 @@
         var filterFunction = function(eventItem){
             
             //Make sure the day matches
-            return eventDatesMatch(eventItem.StartDate, openDayDate);
+            return uob.date.daysMatchInUK(eventItem.StartDate, openDayDate);
         };
         
         var eventsListDataSource = new kendo.data.DataSource({
@@ -140,7 +140,7 @@
          var filterFunction = function(eventItem){
             
             //Make sure the day matches
-            return eventDatesMatch(eventItem.StartDate, openDayDate);
+            return uob.date.daysMatchInUK(eventItem.StartDate, openDayDate);
         };
         
         var eventsListDataSource = new kendo.data.DataSource({
@@ -325,10 +325,6 @@
             $j(span).addClass(falseClass);
         }
     }
-    
-    var eventDatesMatch =  function(date1, date2)
-    {
-        return (date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDay() !== date2.getDay());
-    }
+ 
 
 })(window, jQuery);

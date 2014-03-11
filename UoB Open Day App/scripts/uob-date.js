@@ -14,5 +14,17 @@
         
     }
 
+    uob.date.daysMatchInUK = function(date1, date2)
+    {
+
+        return (
+            moment(date1).tz('Europe/London').format('DD')=== moment(date2).tz('Europe/London').format('DD')
+            && moment(date1).tz('Europe/London').format('MM')=== moment(date2).tz('Europe/London').format('MM')
+            && moment(date1).tz('Europe/London').format('YYYY')=== moment(date2).tz('Europe/London').format('YYYY')
+            );
+        
+        
+    }
+    
 }
 )(window);
