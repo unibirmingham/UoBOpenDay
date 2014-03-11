@@ -29,7 +29,6 @@
     <script src="scripts/events.js"></script>
     <script src="scripts/map.js"></script>
     <script src="scripts/faqs.js"></script>
-    <script src="scripts/about.js"></script>
     <script src="scripts/appstart.js"></script>
 </head>
 
@@ -67,7 +66,7 @@
                 <li class="eventServiceButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapServiceButton eventServiceButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
-                <li><a data-icon="about" href="#tabstrip-about" data-transition="slide">About the application</a></li>
+                <li><a data-icon="settings" href="#tabstrip-settings" data-transition="slide">Settings</a></li>
             </ul>
             <div class="img"></div>
         </div>
@@ -168,10 +167,10 @@
         </div>
      </div>
     
-    <!-- About information -->
-    <div id="tabstrip-about" data-role="view" data-init="app.populateAboutInfo" data-title="About">
+    <!-- Settings information -->
+    <div id="tabstrip-settings" data-role="view" data-init="app.populateSettingsInfo" data-title="Settings">
         <div class="view-content">
-            <div id="aboutContent">
+            <div id="settingsContent">
                 <ul data-role="listview" data-style="inset">
                     <li>Connection type: <span class="connectionTypeData">Loading ...</span></li>
                     <li>Birmingham Web Site: <span class="birminghamWebSite">Loading ...</span></li>

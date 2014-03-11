@@ -1,4 +1,4 @@
-(function (global) {
+(function (global, $j) {
  
     var uob = global.uob = global.uob || {};
     uob.url = uob.url || {};
@@ -9,5 +9,16 @@
     
     uob.testMode = true; //test mode uses the local data files.
     
-}
-)(window);
+    app.populateSettingsInfo = function(e)  {
+        
+        //Show the connection type:
+        $j('#settingsContent .connectionTypeData').text(navigator.network.connection.type);  
+        
+        //Where is data coming from:
+        $j('#settingsContent .birminghamWebSite').text(uob.url.WebSite); 
+        $j('#settingsContent .eventsWebService').text(uob.url.EventsService); 
+        $j('#settingsContent .mapsWebService').text(uob.url.MapsService); 
+        
+    }
+    
+})(window, jQuery);
