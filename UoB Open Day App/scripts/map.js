@@ -27,7 +27,8 @@
         _watchId: "",
         mapData: null,
         isGoogleMapsInitialized: false,
-
+        trackingDistanceInKm: 2,
+        
         showLoading: function () {
             if (this._isLoading) {
                 app.application.showLoading();
@@ -73,8 +74,8 @@
             var that = this;
             if (!that._watchId){
                 var geoLocationOptions = {timeout: 10000, enableHighAccuracy: true};
-                that._mapStatus("High");
-                that._watchId = navigator.geolocation.watchPosition(that._showPositionOnMap.bind(that), that._watchPositionHighAccuracyError.bind(that), geoLocationOptions);
+                that._mapStatus("Tracking ...");
+                that._watchId = navigator.geolocation.watchPosition(that._watchPositionHighAccuracy.bind(that), that._watchPositionHighAccuracyError.bind(that), geoLocationOptions);
                 console.log("Tracking user with watch id: " + that._watchId);
             }
             else{
@@ -144,7 +145,7 @@
             var mapCenter = that._googleMap.getCenter();
             var kmFromCenterOfMap = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, mapCenter);
             
-            if (!isOnMap && kmFromCenterOfMap>2){
+            if (!isOnMap && kmFromCenterOfMap> that.trackingDistanceInKm){
                 
                 uob.log.addLogMessage("User is off map and " + kmFromCenterOfMap + "km from center -- untracking");
                 that._mapStatus("Off Map");
@@ -182,21 +183,33 @@
         _mapStatus: function(text){
             $j("#mapStatus").text(text);  
         },
+        _watchPositionHighAccuracy: function(position){
+            var that = this;
+            that._mapStatus("High");
+            that._showPositionOnMap(position);
+        },
+        _watchPositionLowAccuracy: function(position){
+            var that = this;
+            that._mapStatus("Low");
+            that._showPositionOnMap(position);
+        },
         _watchPositionHighAccuracyError: function(error){
             var that = this;
             
             uob.log.addLogWarning("Attempt to get High Accuracy location failed so trying low accuracy location Code: "+ error.code + " Message: " + error.message);
             that.untrackUser();
             var geoLocationOptions = {timeout: 10000, enableHighAccuracy: false};
-            that._mapStatus('Low');
-            that._watchId = navigator.geolocation.watchPosition(that._showPositionOnMap.bind(that), that._watchPositionLowAccuracyError.bind(that), geoLocationOptions);
+            that._watchId = navigator.geolocation.watchPosition(that._watchPositionLowAccuracy.bind(that), that._watchPositionLowAccuracyError.bind(that), geoLocationOptions);
             
         },
         _watchPositionLowAccuracyError: function(error)
         {
             var that = this;
             uob.log.addLogWarning("Low accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
-            that._mapStatus('None');
+            if (that._watchId){
+                //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
+                that._mapStatus('None');
+            }
         }
         
     });
