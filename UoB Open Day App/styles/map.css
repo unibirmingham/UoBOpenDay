@@ -39,3 +39,18 @@
     background-image: url(../styles/images/location_active.png);
     background-repeat: no-repeat;
 }
+
+#appBody #mapMessage,
+#appBody #mapStatus
+{
+    padding-top: .5em;
+    padding-left: .3em;
+    color: white;
+    float: left;
+}
+
+#appBody #mapStatus
+{
+    float: right;
+    padding-right: 1em;
+}
