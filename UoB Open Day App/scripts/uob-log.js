@@ -15,11 +15,13 @@
     
     uob.log.addLogMessage = function(message, level)
     {
+        var now = new Date();
         var messageClass = "logMessage";
         if (level)
         {
              messageClass = "log" + level;   
         }
+        message = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "." + now.getMilliseconds() + " - " + message;
         $j("#consoleLog").append('<p class="' + messageClass + '">' + message + "</p>");
         console.log(message);
         

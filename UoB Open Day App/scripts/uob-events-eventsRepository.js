@@ -7,6 +7,7 @@
     
     var uob = global.uob = global.uob || {};
     uob.events = uob.events || {};
+    uob.date = uob.date || {};
     uob.json = uob.json || {};
     uob.log = uob.log || {};
     uob.screen= uob.screen || {};    
@@ -76,6 +77,10 @@
         {
             eventItem.StartDate = uob.json.parseJsonDate(eventItem.StartDate);
             eventItem.EndDate = uob.json.parseJsonDate(eventItem.EndDate);
+            
+            eventItem.StartDayInUK = uob.date.formatDateAsUK(eventItem.StartDate, 'YYYY-MM-DD');
+            eventItem.StartTimeInUK = uob.date.formatDateAsUK(eventItem.StartDate, 'HH:mm');
+            
         },
         
         _setupEventItemFunctions: function(eventItem)
@@ -583,7 +588,7 @@
                 }
             }
            
-            console.log("Returning " + selectedEventData.length + " selected events for " + eventGroup);
+            console.log("Returning " + selectedEventItems.length + " selected events for " + eventGroup);
             return selectedEventItems;
         },
 

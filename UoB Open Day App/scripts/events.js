@@ -43,10 +43,13 @@
         
         var openDayDate = app.openDay.getOpenDayDateAsDate();
         console.log("Filtering by " + activityFilter.value() + " and date: " + openDayDate);
+        
+        var filterFunctionForOpenDayDate = getFilterFunctionForOpenDayDate();
+        
         filterFunction = function(eventItem){
             
             //Make sure the day matches
-            if (!uob.date.daysMatchInUK(eventItem.StartDate, openDayDate))
+            if (!filterFunctionForOpenDayDate(eventItem))
             {
                 return false;
             }
@@ -98,16 +101,9 @@
     app.populateFavouriteEventList = function (e){
         
         var eventsListViewId = "open-day-favourite-events-view";
-        
-        var openDayDate = app.openDay.getOpenDayDateAsDate();
-        var filterFunction = function(eventItem){
-            
-            //Make sure the day matches
-            return uob.date.daysMatchInUK(eventItem.StartDate, openDayDate);
-        };
-        
+         
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  uob.events.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, filterFunction),
+                data:  uob.events.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate()),
                 pageSize: 10000
             });
         
@@ -135,16 +131,12 @@
     
     app.populateScheduleEventList = function (e){
         
-        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        uob.log.addLogMessage("Populate Schedule");
         
-         var filterFunction = function(eventItem){
-            
-            //Make sure the day matches
-            return uob.date.daysMatchInUK(eventItem.StartDate, openDayDate);
-        };
+        uob.log.addLogMessage("Got Data");
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.events.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, filterFunction),
+                data: uob.events.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate()),
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -154,7 +146,7 @@
         
         if ($j("#" + scheduleEventsListViewId).data("kendoMobileListView"))
         {
-            console.log("Updating schedule list view data source");
+            uob.log.addLogMessage("Updating schedule list view data source");
             $j("#" + scheduleEventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
         }
         else{
@@ -163,6 +155,7 @@
                 dataSource: eventsListDataSource,
                 template: $j("#events-schedule-template").text(),
                 dataBound: function(){
+                    uob.log.addLogMessage("Data Bound");
                     hideIcons(scheduleEventsListViewId, favouriteEventGroup);
                     hideIcons(scheduleEventsListViewId, scheduleEventGroup);
                     setupMoveUpAndDown(scheduleEventsListViewId, this.dataSource);
@@ -173,11 +166,24 @@
         }    
     };
     
+    var getFilterFunctionForOpenDayDate = function()
+    {
+        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        var openDayDateInUk = uob.date.formatDateAsUK(openDayDate, 'YYYY-MM-DD');
+        
+        var filterFunction = function(eventItem){
+            
+            //Make sure the day matches
+            return eventItem.StartDayInUK===  openDayDateInUk;
+        };
+        
+        return filterFunction;
+    }
+    
     var setupMoveUpAndDown = function(listViewId, dataSource){
         
-        console.log("Setup move up and down icons");
-        
-        
+        uob.log.addLogMessage("Setup move up and down icons");
+                
         $j("#" + listViewId + " div.schedule-movers").each(function() {
             
             var div = this;
@@ -227,9 +233,11 @@
     
     var scheduleMoveClick = function(event)
     {
-        var span=this.element[0];
+        uob.log.addLogMessage("Move Clicked");
+        var span=$j(this.element[0]);
+        span.hide();
         //Get UID:
-        var currentLi = $j(span).parent().parent().parent();
+        var currentLi = span.parent().parent().parent();
         var uid = $j(currentLi).attr('data-uid');
         //Get datasource:
         
@@ -239,7 +247,7 @@
         
         var moveEvent;
         
-        if ($j(span).hasClass('event-move-up'))
+        if (span.hasClass('event-move-up'))
         {
             moveEvent = uob.events.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }
@@ -250,8 +258,8 @@
         if (!moveEvent)
         {
             navigator.notification.alert("Cannot move activity in schedule -- you may need to move some of your other events to fit it in.", null,"Schedule clash", 'OK');
+            return;
         }
-        
         app.populateScheduleEventList();
         return false;
     };
