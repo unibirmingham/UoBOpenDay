@@ -73,7 +73,7 @@
         trackUser: function(){
             var that = this;
             if (!that._watchId){
-                var geoLocationOptions = {timeout: 10000, enableHighAccuracy: true};
+                var geoLocationOptions = {timeout: 10000, enableHighAccuracy: true, maximumAge: 2000};
                 that._mapStatus("Tracking ...");
                 that._watchId = navigator.geolocation.watchPosition(that._watchPositionHighAccuracy.bind(that), that._watchPositionHighAccuracyError.bind(that), geoLocationOptions);
                 console.log("Tracking user with watch id: " + that._watchId);
@@ -89,6 +89,7 @@
                 navigator.geolocation.clearWatch(that._watchId);
                 console.log("Untracking user with watch id: " + that._watchId);
                 that._watchId = "";
+                that._setMarker(null);
             }
         },
         trackLatLng: function(latLng)
@@ -131,10 +132,10 @@
         },
         _showPositionOnMap: function (position) {
             var that = this;
-
-            //Get rid of last marker if there is one
-            if (that._lastMarker !== null && that._lastMarker !== undefined) {
-                that._lastMarker.setMap(null);
+            if (!that._watchId)
+            {
+                console.log("There is no watch set so not showing position");
+                return;
             }
             
             //Get the current position as LatLng
@@ -153,12 +154,7 @@
                 return;
             }
             
-            console.log("Putting marker in for current position");
-            that._lastMarker = new google.maps.Marker({
-                map: that._googleMap,
-                position: positionLatLng
-            });
-            
+            that._setMarker(positionLatLng);
             if (that._latLngToTrack)
             {
                 var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, that._latLngToTrack);
@@ -175,6 +171,22 @@
             }
             else{
                  that._mapMessage("");
+            }
+        },
+        _setMarker: function(positionLatLng)
+        {
+            var that = this;
+            //Get rid of last marker if there is one
+            if (that._lastMarker !== null && that._lastMarker !== undefined) {
+                that._lastMarker.setMap(null);
+            }
+            
+            if (positionLatLng!==null){
+                console.log("Putting marker in for current position");
+                that._lastMarker = new google.maps.Marker({
+                    map: that._googleMap,
+                    position: positionLatLng
+                });
             }
         },
         _mapMessage: function(text){
@@ -195,21 +207,33 @@
         },
         _watchPositionHighAccuracyError: function(error){
             var that = this;
+                      
+            console.log("High accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
+            that._setMarker(null);
+            if (that._watchId){
+                //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
+                that._mapStatus('No GPS signal');
             
-            uob.log.addLogWarning("Attempt to get High Accuracy location failed so trying low accuracy location Code: "+ error.code + " Message: " + error.message);
-            that.untrackUser();
-            var geoLocationOptions = {timeout: 10000, enableHighAccuracy: false};
-            that._watchId = navigator.geolocation.watchPosition(that._watchPositionLowAccuracy.bind(that), that._watchPositionLowAccuracyError.bind(that), geoLocationOptions);
-            
+                uob.log.addLogWarning("High accuracy position error so trying low accuracy location Code: "+ error.code + " Message: " + error.message);
+                that.untrackUser();
+                var geoLocationOptions = {timeout: 10000, enableHighAccuracy: false, maximumAge: 2000};
+                that._watchId = navigator.geolocation.watchPosition(that._watchPositionLowAccuracy.bind(that), that._watchPositionLowAccuracyError.bind(that), geoLocationOptions);
+            }
         },
         _watchPositionLowAccuracyError: function(error)
         {
             var that = this;
-            uob.log.addLogWarning("Low accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
+            that._setMarker(null);
+            that._mapStatus("Unknown");
+            console.log("Low accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
+            
             if (that._watchId){
                 //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
-                that._mapStatus('None');
+                uob.log.addLogError("Low accuracy position error: Untracking user. Code: " + error.code + " Message: " + error.message);
+                that.untrackUser();
+                that._mapStatus('Not tracking');
             }
+
         }
         
     });
