@@ -245,6 +245,9 @@
         campusMapData: null,
         
         campusGoogleMap: null,
+        
+        buildingMap: null,
+        
         _mapSuccess: function(data)
         {
             var that = this;
@@ -303,8 +306,6 @@
             console.log("Map initialise");
             app.campusMapService.viewModel.showLoading();
 
-            var mapOptions;
-
             if (typeof google === "undefined"){
                 $j('#no-map').text('Error initialising map: Google not found');
                 return;
@@ -338,7 +339,7 @@
             
             var campusMapStyle = new google.maps.StyledMapType(googleMapStyling, { name: "Campus Map" });
             
-            mapOptions = {
+            var mapOptions = {
                 zoom: 15,
                 center: app.campusMapService.campusMapData.latLngBounds().getCenter(),
                 zoomControl: true,
@@ -350,19 +351,20 @@
                 mapTypeControlOptions: {mapTypeIds: ['Campus Map']}
             };
 
-            var newCampusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+            var campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
             
-            newCampusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
-            newCampusGoogleMap.setMapTypeId('Campus Map');
+            campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
+            campusGoogleMap.setMapTypeId('Campus Map');
             
-            app.campusMapService.viewModel.setGoogleMap ( newCampusGoogleMap);
-            app.campusMapService.campusGoogleMap = newCampusGoogleMap;
+            app.campusMapService.viewModel.setGoogleMap ( campusGoogleMap);
+            app.campusMapService.campusGoogleMap = campusGoogleMap;
             
             app.campusMapService.showHelpPoints();
             
+            app.campusMapService.buildingMap = new uob.map.buildingMap(campusGoogleMap, eventBuildingsJsonUrl, 'data/events-buildings.json');
+            
             app.campusMapService.viewModel.showMap();
             
-            uob.map.buildingAndFacilityMap.setGoogleMap(newCampusGoogleMap);
         },
         
         showHelpPoints: function(){this.helpPointsLayer.setMap(app.campusMapService.campusGoogleMap);},
@@ -375,7 +377,7 @@
                 buildingId = parseInt(buildingId);
                 if (buildingId)
                 {
-                    center = uob.map.buildingAndFacilityMap.getBuildingCenterLatLng(buildingId);
+                    center = app.campusMapService.buildingMap.getBuildingCenterLatLng(buildingId);
                 }
             }
             that.viewModel.trackLatLng(center);
@@ -390,7 +392,7 @@
             }
             var buildingId = e.view.params.buildingId;
             
-            uob.map.buildingAndFacilityMap.showBuildings(eventBuildingsJsonUrl, 'data/events-buildings.json', buildingId, app.campusMapService._showBuildingsSuccess.bind(app.campusMapService) );
+            app.campusMapService.buildingMap.showBuildings(buildingId, app.campusMapService._showBuildingsSuccess.bind(app.campusMapService) );
             
             //Tell map that is now visible
             app.campusMapService.viewModel.showMap();

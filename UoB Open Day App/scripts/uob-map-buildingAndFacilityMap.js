@@ -7,61 +7,55 @@
     uob.google = uob.google || {};
     uob.map = uob.map || {};
     
-    uob.map.buildingAndFacilityMap = {
+    uob.map.buildingMap = function(googleMap, buildingsServiceUrl, buildingServiceLocalFile) {
         
-        buildings:null,
-        campusMapData: null,
-        _googleMap: null,
-        _showBuildingBuildingId: null,
-        _showBuildingSuccessFunction: null,
-        _buildingRequestInProgress: false,
+        //Private variables:
+        var _self = this;
+        var _googleMap = googleMap;
+        var _buildingsServiceUrl = buildingsServiceUrl;
+        var _buildingServiceLocalFile = buildingServiceLocalFile;
         
+        var _showBuildingBuildingId= null;
+        var _showBuildingSuccessFunction= null;
+        var _buildingRequestInProgress =  false;
         
-        _setBuildings: function(data)
+        var _buildings = null;
+        
+        //Private functions
+        
+        var _setBuildings =  function(data)
         {
-            var that = this
-            if (!that.buildings){
-                that.buildings = data;
+            if (!_buildings){
+                _buildings = data;
             }
-            that._buildingRequestInProgress = false;
-            //Get the building to show if there is one:
-            var buildingId = that._showBuildingBuildingId;
-            var successFunction = that._showBuildingSuccessFunction;
+            _buildingRequestInProgress = false;
+            //Get the building to show and successs function if there is one:
+            var buildingId = _showBuildingBuildingId;
+            var successFunction = _showBuildingSuccessFunction;
             
-            that._showBuildingBuildingId = null;
-            that._showBuildingSuccessFunction= null;
-            that.showBuildings(null, null, buildingId, successFunction);
+            _showBuildingBuildingId = null;
+            _showBuildingSuccessFunction= null;
+            _self.showBuildings(buildingId, successFunction);
 
-        },
+        };
         
-        _getBuildingsSuccess: function(data)
+        var _getBuildingsSuccess = function(data)
         {
-            var that = this;
-            that._setBuildings(data);
-        },
+            _setBuildings(data);
+        };
         
-        _getBuildingsCacheSuccess: function(data)
+        var _getBuildingsCacheSuccess = function(data)
         {
-            var that = this;
             uob.log.addCacheMessage('Events building data: From local cache');
-            that._setBuildings(data);            
-        },
-        _getBuildingsError: function(data)
+            _setBuildings(data);            
+        };
+        
+        var _getBuildingsError = function(data)
         {
             uob.log.addErrorMessage('Events building data: Failed to retrieve data');
-        },
-        
-        setGoogleMap: function(googleMap)
-        {
-            this._googleMap = googleMap;    
-        },
-        
-        getGoogleMap: function()
-        {
-            return this._googleMap;
-        },
-        
-        showBuildings: function(buildingsServiceUrl, buildingServiceLocalFile, buildingId, successFunction){
+        };
+                
+        this.showBuildings = function(buildingId, successFunction){
             
             var that = this;
             
@@ -70,25 +64,25 @@
                 buildingId = parseInt(buildingId);
             }
             
-            if (!that.buildings)
+            if (!_buildings)
             {
-                that._showBuildingBuildingId = buildingId;
-                that._showBuildingSuccessFunction = successFunction;
-                if (!that._buildingRequestInProgress)
+                _showBuildingBuildingId = buildingId;
+                _showBuildingSuccessFunction = successFunction;
+                if (!_buildingRequestInProgress)
                 {
-                    that._buildingRequestInProgress = true;
-                    uob.json.getJSON ("Buildings", buildingsServiceUrl, buildingServiceLocalFile, that._getBuildingsSuccess.bind(that), that._getBuildingsCacheSuccess.bind(that), that._getBuildingsError.bind(that));
+                    _buildingRequestInProgress = true;
+                    uob.json.getJSON ("Buildings", _buildingsServiceUrl, _buildingServiceLocalFile, _getBuildingsSuccess.bind(that), _getBuildingsCacheSuccess.bind(that), _getBuildingsError.bind(that));
                 }
                 else{
-                    console.log("Building request in progress.");
+                    console.log("Building request in progress: Not re-requesting JSON data.");
                 }
                 return;
             }
             
             console.log("Showing building data with building Id: " + buildingId);
-            for (var i in that.buildings) {
+            for (i = 0; i <_buildings.length; ++i) {
 
-                var building = that.buildings[i];
+                var building = _buildings[i];
                 
                 if (typeof building.googlePolygon === "undefined") {
                     
@@ -111,38 +105,34 @@
                     building.googleMapLabels = uob.google.getMapLabels(labelText, center);
                 }
                 
-                var googleMapForBuilding = app.campusMapService.campusGoogleMap;
-                
                 if (buildingId){
+                   
+                   //If a specified building is being asked for then make it darker to stand out
                    if (buildingId===building.ContentId){
-                       
-                        //If a specified building is being asked for then hide other buildings
-                        building.googlePolygon.setOptions({fillOpacity:.7});  
-                        
+                       building.googlePolygon.setOptions({fillOpacity:.7});  
                     }
                     else{
-                            //If a specified building is being asked for then hide other buildings
-                            building.googlePolygon.setOptions({fillOpacity:.2});  
-                        }
+                        building.googlePolygon.setOptions({fillOpacity:.2});
+                    }
                 }
                 else
                 {
+                    //If we're showing all buildings leave them with a middling level of opacity
                      building.googlePolygon.setOptions({fillOpacity:.5});
                 }
                 
                 if (buildingId === building.ContentId)
                 {   
-                   
                     console.log("Setting center of map to center of " + building.BuildingName);
                     var selectedBuilding = building;
                     var buildingCenter = uob.google.getPolygonCenter(building.googlePolygon);                        
-                    if (building.googleMapLabels){
-                        //Set the zoom to enable the labels to be seen:
-                        googleMapForBuilding.setZoom(building.googleMapLabels[0].minZoom);
+                    if (building.googleMapLabels && _googleMap.getZoom()<building.googleMapLabels[0].minZoom){
+                        //if the zoom doesn't allow the map labels to be seen then change it to make them visible.
+                        _googleMap.setZoom(building.googleMapLabels[0].minZoom);
                     }
-                    googleMapForBuilding.setCenter(buildingCenter);
+                    _googleMap.setCenter(buildingCenter);
                     
-                    //If we've got campus map data, see if we're on campus and if so show us and the building in relation.
+                    //If we've got campus map data, see if we're on campus and if so, show us and the building in relation.
                     navigator.geolocation.getCurrentPosition(
                                             function(position){
                                                 var positionLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -163,33 +153,32 @@
                     
                 }
                 
-                building.googlePolygon.setMap(googleMapForBuilding);
+                building.googlePolygon.setMap(_googleMap);
                 for (var iml in building.googleMapLabels){
                     var mapLabel = building.googleMapLabels[iml];
-                    mapLabel.setMap(googleMapForBuilding);
+                    mapLabel.setMap(_googleMap);
                 }
             }
             if (successFunction){
                 successFunction(buildingId);    
             }
              
-        },
+        };
 
-        getBuildingCenterLatLng: function(buildingId)
+        this.getBuildingCenterLatLng =  function(buildingId)
         {
-            var that = this;
-            if (that.buildings)
+            if (_buildings)
             {
-                console.log("Showing building data with building Id: " + buildingId);
-                for (var i in that.buildings) {
-                    var building = that.buildings[i];
+                console.log("Getting centre for building Id: " + buildingId);
+                for (i = 0; i <_buildings.length; ++i)  {
+                    var building = _buildings[i];
                     if (building.ContentId===buildingId){
                         return uob.google.getPolygonCenter(building.googlePolygon);
                     }
                 }
             
             }
-        }
+        };
     }
 
 }
