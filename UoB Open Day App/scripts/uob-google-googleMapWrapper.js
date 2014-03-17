@@ -11,6 +11,8 @@
 
 	uob.google.googleMapWrapper = function(googleMap, mapData)
     {
+        
+        var _self = this,
         	_googleMap= googleMap,
         	_mapData = mapData,
         	_lastMarker= null,
@@ -20,8 +22,22 @@
         
         this.trackingDistanceInKm= 2;
       
+        this.getGoogleMap = function()
+        {
+            return _googleMap;
+        }
+        
+        this.setMapMessage = function(text){
+            if (!text){
+                text = "";
+            }
+            _googleMapParentDiv().find(".mapMessage").text(text);
+        };
+        
         this.showMap = function(){
 			google.maps.event.addListener(_googleMap, 'center_changed', _trackCenter);
+            //Clear any old messages:
+            _self.setMapMessage(null);
             global.addEventListener('orientationchange', _orientationchange);
             //Setup user geolocation tracking
             _trackUser();
@@ -36,7 +52,13 @@
                 
         this.trackLatLng = function(latLng)
         {
+            if (_latLngToTrack!==null && latLng===null)
+            {
+                //Basically this will clear the existing message.
+                _self.setMapMessage(null);
+			}            
             _latLngToTrack = latLng;
+
         },
         this.centerOnMapData = function()
         {
@@ -144,10 +166,7 @@
                 if (minutesToReach===0){
                     mapMessage = "You have reached your destination";
                 }
-                _mapMessage(mapMessage);
-            }
-            else{
-                 _mapMessage("");
+                _self.setMapMessage(mapMessage);
             }
         };
         
@@ -197,10 +216,7 @@
         var _googleMapParentDiv = function(){
             return $j(_googleMap.getDiv()).parent();
         }
-        
-        var _mapMessage = function(text){
-            _googleMapParentDiv().find(".mapMessage").text(text);
-        };
+               
         var _mapStatus = function(text){
             
             _googleMapParentDiv().find(".mapStatus").text(text);

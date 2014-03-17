@@ -95,7 +95,7 @@
             
             app.campusMapService.showHelpPoints();
             
-            buildingMap = new uob.map.buildingMap(campusGoogleMap, eventBuildingsJsonUrl, 'data/events-buildings.json');
+            buildingMap = new uob.map.buildingMap(googleMapWrapper, eventBuildingsJsonUrl, 'data/events-buildings.json');
             
             googleMapWrapper.showMap();
             

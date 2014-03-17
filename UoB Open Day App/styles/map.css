@@ -18,7 +18,9 @@
     position: absolute;
     z-index: 10;
     background-color: rgba(0, 0, 0, 0.5);
-    padding: 3px;
+    padding-top: 3px;
+    padding-left: 3px;
+    padding-right: 3px;
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
@@ -43,6 +45,7 @@
 #appBody #map-header .mapMessage,
 #appBody #map-header .mapStatus
 {
+    width: 60%;
     padding-top: .5em;
     padding-left: .3em;
     color: white;
@@ -51,6 +54,7 @@
 
 #appBody #map-header .mapStatus
 {
+    width:20%;
     float: right;
     padding-right: 1em;
 }

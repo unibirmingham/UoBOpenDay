@@ -7,17 +7,23 @@
     uob.google = uob.google || {};
     uob.map = uob.map || {};
     
-    uob.map.buildingMap = function(googleMap, buildingsServiceUrl, buildingServiceLocalFile) {
+    uob.map.buildingMap = function(googleMapWrapper, buildingsServiceUrl, buildingServiceLocalFile) {
         
         //Private variables:
+        var DEFAULT_OPACITY = .5;
+        var SELECTED_OPACITY = .7;
+        var UNSELECTED_OPACITY = .2;
+        
         var _self = this;
-        var _googleMap = googleMap;
+        var _googleMapWrapper = googleMapWrapper;
+        var _googleMap = googleMapWrapper.getGoogleMap();
         var _buildingsServiceUrl = buildingsServiceUrl;
         var _buildingServiceLocalFile = buildingServiceLocalFile;
         
         var _showBuildingBuildingId= null;
         var _showBuildingSuccessFunction= null;
         var _buildingRequestInProgress =  false;
+        var _clickedBuildings = [];        
         
         var _buildings = null;
         
@@ -54,6 +60,70 @@
         {
             uob.log.addErrorMessage('Events building data: Failed to retrieve data');
         };
+        
+        var _restoreBuildingOpacity = function(opacity)
+        {
+            
+            if (!opacity)
+            {
+				opacity = DEFAULT_OPACITY;
+            }
+            
+            for (var i = 0; i <_buildings.length; ++i) {
+            
+                var building = _buildings[i];
+                building.googlePolygon.setOptions({fillOpacity:opacity});
+            }
+		}
+        
+        var _setupBuildingClick = function(building)
+        {
+
+            google.maps.event.addListener(building.googlePolygon, 'click', function (event) {
+            
+                //Is this building already selected
+                
+                //If there are already 2 selected items then clear them
+                if (_clickedBuildings.length>1){
+                    _restoreBuildingOpacity();
+                    _clickedBuildings = [];
+                }
+                
+                //Show the selected building:
+				building.googlePolygon.setOptions({fillOpacity:SELECTED_OPACITY});
+                
+                
+                _clickedBuildings.push(building);
+                
+                if (_clickedBuildings.length===1)
+                {
+                    //Let's wipe out any existing tracking and take over.
+                    _googleMapWrapper.trackLatLng(null);
+                    message = "'" +  _clickedBuildings[0].BuildingName + "'";
+                    _googleMapWrapper.setMapMessage(message);
+                }
+                
+                if (_clickedBuildings.length>1)
+                {
+                    var building1Center = uob.google.getPolygonCenter(_clickedBuildings[0].googlePolygon);
+                    var building2Center = uob.google.getPolygonCenter(_clickedBuildings[1].googlePolygon);
+                    var minutesToReach = Math.round(uob.google.getDistanceBetweenTwoLatLngsInKm(building1Center, building2Center)/.060);
+                                       
+                    var distanceDescription= minutesToReach + " minutes";
+                	if (minutesToReach===1){
+                    	distanceDescription = minutesToReach + " minute";
+                	}
+                    
+                    var message = "'" +  _clickedBuildings[0].BuildingName + "' to '" + _clickedBuildings[1].BuildingName + "': " + distanceDescription;
+                                    
+                    //Let's wipe out any existing tracking and take over.
+                    _googleMapWrapper.trackLatLng(null);
+                    _googleMapWrapper.setMapMessage(message);
+                    
+                }
+                
+            });
+        }
                 
         this.showBuildings = function(buildingId, successFunction){
             
@@ -80,7 +150,7 @@
             }
             
             console.log("Showing building data with building Id: " + buildingId);
-            for (i = 0; i <_buildings.length; ++i) {
+            for (var i = 0; i <_buildings.length; ++i) {
 
                 var building = _buildings[i];
                 
@@ -96,6 +166,7 @@
                     }
                     building.googleBuildingCoords = googleBuildingCoords;
                     building.googlePolygon = uob.google.getPolygon(googleBuildingCoords, building.Colour);
+                    _setupBuildingClick(building);
                 }
                 
                 if (typeof building.googleMapLabels === "undefined"){
@@ -109,16 +180,16 @@
                    
                    //If a specified building is being asked for then make it darker to stand out
                    if (buildingId===building.ContentId){
-                       building.googlePolygon.setOptions({fillOpacity:.7});  
+                       building.googlePolygon.setOptions({fillOpacity:SELECTED_OPACITY});  
                     }
                     else{
-                        building.googlePolygon.setOptions({fillOpacity:.2});
+                        building.googlePolygon.setOptions({fillOpacity:UNSELECTED_OPACITY});
                     }
                 }
                 else
                 {
                     //If we're showing all buildings leave them with a middling level of opacity
-                     building.googlePolygon.setOptions({fillOpacity:.5});
+                    building.googlePolygon.setOptions({fillOpacity:DEFAULT_OPACITY});
                 }
                 
                 if (buildingId === building.ContentId)
@@ -170,7 +241,7 @@
             if (_buildings)
             {
                 console.log("Getting centre for building Id: " + buildingId);
-                for (i = 0; i <_buildings.length; ++i)  {
+                for (var i = 0; i <_buildings.length; ++i)  {
                     var building = _buildings[i];
                     if (building.ContentId===buildingId){
                         return uob.google.getPolygonCenter(building.googlePolygon);
@@ -179,6 +250,8 @@
             
             }
         };
+        
+        
     }
 
 }
