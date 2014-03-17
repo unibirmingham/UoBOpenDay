@@ -122,8 +122,10 @@
         
         hide: function () {
             console.log("Map hide");
-            //Tell map that it is no longer visible
-            googleMapWrapper.hideMap();
+            if (googleMapWrapper){
+                //Tell map that it is no longer visible
+                googleMapWrapper.hideMap();
+            }
             
         },
        
