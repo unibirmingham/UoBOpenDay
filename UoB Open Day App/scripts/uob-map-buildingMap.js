@@ -142,7 +142,7 @@
                                                     console.log("Showing person on map as " + distanceFromBuildingToPosition + "km away");
                                                     var bounds =uob.google.getPolygonLatLngBounds(selectedBuilding.googlePolygon);
                                                     bounds.extend(positionLatLng);
-                                                    googleMapForBuilding.fitBounds(bounds);
+                                                    _googleMap.fitBounds(bounds);
                                                 }
                                                 else{
                                                     console.log("Not showing person on map as " + distanceFromBuildingToPosition + "km away");

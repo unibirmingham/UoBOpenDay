@@ -28,7 +28,9 @@
     <script src="scripts/uob-json.js"></script>
     <script src="scripts/uob-web.js"></script>
     <script src="scripts/uob-events-eventsRepository.js"></script>
-    <script src="scripts/uob-map-buildingAndFacilityMap.js"></script>
+    <script src="scripts/uob-map-mapRepository.js"></script>
+    <script src="scripts/uob-map-buildingMap.js"></script>
+    <script src="scripts/uob-google-googleMapWrapper.js"></script>
     <script src="scripts/settings.js"></script>
     <script src="scripts/home.js"></script>
     <script src="scripts/events.js"></script>
@@ -66,10 +68,10 @@
                 </ul>
             </div>
             <ul data-role="listview" datatype="group">
-                <li class="eventServiceButton startDatesButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
-                <li class="eventServiceButton startDatesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
-                <li class="eventServiceButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="mapServiceButton eventServiceButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="eventsRepositoryButton startDatesButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
+                <li class="eventsRepositoryButton startDatesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
+                <li class="eventsRepositoryButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
+                <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
                 <li><a data-icon="settings" href="#tabstrip-settings" data-transition="slide">Settings</a></li>
             </ul>
@@ -149,18 +151,17 @@
         data-init="app.campusMapService.initialise"
         data-show="app.campusMapService.show"
         data-hide="app.campusMapService.hide"
-        data-model="app.campusMapService.viewModel"
         data-stretch="true">
 
-        <div id="no-map" data-bind="invisible: isGoogleMapsInitialized">
+        <div id="no-map">
             Campus map requires internet connection to display.
         </div>
-        <div id="map-header" data-bind="visible: isGoogleMapsInitialized">
-            <button id="map-return-to-campus" data-bind="click: returnToCampus"></button>
-            <div id="mapMessage"></div>
-            <div id="mapStatus"></div>
+        <div id="map-header">
+            <button id="map-return-to-campus"></button>
+            <div class="mapMessage"></div>
+            <div class="mapStatus"></div>
         </div>
-        <div id="map-canvas" data-bind="visible: isGoogleMapsInitialized"></div>
+        <div id="map-canvas"></div>
 
     </div>
       
@@ -207,7 +208,7 @@
         <div id="appFooter" data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
-                <a class="eventServiceButton startDatesButton" href="#tabstrip-events" data-icon="cal">Events</a>
+                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Events</a>
                 <a href="#tabstrip-faqs" class="webSiteButton" data-icon="compose">FAQs</a>
             </div>
         </div>

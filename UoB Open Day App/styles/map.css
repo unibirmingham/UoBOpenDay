@@ -40,8 +40,8 @@
     background-repeat: no-repeat;
 }
 
-#appBody #mapMessage,
-#appBody #mapStatus
+#appBody #map-header .mapMessage,
+#appBody #map-header .mapStatus
 {
     padding-top: .5em;
     padding-left: .3em;
@@ -49,7 +49,7 @@
     float: left;
 }
 
-#appBody #mapStatus
+#appBody #map-header .mapStatus
 {
     float: right;
     padding-right: 1em;

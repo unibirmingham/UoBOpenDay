@@ -24,14 +24,14 @@
         _eventItems: null,
         scheduleChunksInMinutes: 15,
         
-        initialise: function (eventsWebServiceUrl, localFile)
+        initialise: function (eventsDescription, eventsWebServiceUrl, localFile)
         {
             var that = this;
             app.application.showLoading();    
             
             if (!that._eventItems){
-                uob.log.addLogMessage("Initialising Open Day Events");
-                uob.json.getJSON("Open day events", eventsWebServiceUrl, localFile, that._eventsSuccess.bind(that), that._eventsCacheSuccess.bind(that), that._eventsError.bind(that));
+                uob.log.addLogMessage("Initialising Event retrieval");
+                uob.json.getJSON(eventsDescription, eventsWebServiceUrl, localFile, that._eventsSuccess.bind(that), that._eventsCacheSuccess.bind(that), that._eventsError.bind(that));
                 
             }
         },
@@ -57,7 +57,7 @@
             console.log("Retrieved " + eventItems.length + " event items");
             that._setupEventItems(eventItems);
             that._eventItems = eventItems;
-            uob.screen.enableLinks("eventServiceButton");
+            uob.screen.enableLinks("eventsRepositoryButton");
             app.application.hideLoading();  
         },
         _setupEventItems: function(eventItems)

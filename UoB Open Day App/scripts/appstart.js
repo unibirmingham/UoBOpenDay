@@ -10,6 +10,7 @@
     app.openDay = app.openDay || {};
     uob.screen= uob.screen || {};
     uob.url= uob.url || {};
+    uob.map= uob.map || {};
     
     var date = new Date();
     var year = date.getFullYear();
@@ -30,11 +31,11 @@
         //Initialise start dates:
         app.openDay.initialiseStartDate();
         
-        //Setup the basic map data
-        app.campusMapService.loadMapData();
+        //Get the basic map data:
+        uob.map.mapRepository.initialise("Maps", uob.url.MapsService, 'data/maps.json');
         
         //Now initialise data for the various parts of the app:
-        uob.events.eventsRepository.initialise(openDayEventsUrl, openDayLocalFile);
+        uob.events.eventsRepository.initialise("Open Day Events", openDayEventsUrl, openDayLocalFile);
         
         
     }

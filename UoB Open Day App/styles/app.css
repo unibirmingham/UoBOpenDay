@@ -1,12 +1,12 @@
 /*Initialise the buttons that are internet-based to hide.*/
 #tabstrip-home li.webSiteButton,
-#tabstrip-home li.eventServiceButton,
-#tabstrip-home li.mapServiceButton,
+#tabstrip-home li.eventsRepositoryButton,
+#tabstrip-home li.mapRepositoryButton,
 #tabstrip-home li.startDatesButton,
 #tabstrip-home li.webConnectionButton,
 #appFooter a.webSiteButton,
-#appFooter a.eventServiceButton,
-#appFooter a.mapServiceButton,
+#appFooter a.eventsRepositoryButton,
+#appFooter a.mapRepositoryButton,
 #appFooter a.startDatesButton,
 #appFooter a.webConnectionButton
 {
