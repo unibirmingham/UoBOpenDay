@@ -21,7 +21,6 @@
         var _buildingServiceLocalFile = buildingServiceLocalFile;
         
         var _showBuildingBuildingId= null;
-        var _showBuildingSuccessFunction= null;
         var _buildingRequestInProgress =  false;
         var _clickedBuildings = [];        
         
@@ -35,13 +34,11 @@
                 _buildings = data;
             }
             _buildingRequestInProgress = false;
-            //Get the building to show and successs function if there is one:
+            //Get the building to show if there is one:
             var buildingId = _showBuildingBuildingId;
-            var successFunction = _showBuildingSuccessFunction;
             
             _showBuildingBuildingId = null;
-            _showBuildingSuccessFunction= null;
-            _self.showBuildings(buildingId, successFunction);
+            _self.showBuildings(buildingId);
 
         };
         
@@ -125,7 +122,7 @@
             });
         }
                 
-        this.showBuildings = function(buildingId, successFunction){
+        this.showBuildings = function(buildingId){
             
             var that = this;
             
@@ -137,7 +134,6 @@
             if (!_buildings)
             {
                 _showBuildingBuildingId = buildingId;
-                _showBuildingSuccessFunction = successFunction;
                 if (!_buildingRequestInProgress)
                 {
                     _buildingRequestInProgress = true;
@@ -203,6 +199,9 @@
                     }
                     _googleMap.setCenter(buildingCenter);
                     
+                    //Let the google map wrapper know to track the building:
+                    _googleMapWrapper.trackLatLng(buildingCenter);
+                    
                     //If we've got campus map data, see if we're on campus and if so, show us and the building in relation.
                     navigator.geolocation.getCurrentPosition(
                                             function(position){
@@ -222,6 +221,8 @@
                                                 console.log("Error getting current position");
                                             });
                     
+                    
+                    
                 }
                 
                 building.googlePolygon.setMap(_googleMap);
@@ -230,10 +231,6 @@
                     mapLabel.setMap(_googleMap);
                 }
             }
-            if (successFunction){
-                successFunction(buildingId);    
-            }
-             
         };
 
         this.getBuildingCenterLatLng =  function(buildingId)

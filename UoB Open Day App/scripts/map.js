@@ -111,7 +111,7 @@
             }
             var buildingId = e.view.params.buildingId;
             
-            buildingMap.showBuildings(buildingId, showBuildingsSuccess);
+            buildingMap.showBuildings(buildingId);
             
             //Tell map that is now visible
             googleMapWrapper.showMap();
@@ -129,20 +129,5 @@
        
         viewModel: null
     };
-    
-    var showBuildingsSuccess = function(buildingId)
-    {
-        var center = null;
-        if (buildingId){
-            buildingId = parseInt(buildingId);
-            if (buildingId)
-            {
-                center = buildingMap.getBuildingCenterLatLng(buildingId);
-            }
-        }
-        googleMapWrapper.trackLatLng(center);
-        
-    }
-    
 }
 )(window, jQuery);
