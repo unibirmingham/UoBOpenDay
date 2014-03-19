@@ -80,8 +80,8 @@
             
                 //Is this building already selected
                 
-                //If there are already 2 selected items then clear them
-                if (_clickedBuildings.length>1){
+                //If there are already 2 selected items or no selected items then reset the opacity.
+                if (_clickedBuildings.length!==1){
                     _restoreBuildingOpacity();
                     _clickedBuildings = [];
                 }
