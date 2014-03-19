@@ -63,15 +63,22 @@
         this.centerOnMapData = function()
         {
             if (_googleMap && _mapData){
-                _googleMap.setZoom(15);
-                _googleMap.setCenter(_mapData.getLatLngBounds().getCenter());
+                var mapBounds = _mapData.getLatLngBounds();
+                _googleMap.fitBounds(mapBounds);
+                if (_googleMap.getZoom() < 15){
+                    //If the map is now to far zoomed out, bring it closer:
+                    _googleMap.setCenter(mapBounds.getCenter());
+                    _googleMap.setZoom(15);
+                }
+                
              }
         };
+        //When initialised center the map.
+        this.centerOnMapData();
         
         //When the orientation is changed this can lose the center of the map -- these functions keep it and reinstate it.
         var _orientationchange =  function()
         {
-            
             console.log("Orientation change");
             _keepCurrentCenter();
         };

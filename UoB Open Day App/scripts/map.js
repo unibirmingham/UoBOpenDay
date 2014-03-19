@@ -75,8 +75,6 @@
             var campusMapStyle = new google.maps.StyledMapType(googleMapStyling, { name: "Campus Map" });
             
             var mapOptions = {
-                zoom: 15,
-                center: campusMapData.getLatLngBounds().getCenter(),
                 zoomControl: true,
                 zoomControlOptions: {
                     position: google.maps.ControlPosition.LEFT_BOTTOM
