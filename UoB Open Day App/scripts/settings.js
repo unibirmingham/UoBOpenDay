@@ -1,5 +1,7 @@
 (function (global, $j) {
  
+    var app = global.app = global.app || {};
+    
     var uob = global.uob = global.uob || {};
     uob.url = uob.url || {};
     

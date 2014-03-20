@@ -3,8 +3,6 @@
 
 (function (global, $j) {
     
-    var app = global.app = global.app || {};
-    
     var uob = global.uob = global.uob || {};
     uob.events = uob.events || {};
     uob.date = uob.date || {};
@@ -13,13 +11,121 @@
     uob.screen= uob.screen || {};    
     
     
-    uob.events.eventsRepository = {
-        
-        EventType : {
+    uob.events.EventType = {
           ALLDAY: "AllDay",
           ALLDAYWITHDURATION: "AllDayWithDuration",
           FIXED: "Fixed"
+        };
+    
+    uob.events.EventItem = function(eventItem){
+        //Copy the existing values:
+        $j.extend(this, eventItem);
+        //Make the dates into a Date object
+        this.StartDate = uob.json.parseJsonDate(this.StartDate);
+        this.EndDate = uob.json.parseJsonDate(this.EndDate);
+        
+        //Sort out the preformatting of the dates to save resource later:
+        this.StartDayInUK = uob.date.formatDateAsUK(this.StartDate, 'YYYY-MM-DD');
+        this.StartTimeInUK = uob.date.formatDateAsUK(this.StartDate, 'HH:mm');
+    }
+    
+    uob.events.EventItem.prototype = {
+        
+        getEventType: function()
+        {
+            var eventItem = this;
+            if (eventItem 
+                && (Math.abs(eventItem.EndDate-eventItem.StartDate) / 36e5 > 6))
+            {
+                if (eventItem.AttendanceDuration ===0)
+                {
+                    return uob.events.EventType.ALLDAY;
+                }
+                else 
+                {
+                    return uob.events.EventType.ALLDAYWITHDURATION;   
+                }
+             }
+            return uob.events.EventType.FIXED;
         },
+    	isAllDayEvent: function()
+        {
+            var eventItem = this;
+            var eventType = eventItem.getEventType();
+            if (eventType===uob.events.EventType.ALLDAY ||eventType===uob.events.EventType.ALLDAYWITHDURATION)
+            {
+                return true;
+            }
+            return false;
+        },
+        getScheduleStartDate: function()
+        {
+            var eventItem = this;
+            if (!eventItem._scheduleStartDate){
+                eventItem.setScheduleStartDate();   
+            }
+            return eventItem._scheduleStartDate;
+        },
+        setScheduleStartDate:  function(scheduleStartDate)
+        {
+            var eventItem = this;
+            eventItem._scheduleStartDate = new Date((scheduleStartDate? uob.json.parseJsonDate(scheduleStartDate): eventItem.StartDate));
+        },
+        //When does this end in the schedule
+        getScheduleEndDate: function()
+        {
+            var eventItem = this;
+            if (eventItem.getEventType()===uob.events.EventType.FIXED)
+            {
+                //Fixed events end when their end date is
+                return eventItem.EndDate;
+            }
+            if (eventItem.getEventType()===uob.events.EventType.ALLDAY)
+            {
+                //All day events effectively end at their schedule time -- they basically float free.
+                return eventItem.getScheduleStartDate();
+            }
+            //Events with attendance duration need that taking into account.
+            var scheduleEndDate = new Date(eventItem.getScheduleStartDate().getTime() + (eventItem.AttendanceDuration *60000));
+            return scheduleEndDate;
+        },
+        //Does this event's schedule clash with another event's schedule?
+        isClashingScheduledEvent: function(eventItem2){
+            var eventItem1 = this;
+            
+            // Two all-day events without attendance duration can co-exist even at the same time
+            if (eventItem1.getEventType()===uob.events.EventType.ALLDAY && eventItem2.getEventType() === uob.events.EventType.ALLDAY){
+                return false;
+            }
+            
+            var eventItem1ScheduleStartDate = eventItem1.getScheduleStartDate();
+            var eventItem1ScheduleEndDate = eventItem1.getScheduleEndDate();
+            
+            var eventItem2ScheduleStartDate = eventItem2.getScheduleStartDate();
+            var eventItem2ScheduleEndDate = eventItem2.getScheduleEndDate();
+            
+            //Otherwise, check if the schedule dates cross -- note that an event can start at the end time of a previous event.
+            if (eventItem1ScheduleStartDate>=eventItem2ScheduleStartDate && eventItem1ScheduleStartDate<eventItem2ScheduleEndDate)
+            {
+                console.log("Event: " + eventItem1.Title + " starts at " + eventItem1ScheduleStartDate + " which is during " + eventItem2.Title + " (" + eventItem2ScheduleStartDate + "-" + eventItem2ScheduleStartDate + ")");
+                return true;
+            }
+            if (eventItem1ScheduleEndDate>eventItem2ScheduleStartDate && eventItem1ScheduleEndDate<=eventItem2ScheduleEndDate)
+            {
+                 console.log("Event: " + eventItem1.Title + " ends at " + eventItem1ScheduleEndDate + " which is during " + eventItem2.Title + " (" + eventItem2ScheduleStartDate + "-" + eventItem2ScheduleStartDate + ")");   
+                return true;
+            }
+            if (eventItem1ScheduleStartDate<=eventItem2ScheduleStartDate && eventItem1ScheduleEndDate>eventItem2ScheduleEndDate)
+            {
+                console.log("Event: " + eventItem1.Title + " is from " + eventItem1ScheduleStartDate + "-" + eventItem1ScheduleEndDate + " which is around " + eventItem2.Title + " (" + eventItem2ScheduleStartDate + "-" + eventItem2ScheduleStartDate + ")");   
+                return true;   
+            }
+            
+            return false;
+        }
+    };
+    
+    uob.events.eventsRepository = {
         
         _eventItems: null,
         scheduleChunksInMinutes: 15,
@@ -32,7 +138,6 @@
             if (!that._eventItems){
                 uob.log.addLogMessage("Initialising Event retrieval");
                 uob.json.getJSON(eventsDescription, eventsWebServiceUrl, localFile, that._eventsSuccess.bind(that), that._eventsCacheSuccess.bind(that), that._eventsError.bind(that));
-                
             }
         },
         _eventsSuccess: function(data)
@@ -55,157 +160,32 @@
         _setEventItems: function(eventItems){
             var that = this;
             console.log("Retrieved " + eventItems.length + " event items");
-            that._setupEventItems(eventItems);
-            that._eventItems = eventItems;
+            
+            that._eventItems = that._parseEventItems(eventItems);
             uob.screen.enableLinks("eventsRepositoryButton");
             app.application.hideLoading();  
         },
-        _setupEventItems: function(eventItems)
+        _parseEventItems: function(eventItems)
         {
-            var that = this;
+
+            var parsedEventItems = [];
             
             for(var i in eventItems)
             {
                 var eventItem = eventItems[i];
-                that._setupEventItemDates(eventItem);
-                that._setupEventItemFunctions(eventItem);
+                var parsedEventItem = new uob.events.EventItem(eventItem);
+                parsedEventItems.push(parsedEventItem);
                     
             }
+            return parsedEventItems;
         },
         
-        _setupEventItemDates: function(eventItem)
-        {
-            eventItem.StartDate = uob.json.parseJsonDate(eventItem.StartDate);
-            eventItem.EndDate = uob.json.parseJsonDate(eventItem.EndDate);
-            
-            eventItem.StartDayInUK = uob.date.formatDateAsUK(eventItem.StartDate, 'YYYY-MM-DD');
-            eventItem.StartTimeInUK = uob.date.formatDateAsUK(eventItem.StartDate, 'HH:mm');
-            
-        },
         
         _setupEventItemFunctions: function(eventItem)
         {
-            var that = this;
-            
-            eventItem.getEventType = function()
-                {
-                    var eventItem = this;
-                    if (eventItem 
-                        && (Math.abs(eventItem.EndDate-eventItem.StartDate) / 36e5 > 6))
-                    {
-                        if (eventItem.AttendanceDuration ===0)
-                        {
-                            return that.EventType.ALLDAY;
-                        }
-                        else 
-                        {
-                            return that.EventType.ALLDAYWITHDURATION;   
-                        }
-                     }
-                    return that.EventType.FIXED;
-                }
-                
-                eventItem.isAllDayEvent = function()
-                {
-                    var eventItem = this;
-                    var eventType = eventItem.getEventType();
-                    if (eventType===that.EventType.ALLDAY ||eventType===that.EventType.ALLDAYWITHDURATION)
-                    {
-                        return true;
-                    }
-                    
-                    return false;
-                    
-                }
-            
-                eventItem.getScheduleStartDate = function()
-                {
-                    var eventItem = this;
-                    if (!eventItem._scheduleStartDate){
-                        eventItem.setScheduleStartDate();   
-                    }
-                    return eventItem._scheduleStartDate;
-                }
-            
-                eventItem.setScheduleStartDate =  function(scheduleStartDate)
-                {
-                    var eventItem = this;
-                    eventItem._scheduleStartDate = new Date((scheduleStartDate? uob.json.parseJsonDate(scheduleStartDate): eventItem.StartDate));
-                }
-                
-                //When does this end in the schedule
-                eventItem.getScheduleEndDate = function()
-                {
-                    var eventItem = this;
-                    if (eventItem.getEventType()===that.EventType.FIXED)
-                    {
-                        //Fixed events end when their end date is
-                        return eventItem.EndDate;
-                    }
-                    if (eventItem.getEventType()===that.EventType.ALLDAY)
-                    {
-                        //All day events effectively end at their schedule time -- they basically float free.
-                        return eventItem.getScheduleStartDate();
-                    }
-                    //Events with attendance duration need that taking into account.
-                    var scheduleEndDate = new Date(eventItem.getScheduleStartDate().getTime() + (eventItem.AttendanceDuration *60000));
-                    return scheduleEndDate;
-                }
-                
-                //Does this event's schedule clash with another event's schedule?
-                eventItem.isClashingScheduledEvent = function(eventItem2){
-                    var eventItem1 = this;
-                    
-                    // Two all-day events without attendance duration can co-exist even at the same time
-                    if (eventItem1.getEventType()===that.EventType.ALLDAY && eventItem2.getEventType() === that.EventType.ALLDAY){
-                        return false;
-                    }
-                    
-                    var eventItem1ScheduleStartDate = eventItem1.getScheduleStartDate();
-                    var eventItem1ScheduleEndDate = eventItem1.getScheduleEndDate();
-                    
-                    var eventItem2ScheduleStartDate = eventItem2.getScheduleStartDate();
-                    var eventItem2ScheduleEndDate = eventItem2.getScheduleEndDate();
-                    
-                    //Otherwise, check if the schedule dates cross -- note that an event can start at the end time of a previous event.
-                    if (eventItem1ScheduleStartDate>=eventItem2ScheduleStartDate && eventItem1ScheduleStartDate<eventItem2ScheduleEndDate)
-                    {
-                        console.log("Event: " + eventItem1.Title + " starts at " + eventItem1ScheduleStartDate + " which is during " + eventItem2.Title + " (" + eventItem2ScheduleStartDate + "-" + eventItem2ScheduleStartDate + ")");
-                        return true;
-                    }
-                    if (eventItem1ScheduleEndDate>eventItem2ScheduleStartDate && eventItem1ScheduleEndDate<=eventItem2ScheduleEndDate)
-                    {
-                         console.log("Event: " + eventItem1.Title + " ends at " + eventItem1ScheduleEndDate + " which is during " + eventItem2.Title + " (" + eventItem2ScheduleStartDate + "-" + eventItem2ScheduleStartDate + ")");   
-                        return true;
-                    }
-                    if (eventItem1ScheduleStartDate<=eventItem2ScheduleStartDate && eventItem1ScheduleEndDate>eventItem2ScheduleEndDate)
-                    {
-                        console.log("Event: " + eventItem1.Title + " is from " + eventItem1ScheduleStartDate + "-" + eventItem1ScheduleEndDate + " which is around " + eventItem2.Title + " (" + eventItem2ScheduleStartDate + "-" + eventItem2ScheduleStartDate + ")");   
-                        return true;   
-                    }
-                    
-                    return false;
-                    
-                }
-
+            eventItem.prototype = uob.events.eventItem;
         },
         
-        _cloneEventItem: function(eventItem){
-          
-            var that = this;
-            
-            var newEventItem = {
-                                ContentId: eventItem.ContentId,
-                                Title: eventItem.Title,
-                                StartDate: eventItem.StartDate,
-                                EndDate: eventItem.EndDate,
-                                AttendanceDuration: eventItem.AttendanceDuration
-            };
-            
-            that._setupEventItemFunctions(newEventItem);
-            
-            return newEventItem;
-        },
         moveEventLaterInSchedule: function(eventGroup, eventItem)
         {
             var that = this;
@@ -246,16 +226,8 @@
             //Basically, We take a copy of the event item to test against and see if we can find somewhere in the schedule for it
             var that = this;
             
-            var eventItemToTest = {
-                                ContentId: eventItem.ContentId,
-                                Title: eventItem.Title,
-                                StartDate: eventItem.StartDate,
-                                EndDate: eventItem.EndDate,
-                                AttendanceDuration: eventItem.AttendanceDuration
-            };
-            
-            that._setupEventItemFunctions(eventItemToTest);
-            
+            var eventItemToTest = new uob.events.EventItem(eventItem);
+                        
             if (initialScheduleStartDate)
             {
                 eventItemToTest.setScheduleStartDate(initialScheduleStartDate);    
@@ -362,7 +334,7 @@
             
             if(scheduledEvent){
                 
-                if (eventItem.getEventType()===that.EventType.FIXED){
+                if (eventItem.getEventType()===uob.events.EventType.FIXED){
                  
                     if (!that._checkAndResolveScheduleClashesForFixedEvent(eventGroup, eventItem))
                     {
@@ -459,7 +431,7 @@
                 }
                 
                 //Add this item to the nonClashingEvents -- take a clone as we don't want to mess up real data:
-                var eventItemCopy = that._cloneEventItem(clashingEventItem);
+                var eventItemCopy = new uob.events.EventItem(clashingEventItem);
                 
                 eventItemCopy.setScheduleStartDate(newScheduleStartDate);
                 
