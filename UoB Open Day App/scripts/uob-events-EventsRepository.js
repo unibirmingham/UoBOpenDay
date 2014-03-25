@@ -10,6 +10,7 @@
     uob.log = uob.log || {};
     uob.screen= uob.screen || {};    
     
+    var eventsLocalStoragePrefix = "uob-events-repository";
     
     uob.events.EventType = {
           ALLDAY: "AllDay",
@@ -125,103 +126,92 @@
         }
     };
     
-    uob.events.eventsRepository = {
+    uob.events.EventsRepository = function(eventsDescription, eventsWebServiceUrl, localFile, initialisedFunction) {
         
-        _eventItems: null,
-        scheduleChunksInMinutes: 15,
+        var eventItems = null;
+        var scheduleChunksInMinutes = 15;
         
-        initialise: function (eventsDescription, eventsWebServiceUrl, localFile)
+        var status =  uob.json.JsonStatus.UNINITIALISED;
+        
+        var getStatus = function(){
+            return status;
+        };
+        
+        var hasData = function()
         {
-            var that = this;
-            app.application.showLoading();    
-            
-            if (!that._eventItems){
+			return uob.json.hasData(status);
+        };
+        
+        var initialise = function (){
+            if (!eventItems){
                 uob.log.addLogMessage("Initialising Event retrieval");
-                uob.json.getJSON(eventsDescription, eventsWebServiceUrl, localFile, that._eventsSuccess.bind(that), that._eventsError.bind(that));
+                uob.json.getJSON(eventsDescription, eventsWebServiceUrl, localFile, eventsSuccess, eventsError);
             }
-        },
-        _eventsSuccess: function(data, status)
-        {
-            if (status!== uob.json.JsonStatus.LIVE){
+        };
+        var eventsSuccess = function(data, jsonStatus){
+            if (jsonStatus!== uob.json.JsonStatus.LIVE){
         		uob.log.addCacheMessage('Events data: Currently using local cache');
         	}
-            this._setEventItems(data);
-        },
-        _eventsError: function()
-        {
+            setEventItems(data);
+            status = jsonStatus;
+            initialisedFunction();
+        };
+        var eventsError = function(jsonStatus){
             uob.log.addErrorMessage("Error retrieving local events. No items found");   
-            app.application.hideLoading();    
-        },
+            status = jsonStatus;
+			initialisedFunction();  
+        };
         
-        _setEventItems: function(eventItems){
-            var that = this;
-            console.log("Retrieved " + eventItems.length + " event items");
-            
-            that._eventItems = that._parseEventItems(eventItems);
-            uob.screen.enableLinks("eventsRepositoryButton");
-            app.application.hideLoading();  
-        },
-        _parseEventItems: function(eventItems)
-        {
+        var setEventItems = function(eventItemData){
+
+            console.log("Retrieved " + eventItemData.length + " event items");
+            eventItems = parseEventItems(eventItemData);
+        };
+        
+        var parseEventItems = function(eventItemData){
 
             var parsedEventItems = [];
             
-            for(var i in eventItems)
+            for(var i in eventItemData)
             {
-                var eventItem = eventItems[i];
+                var eventItem = eventItemData[i];
                 var parsedEventItem = new uob.events.EventItem(eventItem);
                 parsedEventItems.push(parsedEventItem);
-                    
             }
             return parsedEventItems;
-        },
+        };
         
+        var moveEventLaterInSchedule = function(eventGroup, eventItem){
+            return moveEventInSchedule(eventGroup, eventItem, scheduleChunksInMinutes);
+        };
         
-        _setupEventItemFunctions: function(eventItem)
-        {
-            eventItem.prototype = uob.events.eventItem;
-        },
+        var moveEventEarlierInSchedule = function(eventGroup, eventItem){
+            return moveEventInSchedule(eventGroup, eventItem, 0-scheduleChunksInMinutes);
+        };
         
-        moveEventLaterInSchedule: function(eventGroup, eventItem)
-        {
-            var that = this;
-            return that._moveEventInSchedule(eventGroup, eventItem, that.scheduleChunksInMinutes);
-        },
-        
-        moveEventEarlierInSchedule: function(eventGroup, eventItem)
-        {
-            var that = this;
-            return that._moveEventInSchedule(eventGroup, eventItem, 0-that.scheduleChunksInMinutes);
-        },
-        
-        _moveEventInSchedule: function(eventGroup, eventItem, minutesToChangeBy)
-        
-        {
-            var that = this;
-            var selectedEventItems = that.getSelectedEventItems(eventGroup, true);
+        var moveEventInSchedule = function(eventGroup, eventItem, minutesToChangeBy){
+
+            var selectedEventItems = getSelectedEventItems(eventGroup, true);
             
-            var newDate = that._getScheduleStartDateForItem(eventItem, selectedEventItems, minutesToChangeBy);
+            var newDate = getScheduleStartDateForItem(eventItem, selectedEventItems, minutesToChangeBy);
             
             if (newDate)
             {
                 console.log("Changing event schedule: " + eventItem.Title + " from " + eventItem.getScheduleStartDate() + " to " + newDate);
                 eventItem.setScheduleStartDate(newDate);
-                uob.events.eventsRepository.updateEventInSelectedData(eventGroup, eventItem, true);
+                updateEventInSelectedData(eventGroup, eventItem, true);
                 return true;
             }
             else{
                 console.log("Cannot change event: " + eventItem.Title + " to schedule: " + newDate);
                 return false;
             }        
-            
-        },
+        };
         
-        _getScheduleStartDateForItem: function (eventItem, selectedEventItems, minutesToChangeBy, initialScheduleStartDate){
+        var getScheduleStartDateForItem = function (eventItem, selectedEventItems, minutesToChangeBy, initialScheduleStartDate){
             
             console.log("Looking for schedule date for: " + eventItem.Title + " with current schedule date: " + eventItem.getScheduleStartDate() + " minutes to change by: " + minutesToChangeBy );
             //Basically, We take a copy of the event item to test against and see if we can find somewhere in the schedule for it
-            var that = this;
-            
             var eventItemToTest = new uob.events.EventItem(eventItem);
                         
             if (initialScheduleStartDate)
@@ -240,7 +230,7 @@
             }
             else
             {
-                minutesToChangeBy = that.scheduleChunksInMinutes;
+                minutesToChangeBy = scheduleChunksInMinutes;
             }
 
             var lastDate;
@@ -297,12 +287,11 @@
             
             return lastDate;
             
-        },
+        };
                 
-        removeEventFromSelectedData: function(eventGroup, eventItem)
+        var removeEventFromSelectedData =function(eventGroup, eventItem)
         {
-            var that = this;
-            var selectedEventData= that._getSelectedEventData(eventGroup);
+            var selectedEventData= getSelectedEventData(eventGroup);
             
             var contentId = eventItem.ContentId;
             
@@ -314,25 +303,22 @@
                 
                 console.log('Setting selected event data for ' + eventGroup + ' with ' + eventsWithoutContentId.length + 'entries');
                 
-                that._setSelectedEventData(eventGroup, eventsWithoutContentId);
+                setSelectedEventData(eventGroup, eventsWithoutContentId);
             }
             else{
                 console.log('Attempt to remove event from non-existent group ' + eventGroup + ' with content id: ' + contentId);
             }
-        },
+        };
     
-        addEventToSelectedData: function(eventGroup, eventItem, scheduledEvent)
+        var addEventToSelectedData =  function(eventGroup, eventItem, scheduledEvent)
         {
-            
-            var that = this;
-
             var scheduleStartDate = null;
             
             if(scheduledEvent){
                 
                 if (eventItem.getEventType()===uob.events.EventType.FIXED){
                  
-                    if (!that._checkAndResolveScheduleClashesForFixedEvent(eventGroup, eventItem))
+                    if (!checkAndResolveScheduleClashesForFixedEvent(eventGroup, eventItem))
                     {
                      
                         return false;
@@ -342,8 +328,8 @@
                 }
                 else{
                 
-                    var selectedEventItems = that.getSelectedEventItems(eventGroup, true);
-                    scheduleStartDate = that._getScheduleStartDateForItem(eventItem, selectedEventItems);
+                    var selectedEventItems = getSelectedEventItems(eventGroup, true);
+                    scheduleStartDate = getScheduleStartDateForItem(eventItem, selectedEventItems);
                     
                     if (!scheduleStartDate)
                     {
@@ -352,7 +338,7 @@
                 }
             }
 
-            var selectedEventData= that._getSelectedEventData(eventGroup);
+            var selectedEventData= getSelectedEventData(eventGroup);
             
             if (!selectedEventData)
             {
@@ -372,17 +358,16 @@
             
             selectedEventData.push(selectedDataItem);   
             
-            that._setSelectedEventData(eventGroup, selectedEventData);
+            setSelectedEventData(eventGroup, selectedEventData);
             
             return true;
-        },
+        };
         
         
-        _checkAndResolveScheduleClashesForFixedEvent: function(eventGroup, eventItem)
+        var checkAndResolveScheduleClashesForFixedEvent = function(eventGroup, eventItem)
         {
-         
-            var that = this;
-            var selectedEventItems = that.getSelectedEventItems(eventGroup, true);
+
+            var selectedEventItems = getSelectedEventItems(eventGroup, true);
             
             //As fixed items cannot be moved we first check to see if there's already something in the schedule which clashes with it:
             var clashingEventItems = $j.grep(selectedEventItems, function(e){ return e.isClashingScheduledEvent(eventItem);});
@@ -418,7 +403,7 @@
             {
                 var clashingEventItem = clashingEventItems[clashingIndex];
                 
-                var newScheduleStartDate = that._getScheduleStartDateForItem(clashingEventItem, nonClashingEvents, null, clashingEventItem.StartDate);
+                var newScheduleStartDate = getScheduleStartDateForItem(clashingEventItem, nonClashingEvents, null, clashingEventItem.StartDate);
                 
                 if (!newScheduleStartDate)
                 {
@@ -449,17 +434,16 @@
                 
                 updateableClashingEventItem.setScheduleStartDate(newScheduleStartDates[clashingIndex2]);
                 
-                that.updateEventInSelectedData(eventGroup, updateableClashingEventItem, true);
+                updateEventInSelectedData(eventGroup, updateableClashingEventItem, true);
                 
             }
 
             return true;
-        },
+        };
         
-        updateEventInSelectedData: function(eventGroup, eventItem, setScheduleStartDate)
+        var updateEventInSelectedData = function(eventGroup, eventItem, setScheduleStartDate)
         {
-            var that = this;
-            var existingSelectedEventData = that._getSelectedEventData(eventGroup);
+            var existingSelectedEventData = getSelectedEventData(eventGroup);
             var newSelectedEventData = [];
             
             if (existingSelectedEventData){
@@ -478,19 +462,18 @@
                 }
             }
             
-            that._setSelectedEventData(eventGroup, newSelectedEventData);
-        },
+            setSelectedEventData(eventGroup, newSelectedEventData);
+        };
         
-        isContentIdSelected: function(eventGroup, contentId)
+        var isContentIdSelected = function(eventGroup, contentId)
         {
-            var that = this;
-            return (that._getSelectedEventDataForContentId(eventGroup, contentId));
-        },
+
+            return (getSelectedEventDataForContentId(eventGroup, contentId));
+        };
         
-        _getSelectedEventDataForContentId: function(eventGroup, contentId)
+        var getSelectedEventDataForContentId = function(eventGroup, contentId)
         {
-            var that = this;
-            var selectedEventData = that._getSelectedEventData(eventGroup);
+            var selectedEventData = getSelectedEventData(eventGroup);
             
             var eventsWithContentId = $j.grep(selectedEventData, function(e){ return e.ContentId === contentId; });
             if (eventsWithContentId && eventsWithContentId.length){
@@ -499,32 +482,30 @@
             }
             return null;
             
-        },
+        };
         
-        getEventItems: function (filteringFunction)
+        var getEventItems = function (filteringFunction)
         {
-            var that = this;
-            if (that._eventItems){
+            if (eventItems){
                 
                 if (filteringFunction){
                      console.log("Retrieving items with filtering function");
-                    return $j.grep(that._eventItems, filteringFunction);
+                    return $j.grep(eventItems, filteringFunction);
                 }
                 else{
-                 return that._eventItems;
+                 return eventItems;
                 }
             }
             else{
                 uob.log.addErrorMessage("Request for data source before initilisation is complete");
             }
             return null;
-         },
+         };
         
-        getSelectedEventItems: function (eventGroup, scheduledEvents, filteringFunction)
+        var getSelectedEventItems = function (eventGroup, scheduledEvents, filteringFunction)
         {
             console.log("Get selected event items for " + eventGroup);
-            var that = this;
-            var allEventItems = that.getEventItems(filteringFunction);
+            var allEventItems = getEventItems(filteringFunction);
             
             var selectedEventItems = [];
             
@@ -533,7 +514,7 @@
                 return selectedEventItems;
             }
 
-            var selectedEventData= that._getSelectedEventData(eventGroup);
+            var selectedEventData= getSelectedEventData(eventGroup);
             if (!selectedEventData){
                 console.log("No selected events so nothing to retrieve");
                 return selectedEventItems;
@@ -543,7 +524,7 @@
             for (index = 0; index < allEventItems.length; ++index) {
                 var eventItem = allEventItems[index];
                 var contentId = eventItem.ContentId;
-                var selectedEventDataItem = that._getSelectedEventDataForContentId(eventGroup, contentId)
+                var selectedEventDataItem = getSelectedEventDataForContentId(eventGroup, contentId)
                 if (selectedEventDataItem)
                 {
                     //Supplement the event data with that from the event group:
@@ -558,26 +539,38 @@
            
             console.log("Returning " + selectedEventItems.length + " selected events for " + eventGroup);
             return selectedEventItems;
-        },
+        };
 
          
-        _setSelectedEventData: function(eventGroup, eventData)
+        var setSelectedEventData = function(eventGroup, eventData)
         {
-            var that = this;
             var stringEventData = JSON.stringify(eventData);
-            localStorage.setItem(that.eventsLocalStoragePrefix + eventGroup, stringEventData);    
-        },
+            localStorage.setItem(eventsLocalStoragePrefix + eventGroup, stringEventData);    
+        };
         
-        _getSelectedEventData: function(eventGroup)
+        var getSelectedEventData = function(eventGroup)
         {
-            var that = this;
-            var stringEventData = localStorage.getItem(that.eventsLocalStoragePrefix + eventGroup);
+            var stringEventData = localStorage.getItem(eventsLocalStoragePrefix + eventGroup);
             if (stringEventData){
                 return JSON.parse(stringEventData);
             }
             return [];
-            
         }
+        
+        
+        initialise();
+        
+        return {
+            hasData: hasData,
+            getStatus: getStatus,
+            getEventItems: getEventItems,
+            getSelectedEventItems: getSelectedEventItems,
+            moveEventLaterInSchedule: moveEventLaterInSchedule,
+            moveEventEarlierInSchedule: moveEventEarlierInSchedule,
+            removeEventFromSelectedData: removeEventFromSelectedData,
+            addEventToSelectedData: addEventToSelectedData,
+            isContentIdSelected: isContentIdSelected
+        };
         
     };
 

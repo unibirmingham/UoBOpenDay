@@ -13,14 +13,14 @@
     
     var date = new Date();
     var year = date.getFullYear();
-    var _eventBuildingsJsonUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var eventBuildingsJsonUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     
-    var _foodAndDrinkFacilitiesJsonUrl = uob.url.MapsService + '54448/facilities/?categoryKey=0/1/2836/2837/2839/2975';
+    var foodAndDrinkFacilitiesJsonUrl = uob.url.MapsService + '54448/facilities/?categoryKey=0/1/2836/2837/2839/2975';
     
-    var _googleMapWrapper = null;
-    var _campusGoogleMap = null;
-    var _campusMapData = null;
-    var _buildingAndFacilitiesMap = null;
+    var googleMapWrapper = null;
+    var campusGoogleMap = null;
+    var campusMapData = null;
+    var buildingAndFacilitiesMap = null;
     
     app.campusMapService = {
         
@@ -54,10 +54,10 @@
                 //Setup the lat lng bounds on the uob maps:
                 var mapItem = mapItems[i];
                 if (mapItem.MapName.indexOf("Edgbaston") !== -1) {
-                    _campusMapData = mapItem;
+                    campusMapData = mapItem;
                 }
             }
-            if (!_campusMapData) {
+            if (!campusMapData) {
                 uob.log.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
                 return;
             }
@@ -91,45 +91,45 @@
                 mapTypeControlOptions: {mapTypeIds: ['Campus Map']}
             };
 
-            _campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+            campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
             
-            _campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
-            _campusGoogleMap.setMapTypeId('Campus Map');
+            campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
+            campusGoogleMap.setMapTypeId('Campus Map');
             
-            _googleMapWrapper = new uob.google.googleMapWrapper(_campusGoogleMap, _campusMapData);
+            googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);
             
             app.campusMapService.showHelpPoints();
             
-            _buildingAndFacilitiesMap = new uob.map.buildingAndFacilitiesMap(_googleMapWrapper);
+            buildingAndFacilitiesMap = new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);
             
-            _googleMapWrapper.showMap();
+            googleMapWrapper.showMap();
             
-            $j('#map-return-to-campus').click(_googleMapWrapper.centerOnMapData);
+            $j('#map-return-to-campus').click(googleMapWrapper.centerOnMapData);
             
         },
         
-        showHelpPoints: function(){this.helpPointsLayer.setMap(_campusGoogleMap);},
+        showHelpPoints: function(){this.helpPointsLayer.setMap(campusGoogleMap);},
 
         show: function (e) {
             
             console.log("Map show");
-            if (!_campusGoogleMap) {
+            if (!campusGoogleMap) {
                 return;
             }
             var buildingId = e.view.params.buildingId;
             
-            _buildingAndFacilitiesMap.showBuildings(_eventBuildingsJsonUrl, 'data/events-buildings.json',buildingId);
-            _buildingAndFacilitiesMap.showFacilities(_foodAndDrinkFacilitiesJsonUrl, 'data/facilities-foodanddrink.json','styles/icons/foodanddrink.png');
+            buildingAndFacilitiesMap.showBuildings(eventBuildingsJsonUrl, 'data/events-buildings.json',buildingId);
+            buildingAndFacilitiesMap.showFacilities(foodAndDrinkFacilitiesJsonUrl, 'data/facilities-foodanddrink.json','styles/icons/foodanddrink.png');
             //Tell map that is now visible
-            _googleMapWrapper.showMap();
+            googleMapWrapper.showMap();
             
         },
         
         hide: function () {
             console.log("Map hide");
-            if (_googleMapWrapper){
+            if (googleMapWrapper){
                 //Tell map that it is no longer visible
-                _googleMapWrapper.hideMap();
+                googleMapWrapper.hideMap();
             }
             
         }

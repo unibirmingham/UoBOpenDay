@@ -7,33 +7,35 @@
     uob.google = uob.google || {};
     uob.map = uob.map || {};
     
-    uob.map.buildingAndFacilitiesMap = function(googleMapWrapper) {
+    uob.map.BuildingAndFacilitiesMap = function(googleMapWrapper) {
         
         //Private variables:
-        var DEFAULT_OPACITY = .5;
-        var SELECTED_OPACITY = .7;
-        var UNSELECTED_OPACITY = .2;
+        var buildingOpacity = {
+        	DEFAULT: .5,
+        	SELECTED: .7,
+        	UNSELECTED: .2
+        }
+
+        var googleMapWrapper = googleMapWrapper;
+        var googleMap = googleMapWrapper.getGoogleMap();
         
-        var _googleMapWrapper = googleMapWrapper;
-        var _googleMap = googleMapWrapper.getGoogleMap();
+        var showBuildingBuildingId= null;
+        var requestsInProgress =  [];
+        var clickedBuildings = [];        
         
-        var _showBuildingBuildingId= null;
-        var _requestsInProgress =  [];
-        var _clickedBuildings = [];        
+        var buildings = [];
+        var allBuildings = [];
         
-        var _buildings = [];
-        var _allBuildings = [];
-        
-        var _facilities = [];
-        var _allFacilities = [];
+        var facilities = [];
+        var allFacilities = [];
         
         //Private functions
-        var _showAllBuildings = function(buildingId)
+        var showAllBuildings = function(buildingId)
         {
             console.log("Showing all buildings highlighting building Id: " + buildingId);
-            for (var i in _allBuildings) {
+            for (var i in allBuildings) {
 
-                var building = _allBuildings[i];
+                var building = allBuildings[i];
                 
                 if (typeof building.googlePolygon === "undefined") {
                     
@@ -47,7 +49,7 @@
                     }
                     building.googleBuildingCoords = googleBuildingCoords;
                     building.googlePolygon = uob.google.getPolygon(googleBuildingCoords, building.Colour);
-                    _setupBuildingClick(building);
+                    setupBuildingClickEvent(building);
                 }
                 
                 if (typeof building.googleMapLabels === "undefined"){
@@ -61,16 +63,16 @@
                    
                    //If a specified building is being asked for then make it darker to stand out
                    if (buildingId===building.ContentId){
-                       building.googlePolygon.setOptions({fillOpacity:SELECTED_OPACITY});  
+                       building.googlePolygon.setOptions({fillOpacity:buildingOpacity.SELECTED});  
                     }
                     else{
-                        building.googlePolygon.setOptions({fillOpacity:UNSELECTED_OPACITY});
+                        building.googlePolygon.setOptions({fillOpacity:buildingOpacity.UNSELECTED});
                     }
                 }
                 else
                 {
                     //If we're showing all buildings leave them with a middling level of opacity
-                    building.googlePolygon.setOptions({fillOpacity:DEFAULT_OPACITY});
+                    building.googlePolygon.setOptions({fillOpacity:buildingOpacity.DEFAULT});
                 }
                 
                 if (buildingId === building.ContentId)
@@ -78,14 +80,14 @@
                     console.log("Setting center of map to center of " + building.BuildingName);
                     var selectedBuilding = building;
                     var buildingCenter = uob.google.getPolygonCenter(building.googlePolygon);                        
-                    if (building.googleMapLabels && _googleMap.getZoom()<building.googleMapLabels[0].minZoom){
+                    if (building.googleMapLabels && googleMap.getZoom()<building.googleMapLabels[0].minZoom){
                         //if the zoom doesn't allow the map labels to be seen then change it to make them visible.
-                        _googleMap.setZoom(building.googleMapLabels[0].minZoom);
+                        googleMap.setZoom(building.googleMapLabels[0].minZoom);
                     }
-                    _googleMap.setCenter(buildingCenter);
+                    googleMap.setCenter(buildingCenter);
                     
                     //Let the google map wrapper know to track the building:
-                    _googleMapWrapper.trackLatLng(buildingCenter);
+                    googleMapWrapper.trackLatLng(buildingCenter);
                     
                     //If we've got campus map data, see if we're on campus and if so, show us and the building in relation.
                     navigator.geolocation.getCurrentPosition(
@@ -97,7 +99,7 @@
                                                     console.log("Showing person on map as " + distanceFromBuildingToPosition + "km away");
                                                     var bounds =uob.google.getPolygonLatLngBounds(selectedBuilding.googlePolygon);
                                                     bounds.extend(positionLatLng);
-                                                    _googleMap.fitBounds(bounds);
+                                                    googleMap.fitBounds(bounds);
                                                 }
                                                 else{
                                                     console.log("Not showing person on map as " + distanceFromBuildingToPosition + "km away");
@@ -110,17 +112,17 @@
                     
                 }
                 
-                building.googlePolygon.setMap(_googleMap);
+                building.googlePolygon.setMap(googleMap);
                 for (var iml in building.googleMapLabels){
                     var mapLabel = building.googleMapLabels[iml];
-                    mapLabel.setMap(_googleMap);
+                    mapLabel.setMap(googleMap);
                 }
             }
         };
         
-        var _setBuildings =  function(data, buildingsServiceUrl)
+        var setBuildings =  function(data, buildingsServiceUrl)
         {
-            if (_buildings.indexOf(buildingsServiceUrl)===-1)
+            if (buildings.indexOf(buildingsServiceUrl)===-1)
             {
                 //We don't already have these buildings so create them from the data, 
                 //but reuse any existing versions of the buildings so we don't end up with more than one of the same building on the map
@@ -128,31 +130,31 @@
                 for (var i = 0; i <data.length; ++i)
                 {
                     var newBuilding = data[i];
-                    var existingBuilding = _allBuildings[newBuilding.ContentId];
+                    var existingBuilding = allBuildings[newBuilding.ContentId];
                     if (existingBuilding){
                         newBuilding = existingBuilding;
                     }
                     else{
-                        _allBuildings[newBuilding.ContentId] = newBuilding;
+                        allBuildings[newBuilding.ContentId] = newBuilding;
                     }
                     newBuildings.push(newBuilding);
                 }
                 
-                _buildings[buildingsServiceUrl] = newBuildings;
+                buildings[buildingsServiceUrl] = newBuildings;
             }
             
-            _removeRequestInProgress(this.buildingsServiceUrl);
+            removeRequestInProgress(this.buildingsServiceUrl);
             
             //Get the building to show if there is one:
-            var buildingId = _showBuildingBuildingId;
-            _showBuildingBuildingId = null;
+            var buildingId = showBuildingBuildingId;
+            showBuildingBuildingId = null;
             
             //Now show the buildings:
-            _showAllBuildings(buildingId);
+            showAllBuildings(buildingId);
 
         };
         
-        var _setFacilityGoogleMarker = function (facility) {
+        var setFacilityGoogleMarker = function (facility) {
            
             if (typeof facility.googleMarker === "undefined") {
                 
@@ -168,7 +170,7 @@
                 var googleMarker = new google.maps.Marker({
                     setZIndex: 1000,
                     position: facility.googleLatLng,
-                    map: _googleMap,
+                    map: googleMap,
                     icon: icon,
                     title: facility.FacilityName
                 });
@@ -178,21 +180,21 @@
 
         };
         
-        var _showAllFacilities = function()
+        var showAllFacilities = function()
         {
             console.log("Showing all facilities");
-            for (var i in _allFacilities) {
+            for (var i in allFacilities) {
 
-                var facility = _allFacilities[i];
+                var facility = allFacilities[i];
                 
-                _setFacilityGoogleMarker(facility);
+                setFacilityGoogleMarker(facility);
                 
             }
         };
         
-        var _setFacilities =  function(data, facilitiesServiceUrl, icon)
+        var setFacilities =  function(data, facilitiesServiceUrl, icon)
         {
-            if (_facilities.indexOf(facilitiesServiceUrl)===-1)
+            if (facilities.indexOf(facilitiesServiceUrl)===-1)
             {
                 //We don't already have these buildings so create them from the data, 
                 //but reuse any existing versions of the buildings so we don't end up with more than one of the same building on the map
@@ -200,89 +202,89 @@
                 for (var i = 0; i <data.length; ++i)
                 {
                     var newFacility = data[i];
-                    var existingFacility = _allFacilities[newFacility.ContentId];
+                    var existingFacility = allFacilities[newFacility.ContentId];
                     if (existingFacility){
                         newFacility = existingFacility;
                     }
                     else{
                         newFacility.icon = icon;
-                        _allFacilities[newFacility.ContentId] = newFacility;
+                        allFacilities[newFacility.ContentId] = newFacility;
                     }
                     newFacilities.push(newFacility);
                 }
                 
-                _facilities[facilitiesServiceUrl] = newFacilities;
+                facilities[facilitiesServiceUrl] = newFacilities;
             }
             
-            _removeRequestInProgress(this.facilitiesServiceUrl);
+            removeRequestInProgress(this.facilitiesServiceUrl);
             
             //Now show the facilities:
-            _showAllFacilities();
+            showAllFacilities();
 
         };
         
-        var _getBuildingsSuccess = function(data, jsonStatus)
+        var getBuildingsSuccess = function(data, jsonStatus)
         {
              if (jsonStatus!== uob.json.JsonStatus.LIVE){
         		uob.log.addCacheMessage('Building data: Retrieved from local cache for ' + this.buildingsServiceUrl );
          	}
-             _setBuildings(data, this.buildingsServiceUrl);
+             setBuildings(data, this.buildingsServiceUrl);
         };
                 
-        var _getBuildingsError = function()
+        var getBuildingsError = function()
         {
             uob.log.addErrorMessage('Facilities data: Failed to retrieve data for ' + + this.buildingsServiceUrl);
         };
 
-        var _getFacilitiesSuccess = function(data, jsonStatus)
+        var getFacilitiesSuccess = function(data, jsonStatus)
         {
             if (jsonStatus!== uob.json.JsonStatus.LIVE){
                 uob.log.addCacheMessage('Facilities data: Retrieved from local cache for ' + this.facilitiesServiceUrl );
             }
             
-            _setFacilities(data, this.facilitiesServiceUrl, this.icon);
+            setFacilities(data, this.facilitiesServiceUrl, this.icon);
         };
         
-        var _getFacilitiesError = function()
+        var getFacilitiesError = function()
         {
             uob.log.addErrorMessage('Facilities data: Failed to retrieve data for ' + + this.facilitiesServiceUrl);
         };
         
-        var _isRequestInProgress = function(requestUrl){
+        var isRequestInProgress = function(requestUrl){
             
-            var requestUrlIndex = _requestsInProgress.indexOf(requestUrl);
+            var requestUrlIndex = requestsInProgress.indexOf(requestUrl);
             return (requestUrlIndex>-1);
         }
-        var _removeRequestInProgress = function(requestUrl)
+        var removeRequestInProgress = function(requestUrl)
         {
-            var requestUrlIndex = _requestsInProgress.indexOf(requestUrl);
+            var requestUrlIndex = requestsInProgress.indexOf(requestUrl);
             if (requestUrlIndex>=0){
                 
-                _requestsInProgress = _requestsInProgress.splice(requestUrlIndex, 1);
+                requestsInProgress = requestsInProgress.splice(requestUrlIndex, 1);
             }
         }
         
-        var _addRequestInProgress = function(requestUrl)
+        var addRequestInProgress = function(requestUrl)
         {
-            _requestsInProgress.push(requestUrl);
+            requestsInProgress.push(requestUrl);
         }
         
-        var _restoreAllBuildingOpacity = function(opacity)
+        var restoreAllBuildingOpacity = function(opacity)
         {
             
             if (!opacity)
             {
-				opacity = DEFAULT_OPACITY;
+				opacity = buildingOpacity.DEFAULT;
             }
             
-            for (var i in _allBuildings) {
+            for (var i in allBuildings) {
             
-                var building = _allBuildings[i];
+                var building = allBuildings[i];
                 building.googlePolygon.setOptions({fillOpacity:opacity});
             }
 		}
         
-        var _setupBuildingClick = function(building)
+        var setupBuildingClickEvent = function(building)
         {
 
             google.maps.event.addListener(building.googlePolygon, 'click', function (event) {
@@ -290,28 +292,28 @@
                 //Is this building already selected
                 
                 //If there are already 2 selected items or no selected items then reset the opacity.
-                if (_clickedBuildings.length!==1){
-                    _restoreAllBuildingOpacity();
-                    _clickedBuildings = [];
+                if (clickedBuildings.length!==1){
+                    restoreAllBuildingOpacity();
+                    clickedBuildings = [];
                 }
                 
                 //Show the selected building:
-				building.googlePolygon.setOptions({fillOpacity:SELECTED_OPACITY});
+				building.googlePolygon.setOptions({fillOpacity:buildingOpacity.SELECTED});
                 
-                _clickedBuildings.push(building);
+                clickedBuildings.push(building);
                 
-                if (_clickedBuildings.length===1)
+                if (clickedBuildings.length===1)
                 {
                     //Let's wipe out any existing tracking and take over.
-                    _googleMapWrapper.trackLatLng(null);
-                    message = "'" +  _clickedBuildings[0].BuildingName + "'";
-                    _googleMapWrapper.setMapMessage(message);
+                    googleMapWrapper.trackLatLng(null);
+                    message = "'" +  clickedBuildings[0].BuildingName + "'";
+                    googleMapWrapper.setMapMessage(message);
                 }
                 
-                if (_clickedBuildings.length>1)
+                if (clickedBuildings.length>1)
                 {
-                    var building1Center = uob.google.getPolygonCenter(_clickedBuildings[0].googlePolygon);
-                    var building2Center = uob.google.getPolygonCenter(_clickedBuildings[1].googlePolygon);
+                    var building1Center = uob.google.getPolygonCenter(clickedBuildings[0].googlePolygon);
+                    var building2Center = uob.google.getPolygonCenter(clickedBuildings[1].googlePolygon);
                     var minutesToReach = Math.round(uob.google.getDistanceBetweenTwoLatLngsInKm(building1Center, building2Center)/.060);
                                        
                     var distanceDescription= minutesToReach + " minutes";
@@ -319,20 +321,19 @@
                     	distanceDescription = minutesToReach + " minute";
                 	}
                     
-                    var message = "'" +  _clickedBuildings[0].BuildingName + "' to '" + _clickedBuildings[1].BuildingName + "': " + distanceDescription;
+                    var message = "'" +  clickedBuildings[0].BuildingName + "' to '" + clickedBuildings[1].BuildingName + "': " + distanceDescription;
                                     
                     //Let's wipe out any existing tracking and take over.
-                    _googleMapWrapper.trackLatLng(null);
-                    _googleMapWrapper.setMapMessage(message);
+                    googleMapWrapper.trackLatLng(null);
+                    googleMapWrapper.setMapMessage(message);
                     
                 }
                 
             });
-        }
+        };
+                
         
-        
-        
-        this.showBuildings = function(buildingsServiceUrl, buildingsServiceLocalFile, buildingId){
+        var showBuildings = function(buildingsServiceUrl, buildingsServiceLocalFile, buildingId){
             
             
             if (buildingId)
@@ -340,18 +341,18 @@
                 buildingId = parseInt(buildingId);
             }
             
-            if (!_buildings[buildingsServiceUrl]) {
+            if (!buildings[buildingsServiceUrl]) {
                 
-                _showBuildingBuildingId = buildingId;
+                showBuildingBuildingId = buildingId;
                 
-                if (!_isRequestInProgress(buildingsServiceUrl)) {
+                if (!isRequestInProgress(buildingsServiceUrl)) {
                     var requestDetails = {
                         buildingsServiceUrl: buildingsServiceUrl,
                         buildingsServiceLocalFile: buildingsServiceLocalFile
                     };
 
-                    _addRequestInProgress(buildingsServiceUrl);
-                    uob.json.getJSON ("Map Buildings", buildingsServiceUrl, buildingsServiceLocalFile, _getBuildingsSuccess.bind(requestDetails),  _getBuildingsError.bind(requestDetails));
+                    addRequestInProgress(buildingsServiceUrl);
+                    uob.json.getJSON ("Map Buildings", buildingsServiceUrl, buildingsServiceLocalFile, getBuildingsSuccess.bind(requestDetails),  getBuildingsError.bind(requestDetails));
                 }
                 else {
                     console.log("Building request in progress: Not re-requesting JSON data.");
@@ -359,23 +360,23 @@
                 return;
             }
             
-            _showAllBuildings(buildingId);
+            showAllBuildings(buildingId);
             
         };
         
-        this.showFacilities = function(facilitiesServiceUrl, facilitiesServiceLocalFile, icon){
+        var showFacilities = function(facilitiesServiceUrl, facilitiesServiceLocalFile, icon){
             
-            if (!_facilities[facilitiesServiceUrl]) {
+            if (!facilities[facilitiesServiceUrl]) {
                 
-                if (!_isRequestInProgress(facilitiesServiceUrl)) {
+                if (!isRequestInProgress(facilitiesServiceUrl)) {
                     var requestDetails = {
                         facilitiesServiceUrl: facilitiesServiceUrl,
                         facilitiesServiceLocalFile: facilitiesServiceLocalFile,
                         icon: icon
                     };
 
-                    _addRequestInProgress(facilitiesServiceLocalFile);
-                    uob.json.getJSON ("Map Facilities", facilitiesServiceUrl, facilitiesServiceLocalFile, _getFacilitiesSuccess.bind(requestDetails), _getFacilitiesError.bind(requestDetails));
+                    addRequestInProgress(facilitiesServiceLocalFile);
+                    uob.json.getJSON ("Map Facilities", facilitiesServiceUrl, facilitiesServiceLocalFile, getFacilitiesSuccess.bind(requestDetails), getFacilitiesError.bind(requestDetails));
                 }
                 else {
                     console.log("Building request in progress: Not re-requesting JSON data.");
@@ -383,8 +384,13 @@
                 return;
             }
             
-            _showAllFacilities();
+            showAllFacilities();
                         
+        }
+        
+        return{
+            showBuildings: showBuildings,
+            showFacilities: showFacilities
         }
         
     }

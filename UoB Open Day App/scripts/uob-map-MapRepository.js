@@ -7,11 +7,12 @@
     uob.map = uob.map || {};
     uob.data = uob.data || {};
 
-    var _mapItems = null;
+    
     
     uob.map.MapRepository = function(mapDescription, mapsJsonUrl, localFile, initialisedFunction)
     {
 
+        var mapItems = null;
         var status =  uob.json.JsonStatus.UNINITIALISED;
         
         var getStatus = function(){
@@ -30,7 +31,7 @@
         
         var getMaps = function()
         {
-            return _mapItems;
+            return mapItems;
         }
     
         var mapSuccess = function(data, jsonStatus)
@@ -50,17 +51,17 @@
             initialisedFunction();
         };
             
-        var setMapData = function(mapItems)
+        var setMapData = function(mapData)
         {
                 
-            for (var i in mapItems) {
-                var mapItem = mapItems[i];
+            for (var i in mapData) {
+                var mapItem = mapData[i];
                 mapItem.getLatLngBounds = function(){
                      return uob.google.getLatLngBounds(this.SouthWestLatitude, this.SouthWestLongitude, this.NorthEastLatitude, this.NorthEastLongitude);
                 }
             }
             
-            _mapItems = mapItems;
+            mapItems = mapData;
             
         }  
 

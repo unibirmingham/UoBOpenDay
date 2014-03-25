@@ -5,10 +5,12 @@
     
     var app = global.app = global.app || {};
     app.openDay = app.openDay || {};
+    app.repository = app.repository || {};
+    
     
     var uob = global.uob = global.uob || {};
     uob.json = uob.json || {};
-    uob.events = uob.events || {};
+    
     uob.url = uob.url || {};
     
     var scheduleEventsListViewId = "open-day-schedule-events-view";
@@ -63,7 +65,7 @@
         };
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.events.eventsRepository.getEventItems(filterFunction),
+                data: app.repository.eventsRepository.getEventItems(filterFunction),
                 pageSize: 10000
             });
         
@@ -103,7 +105,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
          
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  uob.events.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate()),
+                data:  app.repository.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate()),
                 pageSize: 10000
             });
         
@@ -136,7 +138,7 @@
         uob.log.addLogMessage("Got Data");
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: uob.events.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate()),
+                data: app.repository.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate()),
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -249,10 +251,10 @@
         
         if (span.hasClass('event-move-up'))
         {
-            moveEvent = uob.events.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = app.repository.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }
         else{
-            moveEvent = uob.events.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = app.repository.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
         }
 
         if (!moveEvent)
@@ -289,7 +291,7 @@
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(eventGroup, span, uob.events.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
+                setupIconSpan(eventGroup, span, app.repository.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
             }
             
         });
@@ -314,10 +316,10 @@
                     if ($j(span).hasClass(eventGroup + "-true"))
                     {
                         setupIconSpan(eventGroup, span, false);
-                        uob.events.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
+                        app.repository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
                     }
                     else{
-                        if(uob.events.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+                        if(app.repository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
                         {
                             setupIconSpan(eventGroup, span, true);
                         }

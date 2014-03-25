@@ -39,7 +39,7 @@
         app.repository.mapRepository = new uob.map.MapRepository("Maps", uob.url.MapsService, 'data/maps.json', mapRepositoryInitialised);
         
         //Now initialise data for the various parts of the app:
-        uob.events.eventsRepository.initialise("Open Day Events", openDayEventsUrl, openDayLocalFile);
+        app.repository.eventsRepository =  new uob.events.EventsRepository("Open Day Events", openDayEventsUrl, openDayLocalFile, eventsRepositoryInitialised);
 
     }
     
@@ -89,6 +89,15 @@
             //Show the open day date selector:
             $j('#tabstrip-home .open-day-date-selector').removeClass("open-day-date-selector");
             uob.screen.enableLinks('startDatesButton');
+        }
+        
+    };
+    
+    var eventsRepositoryInitialised = function()
+    {
+        if (app.repository.eventsRepository.hasData())
+        {
+            uob.screen.enableLinks("eventsRepositoryButton");
         }
         
     };
