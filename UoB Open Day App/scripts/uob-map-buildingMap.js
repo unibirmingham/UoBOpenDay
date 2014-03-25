@@ -221,31 +221,26 @@
 
         };
         
-        var _getBuildingsSuccess = function(data)
+        var _getBuildingsSuccess = function(data, jsonStatus)
         {
-            _setBuildings(data, this.buildingsServiceUrl);
+             if (jsonStatus!== uob.json.JsonStatus.LIVE){
+        		uob.log.addCacheMessage('Building data: Retrieved from local cache for ' + this.buildingsServiceUrl );
+         	}
+             _setBuildings(data, this.buildingsServiceUrl);
         };
-        
-        var _getBuildingsCacheSuccess = function(data)
-        {
-            uob.log.addCacheMessage('Building data: Retrieved from local cache for ' + this.buildingsServiceUrl );
-            _setBuildings(data, this.buildingsServiceUrl);            
-        };
-        
+                
         var _getBuildingsError = function()
         {
             uob.log.addErrorMessage('Facilities data: Failed to retrieve data for ' + + this.buildingsServiceUrl);
         };
 
-        var _getFacilitiesSuccess = function(data)
+        var _getFacilitiesSuccess = function(data, jsonStatus)
         {
+            if (jsonStatus!== uob.json.JsonStatus.LIVE){
+                uob.log.addCacheMessage('Facilities data: Retrieved from local cache for ' + this.facilitiesServiceUrl );
+            }
+            
             _setFacilities(data, this.facilitiesServiceUrl, this.icon);
-        };
-        
-        var _getFacilitiesCacheSuccess = function(data)
-        {
-            uob.log.addCacheMessage('Facilities data: Retrieved from local cache for ' + this.facilitiesServiceUrl );
-            _setFacilities(data, this.buildingsServiceUrl, this.icon);            
         };
         
         var _getFacilitiesError = function()
@@ -356,7 +351,7 @@
                     };
 
                     _addRequestInProgress(buildingsServiceUrl);
-                    uob.json.getJSON ("Map Buildings", buildingsServiceUrl, buildingsServiceLocalFile, _getBuildingsSuccess.bind(requestDetails), _getBuildingsCacheSuccess.bind(requestDetails), _getBuildingsError.bind(requestDetails));
+                    uob.json.getJSON ("Map Buildings", buildingsServiceUrl, buildingsServiceLocalFile, _getBuildingsSuccess.bind(requestDetails),  _getBuildingsError.bind(requestDetails));
                 }
                 else {
                     console.log("Building request in progress: Not re-requesting JSON data.");
@@ -380,7 +375,7 @@
                     };
 
                     _addRequestInProgress(facilitiesServiceLocalFile);
-                    uob.json.getJSON ("Map Facilities", facilitiesServiceUrl, facilitiesServiceLocalFile, _getFacilitiesSuccess.bind(requestDetails), _getFacilitiesCacheSuccess.bind(requestDetails), _getFacilitiesError.bind(requestDetails));
+                    uob.json.getJSON ("Map Facilities", facilitiesServiceUrl, facilitiesServiceLocalFile, _getFacilitiesSuccess.bind(requestDetails), _getFacilitiesError.bind(requestDetails));
                 }
                 else {
                     console.log("Building request in progress: Not re-requesting JSON data.");

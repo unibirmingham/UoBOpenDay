@@ -137,19 +137,15 @@
             
             if (!that._eventItems){
                 uob.log.addLogMessage("Initialising Event retrieval");
-                uob.json.getJSON(eventsDescription, eventsWebServiceUrl, localFile, that._eventsSuccess.bind(that), that._eventsCacheSuccess.bind(that), that._eventsError.bind(that));
+                uob.json.getJSON(eventsDescription, eventsWebServiceUrl, localFile, that._eventsSuccess.bind(that), that._eventsError.bind(that));
             }
         },
-        _eventsSuccess: function(data)
+        _eventsSuccess: function(data, status)
         {
-            var that = this;
-            that._setEventItems(data);
-        },
-        _eventsCacheSuccess:function(data)
-        {
-            var that = this;
-            uob.log.addCacheMessage("Events data: Currently using local cache");
-            that._setEventItems(data)
+            if (status!== uob.json.JsonStatus.LIVE){
+        		uob.log.addCacheMessage('Events data: Currently using local cache');
+        	}
+            this._setEventItems(data);
         },
         _eventsError: function()
         {

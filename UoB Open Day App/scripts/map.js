@@ -36,7 +36,13 @@
                 return;
             } 
 
-            var mapItems = uob.map.mapRepository.getMaps();
+            if (!app.repository.mapRepository || app.repository.mapRepository.getStatus()===uob.json.JsonStatus.ERROR)
+            {
+                $j('#no-map').text('Error initialising map: No map repository found');
+                return;     
+            }
+            
+            var mapItems = app.repository.mapRepository.getMaps();
             
             if (!mapItems)
             {
@@ -126,9 +132,7 @@
                 _googleMapWrapper.hideMap();
             }
             
-        },
-
-        viewModel: null
+        }
     };
 }
 )(window, jQuery);
