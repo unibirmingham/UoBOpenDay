@@ -41,16 +41,21 @@
         		uob.log.addCacheMessage('Maps: Data is from cache');       
          	}
             setMapData(data);
-            initialisedFunction();
+            callInitialisedFunction();
         };
         
         var mapError = function(jsonStatus)
         {
             uob.log.addErrorMessage('No maps data available.');
             status = jsonStatus;
-            initialisedFunction();
+            callInitialisedFunction();
         };
-            
+        
+        var callInitialisedFunction = function(){
+            if (initialisedFunction){
+				initialisedFunction();
+            }
+        };
         var setMapData = function(mapData)
         {
                 
@@ -63,15 +68,14 @@
             
             mapItems = mapData;
             
-        }  
-
-        initialise();
+        }
         
         //Public functions
         return {
             getMaps: getMaps,
             getStatus: getStatus,
-            hasData: hasData
+            hasData: hasData,
+			initialise: initialise
         };
               
     };

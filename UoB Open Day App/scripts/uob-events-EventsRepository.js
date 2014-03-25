@@ -154,14 +154,20 @@
         	}
             setEventItems(data);
             status = jsonStatus;
-            initialisedFunction();
+            callInitialisedFunction();
         };
         var eventsError = function(jsonStatus){
             uob.log.addErrorMessage("Error retrieving local events. No items found");   
             status = jsonStatus;
-			initialisedFunction();  
+			callInitialisedFunction();  
         };
-        
+
+        var callInitialisedFunction = function(){
+            if (initialisedFunction){
+				initialisedFunction();
+            }
+        };
+
         var setEventItems = function(eventItemData){
 
             console.log("Retrieved " + eventItemData.length + " event items");
@@ -557,9 +563,6 @@
             return [];
         }
         
-        
-        initialise();
-        
         return {
             hasData: hasData,
             getStatus: getStatus,
@@ -569,7 +572,8 @@
             moveEventEarlierInSchedule: moveEventEarlierInSchedule,
             removeEventFromSelectedData: removeEventFromSelectedData,
             addEventToSelectedData: addEventToSelectedData,
-            isContentIdSelected: isContentIdSelected
+            isContentIdSelected: isContentIdSelected,
+            initialise: initialise
         };
         
     };

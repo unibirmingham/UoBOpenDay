@@ -22,39 +22,96 @@
     var startDatesUrl = uob.url.EventsService + '/startdates/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var startDatesLocalFile = "data/events-dates.json";
     
+    var initialisationList = ["Web Connection", "Website", "Start Dates", "Maps", "Events"];
     
     var onDeviceReady= function()
     {
         
         $j.support.cors = true;
         
-        uob.web.checkWebConnection("webConnectionButton");
+        displayInitialisationMessage();
+        
+        checkWebConnection("webConnectionButton");
         
         checkWebsite();
         
-        //Initialise start dates:
+        //Set up repositories:
     
     	app.repository.startDateRepository = new uob.events.StartDateRepository("Open Day Start Dates",startDatesUrl, startDatesLocalFile, startDateRepositoryInitialised);
         
         app.repository.mapRepository = new uob.map.MapRepository("Maps", uob.url.MapsService, 'data/maps.json', mapRepositoryInitialised);
         
-        //Now initialise data for the various parts of the app:
         app.repository.eventsRepository =  new uob.events.EventsRepository("Open Day Events", openDayEventsUrl, openDayLocalFile, eventsRepositoryInitialised);
+        
+        //Now initialise them:
+        app.repository.startDateRepository.initialise();
 
-    }
+        app.repository.mapRepository.initialise();
+        
+        app.repository.eventsRepository.initialise();
+        
+    };
+    var initialised = function(itemInitialised)
+    {
+        var index;
+        
+		index = $j.inArray(itemInitialised, initialisationList);
+		if (index>=0){
+            initialisationList.splice(index, 1);
+        }
+		displayInitialisationMessage();
+    };
+    
+    var displayInitialisationMessage = function()
+    {
+    	var i;
+        var message;
+        message = '';
+        
+        if (initialisationList.length){
+            message = "Initialising: ";
+            for (i = 0; i < initialisationList.length; i += 1) {
+                message = message + initialisationList[i];
+                if (i<initialisationList.length-1){
+                	message = message + ", ";
+                }
+            }
+        }
+        
+        $j('#loading-message').text(message);		
+        
+	};
+        
+    var checkWebConnection = function(){
+
+        if (uob.web.is3GOrBetter()){
+            uob.log.addLogMessage("3G or better internet connection is present");
+            uob.screen.enableLinks("webConnectionButton");
+        } else {
+            uob.log.addLogMessage("No web connection");
+        }
+        initialised("Web Connection");
+    };
     
     var checkWebsite = function()
     {
-        uob.web.checkUrl("University of Birmingham Website", 'http://' + uob.url.WebSite  + '/index.aspx', "webSiteButton");
+        uob.web.checkUrl("University of Birmingham Website", 'http://' + uob.url.WebSite  + '/index.aspx', checkWebsiteCallback);
     };
+        
+    var checkWebsiteCallback = function(success)
+    {
+        if (success){
+            uob.screen.enableLinks("webSiteButton");
+    	}
+        initialised("Website");
+	};
     
     var mapRepositoryInitialised = function()
     {
-        if (app.repository.mapRepository.hasData())
-        {
+        if (app.repository.mapRepository.hasData()){
             uob.screen.enableLinks("mapRepositoryButton");
         }
-        
+        initialised("Maps");
     };
 
     var startDateRepositoryInitialised = function()
@@ -90,7 +147,7 @@
             $j('#tabstrip-home .open-day-date-selector').removeClass("open-day-date-selector");
             uob.screen.enableLinks('startDatesButton');
         }
-        
+        initialised("Start Dates");
     };
     
     var eventsRepositoryInitialised = function()
@@ -99,7 +156,7 @@
         {
             uob.screen.enableLinks("eventsRepositoryButton");
         }
-        
+        initialised("Events");
     };
     
     document.addEventListener("deviceready", onDeviceReady, true);

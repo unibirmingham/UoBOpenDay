@@ -87,21 +87,8 @@
             });    
         }
     };
-    
-    uob.web.checkWebConnection = function(buttonClass)
-    {
         
-        if (uob.web.is3GOrBetter())
-        {
-            uob.log.addLogMessage("3G or better internet connection is present");
-            uob.screen.enableLinks(buttonClass);
-            return;
-        }
-        uob.log.addLogMessage("No web connection");
-        
-    }
-    
-    uob.web.checkUrl = function(serviceDescription, url, buttonClass)
+    uob.web.checkUrl = function(serviceDescription, url, callback)
     {
      
         uob.log.addLogMessage(serviceDescription + ": Requesting from url: " + url);
@@ -109,7 +96,7 @@
         if (!uob.web.is3GOrBetter())
         {
             uob.log.addLogMessage(serviceDescription + ": No internet connection so not requesting url: " + url);
-            return;
+            callback(false);
         }
         
         uob.log.addLogMessage(serviceDescription + ": Requesting from url: " + url);
@@ -122,14 +109,17 @@
             success: function(data, textStatus, XMLHttpRequest) {
                 if (!data) {
                     uob.log.addErrorMessage(serviceDescription + " is not responding correctly.");
+                    callback(false);
                 }
                 else{
                     uob.log.addLogMessage("Successfully requested url " + url + " for " + serviceDescription + " with status: " + textStatus);
-                    uob.screen.enableLinks(buttonClass);
+                    callback(true);
                     }
+                
               },
             error: function(jqXHR, textStatus, errorThrown){
                 uob.log.addErrorMessage(serviceDescription + " is not responding.");
+                callback(false);
             }
         });
     }

@@ -15,6 +15,7 @@
         var lastMarker= null;
         var centerToRetain = null;
         var latLngToTrack = null;
+        var latLngToTrackDescription = null;
         var watchId = "";
         
         var trackingDistanceInKm= 2;
@@ -104,15 +105,20 @@
             setMarker(positionLatLng);
             if (latLngToTrack)
             {
+                if (!latLngToTrackDescription)
+                {
+                    latLngToTrackDescription = "your destination";
+                }
+                
                 var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, latLngToTrack);
                 var minutesToReach = distanceInKm/.060;
                 minutesToReach = Math.round(minutesToReach);
-                var mapMessage = minutesToReach + " minutes from destination";
+                var mapMessage = minutesToReach + " minutes from " + latLngToTrackDescription;
                 if (minutesToReach===1){
-                    mapMessage = minutesToReach + " minute from destination";
+                    mapMessage = minutesToReach + " minute from " + latLngToTrackDescription;
                 }
                 if (minutesToReach===0){
-                    mapMessage = "You have reached your destination";
+                    mapMessage = "You have reached " + latLngToTrackDescription;
                 }
                 setMapMessage(mapMessage);
             }
@@ -198,7 +204,7 @@
             google.maps.event.addListener(googleMap, 'center_changed', trackCenter);
         };
         
-        var trackLatLng = function(latLng)
+        var trackLatLng = function(latLng, description)
         {
             if (latLngToTrack!==null && latLng===null)
             {
@@ -206,6 +212,7 @@
                 setMapMessage(null);
 			}            
             latLngToTrack = latLng;
+            latLngToTrackDescription = description;
         }
         
         centerOnMapData = function()
@@ -213,12 +220,13 @@
             if (googleMap && mapData){
                 var mapBounds = mapData.getLatLngBounds();
                 googleMap.fitBounds(mapBounds);
-                if (googleMap.getZoom() < 15){
-                    //If the map is now to far zoomed out, bring it closer:
-                    googleMap.setCenter(mapBounds.getCenter());
-                    googleMap.setZoom(15);
-                }
-                
+                google.maps.event.addListenerOnce(googleMap, 'idle', function() {
+                    if (googleMap.getZoom() < 15){
+                            //If the map is now to far zoomed out, bring it closer:
+                            googleMap.setCenter(mapBounds.getCenter());
+                            googleMap.setZoom(15);
+                        }
+                });
              }
         };
         

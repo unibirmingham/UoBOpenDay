@@ -48,25 +48,31 @@
             }
             
             status = jsonStatus;
-            initialisedFunction();
+            callInitialisedFunction();
         };
         
         var startDatesError = function(jsonStatus) {
             uob.log.addErrorMessage("Unable to retrieve start date data");
             status = jsonStatus;
-            initialisedFunction();
+            callInitialisedFunction();
+        };
+
+        var callInitialisedFunction = function(){
+            if (initialisedFunction){
+				initialisedFunction();
+            }
         };
         
         var getStartDates = function() {
             return startDates;
         }
         
-        initialise();
-        
         return{
             getStatus: getStatus,
             getStartDates: getStartDates,
-            hasData: hasData
+            hasData: hasData,
+            initialise: initialise
+            
         }
         
     };

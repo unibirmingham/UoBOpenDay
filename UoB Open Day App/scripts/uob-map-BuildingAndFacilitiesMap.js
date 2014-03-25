@@ -33,6 +33,10 @@
         var showAllBuildings = function(buildingId)
         {
             console.log("Showing all buildings highlighting building Id: " + buildingId);
+            if (!buildingId)
+            {
+                googleMapWrapper.trackLatLng(null);
+            }
             for (var i in allBuildings) {
 
                 var building = allBuildings[i];
@@ -87,7 +91,7 @@
                     googleMap.setCenter(buildingCenter);
                     
                     //Let the google map wrapper know to track the building:
-                    googleMapWrapper.trackLatLng(buildingCenter);
+                    googleMapWrapper.trackLatLng(buildingCenter, "'" + building.BuildingName + "'");
                     
                     //If we've got campus map data, see if we're on campus and if so, show us and the building in relation.
                     navigator.geolocation.getCurrentPosition(

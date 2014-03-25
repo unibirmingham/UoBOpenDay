@@ -24,8 +24,6 @@
     
     app.campusMapService = {
         
-        helpPointsLayer: new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true, suppressInfoWindows: true}),
-        
         initialise: function () {
 
             $j('#no-map').text('Initialising map ...');
@@ -98,8 +96,10 @@
             
             googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);
             
-            app.campusMapService.showHelpPoints();
-            
+            var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true, suppressInfoWindows: true});
+        
+            helpPointsLayer.setMap(campusGoogleMap);
+                        
             buildingAndFacilitiesMap = new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);
             
             googleMapWrapper.showMap();
@@ -108,8 +108,6 @@
             
         },
         
-        showHelpPoints: function(){this.helpPointsLayer.setMap(campusGoogleMap);},
-
         show: function (e) {
             
             console.log("Map show");
