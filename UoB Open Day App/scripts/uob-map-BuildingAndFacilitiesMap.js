@@ -194,6 +194,11 @@
                 });
 
                 facility.googleMarker = googleMarker;
+                
+                google.maps.event.addListener(googleMarker, 'click', function (event) {
+                    googleMapWrapper.setMapMessage(facility.FacilityName);
+            		googleMapWrapper.trackLatLng(facility.googleLatLng, "'" + facility.FacilityName + "'");
+                });
             }
 
         };
@@ -315,8 +320,14 @@
             
                 //Is this building already selected
                 
-                //If there are already 2 selected items or no selected items then reset the opacity.
-                if (clickedBuildings.length!==1){
+                
+                if (clickedBuildings.length===1){
+                 	//If there's one clicked building and it's this building, just ignore:
+                    if (clickedBuildings[0].ContentId === building.ContentId){
+                        return;
+                    }
+                }else{
+                    //If there are already 2 selected items or no selected items then reset the opacity.
                     restoreAllBuildingOpacity();
                     clickedBuildings = [];
                 }
