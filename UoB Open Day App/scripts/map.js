@@ -14,8 +14,13 @@
     var date = new Date();
     var year = date.getFullYear();
     var eventBuildingsJsonUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var eventBuildingsLocalFile ='data/events-buildings.json';
     
     var foodAndDrinkFacilitiesJsonUrl = uob.url.MapsService + '54448/facilities/?categoryKey=0/1/2836/2837/2839/2975';
+    var foodAndDrinkFacilitiesLocalFile = 'data/facilities-foodanddrink.json';
+    
+    var foodAndDrinkBuildingsJsonUrl = uob.url.MapsService + '54448/buildings/?categoryKey=0/1/2836/2837/2839/2975';
+    var foodAndDrinkBuildingsLocalFile = 'data/buildings-foodanddrink.json';
     
     var googleMapWrapper = null;
     var campusGoogleMap = null;
@@ -114,11 +119,19 @@
             if (!campusGoogleMap) {
                 return;
             }
-            var buildingId = e.view.params.buildingId;
             
-            buildingAndFacilitiesMap.showBuildings(eventBuildingsJsonUrl, 'data/events-buildings.json',buildingId);
-            buildingAndFacilitiesMap.showFacilities(foodAndDrinkFacilitiesJsonUrl, 'data/facilities-foodanddrink.json','styles/icons/foodanddrink.png');
-            //Tell map that is now visible
+            buildingAndFacilitiesMap.addBuildings(eventBuildingsJsonUrl, eventBuildingsLocalFile );
+            buildingAndFacilitiesMap.addFacilities(foodAndDrinkFacilitiesJsonUrl,foodAndDrinkFacilitiesLocalFile ,'styles/icons/foodanddrink.png');
+            buildingAndFacilitiesMap.addBuildings(foodAndDrinkBuildingsJsonUrl, foodAndDrinkBuildingsLocalFile);
+            
+            var buildingId = e.view.params.buildingId;
+            if (buildingId){
+            	buildingAndFacilitiesMap.setHighlightBuilding(buildingId);
+            } else {
+                buildingAndFacilitiesMap.clearHighlightBuilding();
+            }
+            
+            //Tell map that it is now visible
             googleMapWrapper.showMap();
             
         },

@@ -215,7 +215,7 @@
             latLngToTrackDescription = description;
         }
         
-        centerOnMapData = function()
+        var centerOnMapData = function()
         {
             if (googleMap && mapData){
                 var mapBounds = mapData.getLatLngBounds();
@@ -230,17 +230,23 @@
              }
         };
         
+        var getTrackingDistanceInKm = function()
+        {
+            return trackingDistanceInKm;
+        }
+        
         //When initialised center the map.
         centerOnMapData();
         
         return {
-            trackingDistanceInKm: trackingDistanceInKm,
             getGoogleMap: getGoogleMap,
             setMapMessage: setMapMessage,
             showMap: showMap,
             hideMap: hideMap,
             trackLatLng: trackLatLng,
-            centerOnMapData: centerOnMapData
+            centerOnMapData: centerOnMapData,
+            getTrackingDistanceInKm: getTrackingDistanceInKm
+            
             
         };
         
