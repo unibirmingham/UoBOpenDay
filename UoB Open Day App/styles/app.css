@@ -63,16 +63,38 @@
 
 /*Events listings */
 
+#appBody .events-list h1
+{
+    font-size: 1em;
+}
+
+#appBody .events-list .event-details p
+{
+    margin-right: 0;
+}
 
 #appBody .event-favourite,
 #appBody .event-schedule
 {
-    float: right;
     font-size: 2em;
-    margin-right: .5em;
-    padding-left: .2em;
-    float: right;   
+    padding-right: .1em;
+    padding-left: .1em;
 }
+#appBody .event-favourite
+{
+    float: left;
+    margin-right:.1em;
+    margin-left: 0;
+}
+#appBody .event-schedule
+{
+	float: right;
+	margin-left: .1em;
+    margin-right: 0;
+
+}
+
+
 
 #appBody .favourite-true
 {

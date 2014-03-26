@@ -76,9 +76,10 @@
                 	message = message + ", ";
                 }
             }
+            message = "<p>" + message + "</p>";
         }
         
-        $j('#loading-message').text(message);		
+        $j('#loading-message').html(message);		
         
 	};
         

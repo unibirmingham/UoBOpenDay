@@ -34,9 +34,9 @@
     <script src="scripts/uob-map-BuildingAndFacilitiesMap.js"></script>
     <script src="scripts/settings.js"></script>
     <script src="scripts/app-openday.js"></script>
+    <script src="scripts/app-webpage.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/map.js"></script>
-    <script src="scripts/faqs.js"></script>
     <script src="scripts/appstart.js"></script>
 </head>
 
@@ -52,6 +52,19 @@
         {
             content: "\e044";
         }
+        
+        .km-road:after,
+        .km-road:before
+        {
+            content: "\e0bb";
+        }
+        
+        .km-questionmark:after,
+        .km-questionmark:before
+        {
+            content: "\e0fb";
+        }
+            
 
     </style>
         <div class="view-content">
@@ -74,7 +87,8 @@
                 <li class="eventsRepositoryButton startDatesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="eventsRepositoryButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
-                <li class="webSiteButton"><a data-icon="compose" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
+                <li class="webSiteButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
+                <li class="webSiteButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
                 <li><a data-icon="settings" href="#tabstrip-settings" data-transition="slide">Settings</a></li>
             </ul>
             <div class="img"></div>
@@ -168,13 +182,24 @@
     </div>
       
     <!-- Registration information -->
-    <div id="tabstrip-faqs" data-role="view" data-init="app.populateFAQs" data-title="FAQs">
+    <div id="tabstrip-faqs" data-role="view" data-init="app.webpage.getFAQs" data-title="FAQs">
         <div class="view-content">
             <div id="faqsContent">
                 
             </div>
         </div>
      </div>
+    
+    <!-- Getting here information -->
+    <div id="tabstrip-getting-here" data-role="view" data-init="app.webpage.getGettingHere" data-title="FAQs">
+        <div class="view-content">
+            <div id="gettingHereContent">
+                
+            </div>
+        </div>
+     </div>
+    
+    
     
     <!-- Settings information -->
     <div id="tabstrip-settings" data-role="view" data-init="app.populateSettingsInfo" data-title="Settings">
