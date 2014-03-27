@@ -17,8 +17,6 @@
         var latLngToTrack = null;
         var latLngToTrackDescription = null;
         var watchId = "";
-        
-        var trackingDistanceInKm= 2;
               
         //When the orientation is changed this can lose the center of the map -- these functions keep it and reinstate it.
         var orientationchange =  function()
@@ -43,8 +41,10 @@
         };
         var keepCurrentCenter = function(){
             var center = googleMap.getCenter();
-            
             centerToRetain = new google.maps.LatLng( center.lat(), center.lng());
+            
+            google.maps.event.addListenerOnce(googleMap, 'center_changed', trackCenter);
+                        
             console.log("Retaining center: " + centerToRetain);
         };
                 
@@ -70,16 +70,14 @@
         };
         
         var watchPositionHighAccuracy = function(position){
-            setMapStatus("High");
-            showPositionOnMap(position);
-        };
-        var watchPositionLowAccuracy = function(position){
-
-            setMapStatus("Low");
-            showPositionOnMap(position);
+            showPositionOnMap(position,"High");
         };
         
-        var showPositionOnMap = function (position) {
+        var watchPositionLowAccuracy = function(position){
+            showPositionOnMap(position, "Low");
+        };
+        
+        var showPositionOnMap = function (position, accuracy) {
             if (!watchId)
             {
                 console.log("There is no watch set so not showing position");
@@ -94,15 +92,18 @@
             var mapCenter = googleMap.getCenter();
             var kmFromCenterOfMap = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, mapCenter);
             
-            if (!isOnMap && kmFromCenterOfMap> this.trackingDistanceInKm){
+            var trackingDistance = getTrackingDistanceInKm();
+            
+            if (!isOnMap && kmFromCenterOfMap> trackingDistance){
                 
-                uob.log.addLogMessage("User is off map and " + kmFromCenterOfMap + "km from center -- untracking");
+                uob.log.addLogMessage("User is off map and " + kmFromCenterOfMap + "km from center. Tracking distance is: " + trackingDistance + "km -- untracking");
                 setMapStatus("Off Map");
                 untrackUser();
                 return;
             }
             
             setMarker(positionLatLng);
+            setMapStatus(accuracy);
             if (latLngToTrack)
             {
                 if (!latLngToTrackDescription)
@@ -131,7 +132,7 @@
                 //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
                 setMapStatus('No GPS signal');
             
-                uob.log.addLogWarning("High accuracy position error so trying low accuracy location Code: "+ error.code + " Message: " + error.message);
+                uob.log.addLogWarning("High accuracy position error so trying low accuracy location. Code: "+ error.code + " Message: " + error.message);
                 untrackUser();
                 var geoLocationOptions = {timeout: 10000, enableHighAccuracy: false, maximumAge: 2000};
                 watchId = navigator.geolocation.watchPosition(watchPositionLowAccuracy, watchPositionLowAccuracyError, geoLocationOptions);
@@ -189,9 +190,7 @@
         };
         
         var showMap = function(){
-			google.maps.event.addListener(googleMap, 'center_changed', trackCenter);
-            //Clear any old messages:
-            setMapMessage(null);
+
             global.addEventListener('orientationchange', orientationchange);
             //Setup user geolocation tracking
             trackUser();
@@ -201,7 +200,8 @@
             //Get rid of events which aren't needed when map is not visible.
             untrackUser();
             global.removeEventListener('orientationchange', orientationchange);
-            google.maps.event.addListener(googleMap, 'center_changed', trackCenter);
+            //Clear any old messages:
+            setMapMessage(null);
         };
         
         var trackLatLng = function(latLng, description)
@@ -232,6 +232,10 @@
         
         var getTrackingDistanceInKm = function()
         {
+            var neLatLng = new google.maps.LatLng(mapData.NorthEastLatitude, mapData.NorthEastLongitude);
+            var swLatLng = new google.maps.LatLng(mapData.SouthWestLatitude, mapData.SouthWestLongitude);
+            var trackingDistanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(neLatLng, swLatLng);
+            //The tracking distance is the diagonal map distance (the actual map bounds will be wider) and if a user is just off screen then it's still worth tracking.
             return trackingDistanceInKm;
         }
         

@@ -113,6 +113,9 @@
             }
             googleMap.setCenter(buildingCenter);
             
+            //Put the name of the building on the map
+            googleMapWrapper.setMapMessage(building.BuildingName);
+            
             //Let the google map wrapper know to track the building:
             googleMapWrapper.trackLatLng(buildingCenter, "'" + building.BuildingName + "'");
             

@@ -56,5 +56,6 @@
 {
     width:15%;
     float: right;
-    padding-right: 1em;
+    font-size: .6em;
+	padding-right: .3em;
 }
