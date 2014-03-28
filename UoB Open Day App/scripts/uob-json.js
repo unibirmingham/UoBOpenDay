@@ -4,6 +4,7 @@
     uob.json = uob.json || {};
     uob.log = uob.log || {};
     uob.web = uob.web || {};
+    uob.localstorage = uob.localstorage || {};
     
     uob.json.JsonStatus = {
           UNINITIALISED: "Uninitialised",
@@ -19,13 +20,13 @@
     }
     
     //This function assumes that an empty json response should be regarded as a failure.
-    uob.json.getJSON = function(dataDescription, jsonUrl, localFile, successFunction, errorFunction)
+    uob.json.getJSON = function(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive)
     {
         
         if (!uob.web.is3GOrBetter())
         {
             uob.log.addLogMessage(dataDescription + ": No internet connection so not requesting url: " + jsonUrl + " checking cache instead.");
-            retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction);
+            retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive);
             return;
         }
         
@@ -36,20 +37,20 @@
             url: jsonUrl,
             success:function(jsonData) {
 
-            if (jsonData.length===0)
-            {
-                console.log(dataDescription + ": empty data returned");
-                retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction);
-                return;
-            }
-            uob.log.addLogMessage(dataDescription + ": " + jsonData.length + " items retrieved");
-            setDataInLocalCache(dataDescription, jsonUrl, jsonData);
-            successFunction(jsonData, uob.json.JsonStatus.LIVE);
-        },
-        timeout: 10000
+                if (jsonData.length===0)
+                {
+                    console.log(dataDescription + ": empty data returned");
+                    retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive);
+                    return;
+                }
+                uob.log.addLogMessage(dataDescription + ": " + jsonData.length + " items retrieved");
+                setDataInLocalCache(dataDescription, jsonUrl, jsonData);
+                successFunction(jsonData, uob.json.JsonStatus.LIVE);
+            },
+            timeout: 10000
         }).fail( function( xhr, status ) {
             uob.log.addLogMessage(dataDescription + ": Failure getting JSON data from " + jsonUrl + " Error status: " + status + " incoming Text " + xhr.responseText);
-            retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction);
+            retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive);
         });
         
     }
@@ -57,17 +58,15 @@
     var setDataInLocalCache = function(dataDescription, jsonUrl, jsonData)
     {
         console.log(dataDescription + ": Setting data into local cache");
-        var localStorageCacheName = getLocalStorageCacheNameFromJsonUrl(jsonUrl);
         var stringJsonData = JSON.stringify(jsonData);
-        localStorage.setItem(localStorageCacheName, stringJsonData);
+        uob.localstorage.setWebContent(jsonUrl, stringJsonData);
         
     }
     
-    var retrieveDataFromLocalCache = function(dataDescription, jsonUrl, localFile, successFunction, errorFunction)
+    var retrieveDataFromLocalCache = function(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive)
     {
         console.log(dataDescription + ": Attempting to retrieve event building data from local storage cache");
-        var localStorageCacheName = getLocalStorageCacheNameFromJsonUrl(jsonUrl);
-        var stringJsonData = localStorage.getItem(localStorageCacheName);
+        var stringJsonData = uob.localstorage.getWebContent(jsonUrl);
         if (stringJsonData){
             var jsonData = JSON.parse(stringJsonData);
             if (jsonData.length>0){
@@ -78,7 +77,7 @@
             uob.log.addLogMessage(dataDescription + ": no data in local storage cache.");
             
         }
-        if (uob.testMode){
+        if (canUseLocalFileWhenLive || app.uobSettings.testMode){
             retrieveDataFromLocalFile(dataDescription, localFile, successFunction, errorFunction);
             return;
         }
@@ -87,11 +86,7 @@
         
     }
     
-    var getLocalStorageCacheNameFromJsonUrl = function(jsonUrl)
-    {
-        return jsonUrl.replace("http://", "").replace("https://","").replace("/", "-").replace("\\","-");
-    }
-    
+
     var retrieveDataFromLocalFile = function(dataDescription, localFile, successFunction, errorFunction)
     {
         

@@ -4,20 +4,19 @@
 (function (global, $j) {
     
     var app = global.app = global.app || {};
-    app.openDay = app.openDay || {};
-    app.repository = app.repository || {};
-    
+    app.uobOpenDay = app.uobOpenDay || {};
+    app.uobRepository = app.uobRepository || {};
+    app.uobEvents = app.uobEvents || {};
     
     var uob = global.uob = global.uob || {};
     uob.json = uob.json || {};
     
-    uob.url = uob.url || {};
-    
+   
     var scheduleEventsListViewId = "open-day-schedule-events-view";
     var scheduleEventGroup = 'schedule';
     var favouriteEventGroup = 'favourite';
       
-    app.populateEventList = function (e){
+    app.uobEvents.populateEventList = function (e){
         
         var eventsListViewId = "open-day-events-view";
         
@@ -37,13 +36,13 @@
                 dataTextField: "activityTypeDescription",
                 dataValueField: "activityTypeKeyword",
                 dataSource: activityTypes,
-                change: app.populateEventList
+                change: app.uobEvents.populateEventList
             });            
             
             activityFilter =  $j("#event-activity-type-filter").data("kendoDropDownList");
         }        
         
-        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
         console.log("Filtering by " + activityFilter.value() + " and date: " + openDayDate);
         
         var filterFunctionForOpenDayDate = getFilterFunctionForOpenDayDate();
@@ -65,7 +64,7 @@
         };
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: app.repository.eventsRepository.getEventItems(filterFunction),
+                data: app.uobRepository.eventsRepository.getEventItems(filterFunction),
                 pageSize: 10000
             });
         
@@ -100,12 +99,12 @@
         
     };
 
-    app.populateFavouriteEventList = function (e){
+    app.uobEvents.populateFavouriteEventList = function (e){
         
         var eventsListViewId = "open-day-favourite-events-view";
          
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  app.repository.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate()),
+                data:  app.uobRepository.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate()),
                 pageSize: 10000
             });
         
@@ -131,14 +130,14 @@
         
     };
     
-    app.populateScheduleEventList = function (e){
+    app.uobEvents.populateScheduleEventList = function (e){
         
         uob.log.addLogMessage("Populate Schedule");
         
         uob.log.addLogMessage("Got Data");
         
         var eventsListDataSource = new kendo.data.DataSource({
-                data: app.repository.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate()),
+                data: app.uobRepository.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate()),
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
@@ -170,7 +169,7 @@
     
     var getFilterFunctionForOpenDayDate = function()
     {
-        var openDayDate = app.openDay.getOpenDayDateAsDate();
+        var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
         var openDayDateInUk = uob.date.formatDateAsUK(openDayDate, 'YYYY-MM-DD');
         
         var filterFunction = function(eventItem){
@@ -251,10 +250,10 @@
         
         if (span.hasClass('event-move-up'))
         {
-            moveEvent = app.repository.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = app.uobRepository.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }
         else{
-            moveEvent = app.repository.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
+            moveEvent = app.uobRepository.eventsRepository.moveEventLaterInSchedule(scheduleEventGroup, eventItem);
         }
 
         if (!moveEvent)
@@ -262,7 +261,7 @@
             navigator.notification.alert("Cannot move activity in schedule -- you may need to move some of your other events to fit it in.", null,"Schedule clash", 'OK');
             return;
         }
-        app.populateScheduleEventList();
+        app.uobEvents.populateScheduleEventList();
         return false;
     };
         
@@ -291,7 +290,7 @@
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(eventGroup, span, app.repository.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
+                setupIconSpan(eventGroup, span, app.uobRepository.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
             }
             
         });
@@ -316,10 +315,10 @@
                     if ($j(span).hasClass(eventGroup + "-true"))
                     {
                         setupIconSpan(eventGroup, span, false);
-                        app.repository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
+                        app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
                     }
                     else{
-                        if(app.repository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+                        if(app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
                         {
                             setupIconSpan(eventGroup, span, true);
                         }

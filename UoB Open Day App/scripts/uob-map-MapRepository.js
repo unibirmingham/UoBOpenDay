@@ -26,7 +26,7 @@
         
         var initialise = function(){
             uob.log.addLogMessage("Initialising Map Data");
-            uob.json.getJSON (mapDescription, mapsJsonUrl, localFile, mapSuccess, mapError);
+            uob.json.getJSON (mapDescription, mapsJsonUrl, localFile, mapSuccess, mapError, true);
         };
         
         var getMaps = function()
@@ -38,7 +38,7 @@
         {
             status = jsonStatus;
             if (status!== uob.json.JsonStatus.LIVE){
-        		uob.log.addCacheMessage('Maps: Data is from cache');       
+        		uob.log.addLogWarning('Maps: Data is from cache');       
          	}
             setMapData(data);
             callInitialisedFunction();
@@ -46,7 +46,7 @@
         
         var mapError = function(jsonStatus)
         {
-            uob.log.addErrorMessage('No maps data available.');
+            uob.log.addLogError('No maps data available.');
             status = jsonStatus;
             callInitialisedFunction();
         };

@@ -24,6 +24,7 @@
     <script src="scripts/uob-date.js"></script>
     <script src="scripts/uob-screen.js"></script>
     <script src="scripts/uob-log.js"></script>
+    <script src="scripts/uob-localstorage.js"></script>
     <script src="scripts/uob-google.js"></script>
     <script src="scripts/uob-json.js"></script>
     <script src="scripts/uob-web.js"></script>
@@ -32,11 +33,11 @@
     <script src="scripts/uob-map-MapRepository.js"></script>
     <script src="scripts/uob-google-GoogleMapWrapper.js"></script>
     <script src="scripts/uob-map-BuildingAndFacilitiesMap.js"></script>
-    <script src="scripts/settings.js"></script>
-    <script src="scripts/app-openday.js"></script>
-    <script src="scripts/app-webpage.js"></script>
-    <script src="scripts/events.js"></script>
-    <script src="scripts/map.js"></script>
+    <script src="scripts/app-uobSettings.js"></script>
+    <script src="scripts/app-uobOpenDay.js"></script>
+    <script src="scripts/app-uobEvents.js"></script>
+    <script src="scripts/app-uobMap.js"></script>
+    <script src="scripts/app-uobWebpage.js"></script>
     <script src="scripts/appstart.js"></script>
 </head>
 
@@ -70,8 +71,7 @@
         <div class="view-content">
             <h1>Open Day Application</h1>
             <div id="loading-message"></div>
-            <div id="error-message"></div>
-            <div id="cache-message"></div>
+            <div id="status-message"></div>
             <div class="open-day-date-selector">
                 <ul data-role="listview" data-style="inset">
                     <li>
@@ -87,8 +87,8 @@
                 <li class="eventsRepositoryButton startDatesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="eventsRepositoryButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
-                <li class="webSiteButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
-                <li class="webSiteButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
+                <li class=""><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
+                <li class=""><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
                 <li><a data-icon="settings" href="#tabstrip-settings" data-transition="slide">Settings</a></li>
             </ul>
             <div class="img"></div>
@@ -96,7 +96,7 @@
     </div>
     
     <!--Events screen-->
-    <div id="tabstrip-events" data-role="view" data-show="app.populateEventList" data-title="Open Day Activities">
+    <div id="tabstrip-events" data-role="view" data-show="app.uobEvents.populateEventList" data-title="Open Day Activities">
         <style>
             .km-favourite:after,
             .km-favourite:before
@@ -126,7 +126,7 @@
     </div>
 
     <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
-    <div id="tabstrip-favourites" data-role="view" data-show="app.populateFavouriteEventList" data-title="Favourite Activities">
+    <div id="tabstrip-favourites" data-role="view" data-show="app.uobEvents.populateFavouriteEventList" data-title="Favourite Activities">
         <style>
             .km-favourite:after,
             .km-favourite:before
@@ -144,7 +144,7 @@
     </div>
     
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
-    <div id="tabstrip-schedule" data-role="view" data-show="app.populateScheduleEventList" data-title="Personal Schedule">
+    <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule">
         <style>
             .km-moveup:after,
             .km-moveup:before
@@ -164,9 +164,9 @@
     <div id="tabstrip-map"
         data-role="view"
         data-title="Campus Map"
-        data-init="app.campusMapService.initialise"
-        data-show="app.campusMapService.show"
-        data-hide="app.campusMapService.hide"
+        data-init="app.uobMap.openDayMap.initialise"
+        data-show="app.uobMap.openDayMap.show"
+        data-hide="app.uobMap.openDayMap.hide"
         data-stretch="true">
 
         <div id="no-map">
@@ -182,7 +182,7 @@
     </div>
       
     <!-- Registration information -->
-    <div id="tabstrip-faqs" data-role="view" data-init="app.webpage.getFAQs" data-title="FAQs">
+    <div id="tabstrip-faqs" data-role="view" data-init="app.uobWebpage.getFAQs" data-title="FAQs">
         <div class="view-content">
             <div id="faqsContent">
                 
@@ -191,7 +191,7 @@
      </div>
     
     <!-- Getting here information -->
-    <div id="tabstrip-getting-here" data-role="view" data-init="app.webpage.getGettingHere" data-title="FAQs">
+    <div id="tabstrip-getting-here" data-role="view" data-init="app.uobWebpage.getGettingHere" data-title="Getting Here">
         <div class="view-content">
             <div id="gettingHereContent">
                 
@@ -202,7 +202,7 @@
     
     
     <!-- Settings information -->
-    <div id="tabstrip-settings" data-role="view" data-init="app.populateSettingsInfo" data-title="Settings">
+    <div id="tabstrip-settings" data-role="view" data-init="app.uobSettings.populateSettingsInfo" data-title="Settings">
         <div class="view-content">
             <div id="settingsContent">
                 <ul data-role="listview" data-style="inset">
@@ -236,7 +236,7 @@
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
                 <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Events</a>
-                <a href="#tabstrip-faqs" class="webSiteButton" data-icon="compose">FAQs</a>
+                <a href="#tabstrip-faqs" class="" data-icon="compose">FAQs</a>
             </div>
         </div>
     </div>    

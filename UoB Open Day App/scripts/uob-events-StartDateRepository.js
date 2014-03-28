@@ -30,7 +30,7 @@
         
         var startDatesSuccess = function(data, jsonStatus){
              if (jsonStatus!== uob.json.JsonStatus.LIVE){
-            	uob.log.addCacheMessage("Start dates: Currently using local cache");         
+            	uob.log.addLogWarning("Start dates: Currently using local cache");         
              }
             
             startDates = [];
@@ -52,7 +52,7 @@
         };
         
         var startDatesError = function(jsonStatus) {
-            uob.log.addErrorMessage("Unable to retrieve start date data");
+            uob.log.addLogError("Unable to retrieve start date data");
             status = jsonStatus;
             callInitialisedFunction();
         };

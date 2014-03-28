@@ -3,16 +3,6 @@
     var uob = global.uob = global.uob || {};
     uob.log = uob.log || {};
     
-    uob.log.cacheMessages = false;
-    
-    uob.log.addErrorMessage = function (message)
-    {
-        if (message){
-            $j("#error-message").append("<p>" + message + "</p>");
-            uob.log.addLogMessage(message, "Error");
-        }        
-    }
-    
     uob.log.addLogMessage = function(message, level)
     {
         var now = new Date();
@@ -37,16 +27,10 @@
         uob.log.addLogMessage(message, "Error");
     }
     
-    uob.log.addCacheMessage = function(message)
+
+    uob.log.addLogInfo = function(message)
     {
-        
-        if (!uob.log.cacheMessages)
-        {
-            $j("#cache-message").append("<p>Currently using cached data</p>");
-            uob.log.cacheMessages = true;
-        }
-        
-        uob.log.addLogMessage(message, "Cache");
+        uob.log.addLogMessage(message, "Info");        
     }
     
     

@@ -150,14 +150,14 @@
         };
         var eventsSuccess = function(data, jsonStatus){
             if (jsonStatus!== uob.json.JsonStatus.LIVE){
-        		uob.log.addCacheMessage('Events data: Currently using local cache');
+        		uob.log.addLogWarning('Events data: Currently using local cache');
         	}
             setEventItems(data);
             status = jsonStatus;
             callInitialisedFunction();
         };
         var eventsError = function(jsonStatus){
-            uob.log.addErrorMessage("Error retrieving local events. No items found");   
+            uob.log.addLogError("Error retrieving local events. No items found");   
             status = jsonStatus;
 			callInitialisedFunction();  
         };
@@ -503,7 +503,7 @@
                 }
             }
             else{
-                uob.log.addErrorMessage("Request for data source before initilisation is complete");
+                uob.log.addLogError("Request for data source before initilisation is complete");
             }
             return null;
          };

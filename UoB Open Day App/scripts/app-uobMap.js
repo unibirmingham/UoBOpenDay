@@ -1,6 +1,7 @@
 (function (global, $j) {
     
     var app = global.app = global.app || {};
+    app.uobMap = app.uobMap || {};
     
     var uob = global.uob = global.uob || {};
     uob.json = uob.json || {};
@@ -13,13 +14,13 @@
     
     var date = new Date();
     var year = date.getFullYear();
-    var eventBuildingsJsonUrl = uob.url.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var eventBuildingsJsonUrl = app.uobSettings.EventsService + 'buildings/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var eventBuildingsLocalFile ='data/events-buildings.json';
     
-    var foodAndDrinkFacilitiesJsonUrl = uob.url.MapsService + '54448/facilities/?categoryKey=0/1/2836/2837/2839/2975';
+    var foodAndDrinkFacilitiesJsonUrl = app.uobSettings.MapsService + '54448/facilities/?categoryKey=0/1/2836/2837/2839/2975';
     var foodAndDrinkFacilitiesLocalFile = 'data/facilities-foodanddrink.json';
     
-    var foodAndDrinkBuildingsJsonUrl = uob.url.MapsService + '54448/buildings/?categoryKey=0/1/2836/2837/2839/2975';
+    var foodAndDrinkBuildingsJsonUrl = app.uobSettings.MapsService + '54448/buildings/?categoryKey=0/1/2836/2837/2839/2975';
     var foodAndDrinkBuildingsLocalFile = 'data/buildings-foodanddrink.json';
     
     var googleMapWrapper = null;
@@ -27,7 +28,7 @@
     var campusMapData = null;
     var buildingAndFacilitiesMap = null;
     
-    app.campusMapService = {
+    app.uobMap.openDayMap = {
         
         initialise: function () {
 
@@ -39,13 +40,13 @@
                 return;
             } 
 
-            if (!app.repository.mapRepository || app.repository.mapRepository.getStatus()===uob.json.JsonStatus.ERROR)
+            if (!app.uobRepository.mapRepository || app.uobRepository.mapRepository.getStatus()===uob.json.JsonStatus.ERROR)
             {
                 $j('#no-map').text('Error initialising map: No map repository found');
                 return;     
             }
             
-            var mapItems = app.repository.mapRepository.getMaps();
+            var mapItems = app.uobRepository.mapRepository.getMaps();
             
             if (!mapItems)
             {

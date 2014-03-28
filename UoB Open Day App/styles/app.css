@@ -18,21 +18,33 @@
     display: none;
 }
 
+
+/* Console log colours */
 #appBody div#consoleLog p{
     color: green;
 }
 
-#appBody div#error-message p,
 #appBody div#consoleLog p.logError
- {
+{
     color: red;
 }
 
-#appBody div#cache-message p,
-#appBody div#consoleLog p.logCache,
-#appBody div#consoleLog p.logWarning
- {
+#appBody div#consoleLog p.logInfo
+{
+    color: blue;
+}
+#appBody div#consoleLog p.logWarning{
     color: orange;
+}
+
+#appBody div#status-message p
+{
+    color:red;
+}
+
+#appBody div#loading-message p
+{
+    color:orange;
 }
 
 /* Drop down always appears too high */
