@@ -64,14 +64,20 @@
             uob.log.addLogInfo("All data retrieved from internet and web connection in place");
             return;
         }
-        if (!app.uobRepository.startDateRepository.hasData()
+        
+        if (app.uobRepository.startDateRepository.hasData()
+			&& app.uobRepository.mapRepository.hasData()
+        	 && app.uobRepository.eventsRepository.hasData()) {
+            //Application has data but at least some is cached:
+        	if (webConnection) {
+            	status = "Using cached data: Restart application for latest data";
+        	} else {
+            	status = "Using cached data: Restart application with internet connection of 3G or higher for latest data and maps functionality.";
+            }
+        } else if (!app.uobRepository.startDateRepository.hasData()
 			|| !app.uobRepository.mapRepository.hasData()
-        	|| !app.uobRepository.eventsRepository.hasData()){
+        	|| !app.uobRepository.eventsRepository.hasData()) {
             status = "Limited functionality available: Please restart application with an internet connection of 3G or higher";
-        } else if (webConnection){
-            status = "Using cached data: Restart application for latest data";
-        } else{
-            status = "Using cached data and maps unavailable: Reload application with an internet connection of 3G or higher";
         }
 
         if (status)
