@@ -11,7 +11,7 @@
         {
              messageClass = "log" + level;   
         }
-        message = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds() + "." + now.getMilliseconds() + " - " + message;
+        message = now.getHours() + ":" + String("00" + now.getMinutes()).slice(-2) + ":" + String("00" + now.getSeconds()).slice(-2) + "." + String("000" + now.getMilliseconds()).slice(-3) + " - " + message;
         $j("#consoleLog").append('<p class="' + messageClass + '">' + message + "</p>");
         console.log(message);
         

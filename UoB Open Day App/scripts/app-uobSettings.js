@@ -12,6 +12,24 @@
     
     app.uobSettings.populateSettingsInfo = function(e)  {
         
+        var consoleLog = $j('#consoleLog');
+        var consoleLogHeader = $j('#consoleLogHeader');
+        consoleLog.hide();
+
+        
+        $j('#consoleLogHeader').click(function(){
+           
+           if (consoleLog.hasClass('openLog') ){
+               consoleLogHeader.text('Show Log Messages');
+               consoleLog.removeClass('openLog');
+               consoleLog.slideUp();
+           } else {
+               consoleLogHeader.text('Hide Log Messages');
+               consoleLog.addClass('openLog');
+               consoleLog.slideDown();
+           }
+        });
+        
         //Show the connection type:
         $j('#settingsContent .connectionTypeData').text(navigator.network.connection.type);  
         
