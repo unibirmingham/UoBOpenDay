@@ -86,7 +86,6 @@
         
     }
     
-
     var retrieveDataFromLocalFile = function(dataDescription, localFile, successFunction, errorFunction)
     {
         

@@ -117,7 +117,7 @@
             googleMapWrapper.setMapMessage(building.BuildingName);
             
             //Let the google map wrapper know to track the building:
-            googleMapWrapper.trackLatLng(buildingCenter, "'" + building.BuildingName + "'");
+            googleMapWrapper.setDestination(buildingCenter, "'" + building.BuildingName + "'");
             
             //If we've got campus map data, see if we're on campus and if so, show us and the building in relation.
             navigator.geolocation.getCurrentPosition(
@@ -200,7 +200,7 @@
                 
                 google.maps.event.addListener(googleMarker, 'click', function (event) {
                     googleMapWrapper.setMapMessage(facility.FacilityName);
-            		googleMapWrapper.trackLatLng(facility.googleLatLng, "'" + facility.FacilityName + "'");
+            		googleMapWrapper.setDestination(facility.googleLatLng, "'" + facility.FacilityName + "'");
                 });
             }
 
@@ -252,20 +252,20 @@
         var getBuildingsSuccess = function(data, jsonStatus)
         {
              if (jsonStatus!== uob.json.JsonStatus.LIVE){
-        		uob.log.addCacheMessage('Building data: Retrieved from local cache for ' + this.buildingsServiceUrl );
+        		uob.log.addLogWarning('Building data: Retrieved from local cache for ' + this.buildingsServiceUrl );
          	}
              setBuildings(data, this.buildingsServiceUrl);
         };
                 
         var getBuildingsError = function()
         {
-            uob.log.addErrorMessage('Facilities data: Failed to retrieve data for ' + + this.buildingsServiceUrl);
+            uob.log.addLogError('Facilities data: Failed to retrieve data for ' + + this.buildingsServiceUrl);
         };
 
         var getFacilitiesSuccess = function(data, jsonStatus)
         {
             if (jsonStatus!== uob.json.JsonStatus.LIVE){
-                uob.log.addCacheMessage('Facilities data: Retrieved from local cache for ' + this.facilitiesServiceUrl );
+                uob.log.addLogWarning('Facilities data: Retrieved from local cache for ' + this.facilitiesServiceUrl );
             }
             
             setFacilities(data, this.facilitiesServiceUrl, this.icon);
@@ -343,7 +343,7 @@
                 if (clickedBuildings.length===1)
                 {
                     //Let's wipe out any existing tracking and take over.
-                    googleMapWrapper.trackLatLng(null);
+                    googleMapWrapper.clearDestination();
                     message = "'" +  clickedBuildings[0].BuildingName + "'";
                     googleMapWrapper.setMapMessage(message);
                 }
@@ -362,7 +362,7 @@
                     var message = "'" +  clickedBuildings[0].BuildingName + "' to '" + clickedBuildings[1].BuildingName + "': " + distanceDescription;
                                     
                     //Let's wipe out any existing tracking and take over.
-                    googleMapWrapper.trackLatLng(null);
+                    googleMapWrapper.clearDestination();
                     googleMapWrapper.setMapMessage(message);
                     
                 }
@@ -431,7 +431,7 @@
             
             if (!buildingId) {
                 //If we're not highlighting an individual building, then let's centre the map and remove any tracking:
-                googleMapWrapper.trackLatLng(null);
+                googleMapWrapper.clearDestination();
                 googleMapWrapper.centerOnMapData();
                 highlightBuildingId = null;
             } else {

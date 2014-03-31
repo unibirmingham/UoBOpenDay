@@ -14,8 +14,8 @@
         
         var lastMarker= null;
         var centerToRetain = null;
-        var latLngToTrack = null;
-        var latLngToTrackDescription = null;
+        var destinationLatLng = null;
+        var destinationDescription = null;
         var watchId = "";
               
         //When the orientation is changed this can lose the center of the map -- these functions keep it and reinstate it.
@@ -66,15 +66,17 @@
                 console.log("Untracking user with watch id: " + watchId);
                 watchId = "";
                 setMarker(null);
+                if (destinationLatLng)
+                {
+                    //If we've got a destination, just put the description in without the distance -- if the 
+                    //description is null, that will just clear the last tracking message
+                    setMapMessage(destinationDescription);    
+                }
             }
         };
         
         var watchPositionHighAccuracy = function(position){
             showPositionOnMap(position,"High");
-        };
-        
-        var watchPositionLowAccuracy = function(position){
-            showPositionOnMap(position, "Low");
         };
         
         var showPositionOnMap = function (position, accuracy) {
@@ -104,22 +106,23 @@
             
             setMarker(positionLatLng);
             setMapStatus(accuracy);
-            if (latLngToTrack)
+            if (destinationLatLng)
             {
-                if (!latLngToTrackDescription)
+                var messageDescription = destinationDescription;
+                if (!messageDescription)
                 {
-                    latLngToTrackDescription = "your destination";
+                    messageDescription = "your destination";
                 }
                 
-                var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, latLngToTrack);
+                var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, destinationLatLng);
                 var minutesToReach = distanceInKm/.060;
                 minutesToReach = Math.round(minutesToReach);
-                var mapMessage = minutesToReach + " minutes from " + latLngToTrackDescription;
+                var mapMessage = minutesToReach + " minutes from " + messageDescription;
                 if (minutesToReach===1){
-                    mapMessage = minutesToReach + " minute from " + latLngToTrackDescription;
+                    mapMessage = minutesToReach + " minute from " + messageDescription;
                 }
                 if (minutesToReach===0){
-                    mapMessage = "You have reached " + latLngToTrackDescription;
+                    mapMessage = "You have reached " + messageDescription;
                 }
                 setMapMessage(mapMessage);
             }
@@ -130,25 +133,9 @@
             setMarker(null);
             if (watchId){
                 //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
-                setMapStatus('No GPS signal');
-            
-                uob.log.addLogWarning("High accuracy position error so trying low accuracy location. Code: "+ error.code + " Message: " + error.message);
+                uob.log.addLogWarning("High accuracy position error. Code: "+ error.code + " Message: " + error.message);
                 untrackUser();
-                var geoLocationOptions = {timeout: 10000, enableHighAccuracy: false, maximumAge: 2000};
-                watchId = navigator.geolocation.watchPosition(watchPositionLowAccuracy, watchPositionLowAccuracyError, geoLocationOptions);
-            }
-        }
-        var watchPositionLowAccuracyError = function(error)
-        {
-            setMarker(null);
-            setMapStatus("Unknown");
-            console.log("Low accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
-            
-            if (watchId){
-                //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
-                uob.log.addLogError("Low accuracy position error: Untracking user. Code: " + error.code + " Message: " + error.message);
-                untrackUser();
-                setMapStatus('Not tracking');
+                setMapStatus('GPS unavailable');
             }
         }
         
@@ -204,15 +191,20 @@
             setMapMessage(null);
         };
         
-        var trackLatLng = function(latLng, description)
+        var setDestination = function(latLng, description)
         {
-            if (latLngToTrack!==null && latLng===null)
+            if (destinationLatLng && !latLng)
             {
-                //Basically this will clear the existing message.
+                //This will remove the existing destination so clear any existing messages
                 setMapMessage(null);
 			}            
-            latLngToTrack = latLng;
-            latLngToTrackDescription = description;
+            destinationLatLng = latLng;
+            destinationDescription = description;
+        }
+        
+        var clearDestination = function()
+        {
+            setDestination(null, null);
         }
         
         var centerOnMapData = function()
@@ -247,7 +239,8 @@
             setMapMessage: setMapMessage,
             showMap: showMap,
             hideMap: hideMap,
-            trackLatLng: trackLatLng,
+            setDestination: setDestination,
+            clearDestination: clearDestination,
             centerOnMapData: centerOnMapData,
             getTrackingDistanceInKm: getTrackingDistanceInKm
             
