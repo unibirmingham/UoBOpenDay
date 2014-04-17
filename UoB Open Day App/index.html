@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Kendo UI</title>
+    <title>Open Day Application</title>
     <meta charset="UTF-8" />
     <link href="kendo/styles/kendo.mobile.all.min.css" rel="stylesheet" />
     <link href="styles/main.css" rel="stylesheet" />
@@ -69,7 +69,7 @@
 
     </style>
         <div class="view-content">
-            <h1>Open Day Application</h1>
+            <img src="styles/images/OpenDay.jpg" width="100%"/>
             <div id="loading-message"></div>
             <div id="status-message"></div>
             <div class="open-day-date-selector">
@@ -96,7 +96,7 @@
     </div>
     
     <!--Events screen-->
-    <div id="tabstrip-events" data-role="view" data-show="app.uobEvents.populateEventList" data-title="Open Day Activities">
+    <div id="tabstrip-events" data-role="view" data-show="app.uobEvents.populateEventList" data-title="Activities">
         <style>
             .km-favourite:after,
             .km-favourite:before
@@ -199,8 +199,6 @@
         </div>
      </div>
     
-    
-    
     <!-- Settings information -->
     <div id="tabstrip-settings" data-role="view" data-init="app.uobSettings.populateSettingsInfo" data-title="Settings">
         <div class="view-content">
@@ -236,7 +234,7 @@
         <div id="appFooter" data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
-                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Events</a>
+                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
                 <a href="#tabstrip-faqs" class="" data-icon="compose">FAQs</a>
             </div>
         </div>
@@ -248,7 +246,8 @@
         
     <script>
         app.application = new kendo.mobile.Application(document.body, { 
-            layout: "tabstrip-layout"
+            layout: "tabstrip-layout",
+            skin: "flat"
         });
 
     </script>

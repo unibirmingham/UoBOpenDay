@@ -18,6 +18,14 @@
     display: none;
 }
 
+/* Set the background colour to be white to match the image*/
+body#appBody,
+body#appBody.km-flat,
+body#appBody.km-flat .km-navbar,
+body#appBody.km-flat .km-content
+{
+    background-color: #FFF;
+}
 
 /* Console log colours */
 #appBody div#consoleLog p{
@@ -50,26 +58,11 @@
 /* Drop down always appears too high */
 #appBody .k-dropdown
 {
-    width: 50%;
-    top: 65%
-}
-
-/* iOS doesn't need to be so high */
-
-#appBody.km-on-ios .k-dropdown
-{
-    top: 60%;
-}
-
-/* iOS 7 needs highlighting */
-
-/* Drop down always appears too high */
-#appBody.km-on-ios.km-ios7 .k-dropdown
-{
     background-color: #F4F4F4;
     line-height: 1.2em;
     border-radius: 5px;
-    top: 65%;
+    width: 50%;
+    top: 62%;
     margin-right: .3em;
 }
 
