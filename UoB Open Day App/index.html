@@ -43,31 +43,48 @@
 
 <body id="appBody">
   
-<!--Screens-->
-
+        <style>
+            .km-favourite:after,
+            .km-favourite:before
+            {
+                content: "\e044";
+            }
+            .km-personalschedule:after,
+            .km-personalschedule:before
+            {
+                content: "\e0d2";
+            }
+            .km-heart:after,
+            .km-heart:before
+            {
+                content: "\e044";
+            }
+            
+            .km-road:after,
+            .km-road:before
+            {
+                content: "\e0bb";
+            }
+            
+            .km-questionmark:after,
+            .km-questionmark:before
+            {
+                content: "\e0fb";
+            }
+            .km-moveup:after,
+            .km-moveup:before
+            {
+                content: "\e011";
+            }
+            .km-movedown:after,
+            .km-movedown:before
+            {
+                content: "\e012";
+            }      
+        </style>
+    <!--Screens-->
     <!--Home-->
     <div id="tabstrip-home" data-role="view" data-title="Home">
-        <style>
-        .km-heart:after,
-        .km-heart:before
-        {
-            content: "\e044";
-        }
-        
-        .km-road:after,
-        .km-road:before
-        {
-            content: "\e0bb";
-        }
-        
-        .km-questionmark:after,
-        .km-questionmark:before
-        {
-            content: "\e0fb";
-        }
-            
-
-    </style>
         <div class="view-content">
             <img src="styles/images/OpenDay.jpg" width="100%"/>
             <div id="loading-message"></div>
@@ -97,20 +114,6 @@
     
     <!--Events screen-->
     <div id="tabstrip-events" data-role="view" data-show="app.uobEvents.populateEventList" data-title="Activities">
-        <style>
-            .km-favourite:after,
-            .km-favourite:before
-            {
-                content: "\e044";
-            }
-            .km-personalschedule:after,
-            .km-personalschedule:before
-            {
-                content: "\e0d2";
-            }
-            
-
-        </style>
         <div class="events-type">
             <ul data-role="listview" data-style="inset">
                 <li>
@@ -130,36 +133,12 @@
 
     <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
     <div id="tabstrip-favourites" data-role="view" data-show="app.uobEvents.populateFavouriteEventList" data-title="Favourite Activities">
-        <style>
-            .km-favourite:after,
-            .km-favourite:before
-            {
-                content: "\e044";
-            }
-            .km-personalschedule:after,
-            .km-personalschedule:before
-            {
-                content: "\e0d2";
-            }      
-        </style>
         <ul id="open-day-favourite-events-view" class="events-list"></ul>
         
     </div>
     
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
     <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule">
-        <style>
-            .km-moveup:after,
-            .km-moveup:before
-            {
-                content: "\e011";
-            }
-            .km-movedown:after,
-            .km-movedown:before
-            {
-                content: "\e012";
-            }      
-        </style>
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
     </div>
         
@@ -238,7 +217,8 @@
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
                 <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
-                <a href="#tabstrip-faqs" class="" data-icon="compose">FAQs</a>
+                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-schedule" data-icon="recents">Schedule</a>
+                <a class="mapRepositoryButton eventsRepositoryButton webConnectionButton" href="#tabstrip-map" data-icon="globe">Map</a>
             </div>
         </div>
     </div>    
