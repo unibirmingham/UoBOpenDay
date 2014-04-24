@@ -214,24 +214,24 @@
             
             if (moveUp)
             {
-                $j(div).find('span.event-move-up').removeClass('moveup-false').addClass('moveup-true').kendoTouch({
+                $j(div).find('.event-move-up').removeClass('moveup-false').addClass('moveup-true').kendoTouch({
                          enableSwipe: false,
                          touchstart: scheduleMoveClick
                     });
             }
             else{
                 //Hide and remove click bindings
-                $j(div).find('span.event-move-up').removeClass('moveup-true').addClass('moveup-false').off('click');
+                $j(div).find('.event-move-up').removeClass('moveup-true').addClass('moveup-false').off('click');
             }
             
             if (moveDown){
-                 $j(div).find('span.event-move-down').removeClass('movedown-false').addClass('movedown-true').kendoTouch({
+                 $j(div).find('.event-move-down').removeClass('movedown-false').addClass('movedown-true').kendoTouch({
                          enableSwipe: false,
                          touchstart: scheduleMoveClick
                     });
             }
             else{
-                $j(div).find('span.event-move-down').removeClass('movedown-true').addClass('movedown-false').off('click');      
+                $j(div).find('.event-move-down').removeClass('movedown-true').addClass('movedown-false').off('click');      
             }
              
         });
