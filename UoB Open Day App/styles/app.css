@@ -67,15 +67,31 @@ body#appBody.km-flat .km-content
 }
 
 /*Events listings */
+#appBody .events-list>li
+{
+    padding-bottom: 0;
+}
+
+
+#appBody .events-list li>div
+{
+    border-bottom: solid 1px rgba(0, 0, 0, 0.0980392);
+	padding-bottom: .2em;
+}
 
 #appBody .events-list h1
 {
     font-size: 1em;
+    margin-bottom: 0;
+    margin-top: 0;
 }
+
 
 #appBody .events-list .event-details p
 {
     margin-right: 0;
+    margin-bottom: 0;
+    margin-top: 0;
 }
 
 #appBody .event-favourite,
