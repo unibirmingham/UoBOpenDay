@@ -28,6 +28,7 @@
         //Sort out the preformatting of the dates to save resource later:
         this.StartDayInUK = uob.date.formatDateAsUK(this.StartDate, 'YYYY-MM-DD');
         this.StartTimeInUK = uob.date.formatDateAsUK(this.StartDate, 'HH:mm');
+        this.EndTimeInUK = uob.date.formatDateAsUK(this.EndDate, 'HH:mm');
     }
     
     uob.events.EventItem.prototype = {
