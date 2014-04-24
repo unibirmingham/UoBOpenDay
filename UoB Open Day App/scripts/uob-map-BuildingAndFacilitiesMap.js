@@ -175,37 +175,9 @@
 
         };
         
-        var setupFacilityGoogleMarker = function (facility) {
-           
-            if (typeof facility.googleMarker === "undefined") {
-                
-                var googleLatLng = new google.maps.LatLng(facility.CoordinatesArray[0], facility.CoordinatesArray[1]);
-                
-                facility.googleLatLng = googleLatLng;
-                
-                var icon = facility.icon;
-                if (!icon){
-                    icon = "";
-                }
-                
-                var googleMarker = new google.maps.Marker({
-                    setZIndex: 1000,
-                    position: facility.googleLatLng,
-                    map: googleMap,
-                    icon: icon,
-                    title: facility.FacilityName
-                });
-
-                facility.googleMarker = googleMarker;
-                
-                google.maps.event.addListener(googleMarker, 'click', function (event) {
-                    googleMapWrapper.setMapMessage(facility.FacilityName);
-            		googleMapWrapper.setDestination(facility.googleLatLng, "'" + facility.FacilityName + "'");
-                });
-            }
-
-        };
         
+        
+               
         var showAllFacilities = function()
         {
             console.log("Showing all facilities");
@@ -216,6 +188,63 @@
                 setupFacilityGoogleMarker(facility);
                 
             }
+        };
+        
+        var setupFacilityGoogleMarker = function (facility) {
+
+            if (typeof facility.googleMarker === "undefined") {
+                var googleLatLng = new google.maps.LatLng(facility.CoordinatesArray[0], facility.CoordinatesArray[1]);
+                
+                facility.googleLatLng = googleLatLng;
+
+                //Look for an existing marker for the same building with the same icon:
+                for (var i in allFacilities)
+                {
+                    var existingFacility = allFacilities[i];
+                    if (existingFacility.googleMarker && existingFacility.BuildingId === facility.BuildingId
+                    	&& facility.icon === existingFacility.icon){
+                        facility.googleMarker = existingFacility.googleMarker;
+                        var currentTitle = facility.googleMarker.getTitle();
+                        
+                        if (currentTitle && currentTitle.length > 0){
+                            currentTitle = currentTitle + ", ";
+                        }
+                        currentTitle = currentTitle + facility.FacilityName;
+                        facility.googleMarker.setTitle(currentTitle);
+                        break;
+                    }
+                }
+                
+                //We didn't find an existing marker so create a new one:
+                if (!facility.googleMarker)
+                {
+                    var icon = facility.icon;
+                    if (!icon){
+                        icon = "";
+                    }
+                    
+                    var googleMarker = new google.maps.Marker({
+                        setZIndex: 1000,
+                        position: facility.googleLatLng,
+                        map: googleMap,
+                        icon: icon,
+                        title: facility.FacilityName
+                    });
+                    
+                    googleMarker.facilities = [];
+                    
+                    facility.googleMarker = googleMarker;
+                    google.maps.event.addListener(googleMarker, 'click', function (event) {
+                        googleMapWrapper.setMapMessage(this.getTitle());
+                		googleMapWrapper.setDestination(this.getPosition(), "'" + this.getTitle() + "'");
+                    });
+                }
+                
+                facility.googleMarker.facilities.push(facility);
+                
+                
+            }
+
         };
         
         var setFacilities =  function(data, facilitiesServiceUrl, icon)
