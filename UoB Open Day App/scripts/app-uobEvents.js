@@ -275,13 +275,13 @@
     
     var hideIcons = function (listViewId, eventGroup)
     {
-        $j("#" + listViewId + " span.event-" + eventGroup).hide();    
+        $j("#" + listViewId + " .event-" + eventGroup).hide();    
     }
     
     var setUpIcons = function(listViewId, eventGroup, dataSource){
         
         console.log("Setup favourite icons");
-        $j("#" + listViewId + " span.event-" + eventGroup).each(function() {
+        $j("#" + listViewId + " .event-" + eventGroup).each(function() {
             
             var span = this;
 
@@ -299,14 +299,15 @@
     var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, dataSource, scheduledEvent)
     {
         console.log("Set up favourite icons");
-        var selectedEventSpans = $j("#" + listViewId + " span.event-" + eventGroup);
+        var selectedEventSpans = $j("#" + listViewId + " .event-" + eventGroup);
         
         console.log("Selected " + eventGroup + " spans = " + selectedEventSpans.length);
         
         $j(selectedEventSpans).kendoTouch({
             enableSwipe: false,
             touchstart: function (e){
-                    var span=this.element[0];
+                
+                	var span=this.element[0];
                     
                     var uid = $j(span).parent().parent().parent().attr('data-uid');
                     
@@ -326,7 +327,7 @@
                             navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
                         }
                     }
-                return false;
+                	return false;
                }
         });
     };

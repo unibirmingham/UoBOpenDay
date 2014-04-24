@@ -81,25 +81,23 @@ body#appBody.km-flat .km-content
 #appBody .event-favourite,
 #appBody .event-schedule
 {
-    font-size: 2em;
+    box-sizing: content-box;
+    font-size: 2.35em;
     padding-right: .1em;
     padding-left: .1em;
+    margin-right: .1em;
 }
 #appBody .event-favourite
 {
     float: left;
-    margin-right:.1em;
     margin-left: 0;
 }
 #appBody .event-schedule
 {
 	float: right;
 	margin-left: .1em;
-    margin-right: 0;
-
+    padding-left: .1em;
 }
-
-
 
 #appBody .favourite-true
 {

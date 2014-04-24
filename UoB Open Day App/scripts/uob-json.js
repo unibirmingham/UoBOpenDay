@@ -25,7 +25,7 @@
         
         if (!uob.web.is3GOrBetter())
         {
-            uob.log.addLogMessage(dataDescription + ": No internet connection so not requesting url: " + jsonUrl + " checking cache instead.");
+            uob.log.addLogMessage(dataDescription + ": No internet connection so not requesting url: " + jsonUrl + ". Checking cache instead.");
             retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive);
             return;
         }
@@ -39,7 +39,7 @@
 
                 if (jsonData.length===0)
                 {
-                    console.log(dataDescription + ": empty data returned");
+                    uob.log.addLogMessage(dataDescription + ": empty data returned");
                     retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive);
                     return;
                 }
