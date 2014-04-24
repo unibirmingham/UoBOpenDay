@@ -20,31 +20,37 @@
         
         var eventsListViewId = "open-day-events-view";
         
-        var activityFilter = $j("#event-activity-type-filter").data("kendoDropDownList");
+        //Set up activity filter
+        var activityFilter = $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
         
         var filterFunction = null;
         
         if (!activityFilter){
         
-            var activityTypes = [
-                            {activityTypeDescription: "All", activityTypeKeyword: ""},
-                            {activityTypeDescription: "Subject events", activityTypeKeyword: "Open-Day-Subject"},
-                            {activityTypeDescription: "General events", activityTypeKeyword: "Open-Day-General"}
-                            ];
-            
-            $j("#event-activity-type-filter").kendoDropDownList({
-                dataTextField: "activityTypeDescription",
-                dataValueField: "activityTypeKeyword",
-                dataSource: activityTypes,
-                change: app.uobEvents.populateEventList
+            $j("#event-activity-type-filter").kendoMobileButtonGroup({
+                select: app.uobEvents.populateEventList,
+                index: 0
             });            
             
-            activityFilter =  $j("#event-activity-type-filter").data("kendoDropDownList");
+            activityFilter =  $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
         }        
         
-        var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
-        console.log("Filtering by " + activityFilter.value() + " and date: " + openDayDate);
         
+        //Make sure the activity type filters:
+        var activityType = ""
+        
+        switch(activityFilter.current().text()){
+            case "Subject":
+            	activityType = "Open-Day-Subject";
+            	break;
+            case "General":
+            	activityType = "Open-Day-General";
+            	break;
+        }
+        console.log("Filtering by " + activityType + " and date: " + openDayDate);
+        
+        //Date filter:
+        var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
         var filterFunctionForOpenDayDate = getFilterFunctionForOpenDayDate();
         
         filterFunction = function(eventItem){
@@ -54,8 +60,7 @@
             {
                 return false;
             }
-            //Make sure the activity type filters:
-            var activityType = activityFilter.value();
+           
             if (activityType){
                 return (eventItem.Keywords.indexOf(activityType) >=0);
             }
