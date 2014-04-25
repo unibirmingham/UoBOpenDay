@@ -146,7 +146,9 @@
         if ($j("#" + scheduleEventsListViewId).data("kendoMobileListView"))
         {
             uob.log.addLogMessage("Updating schedule list view data source");
-            $j("#" + scheduleEventsListViewId).data("kendoMobileListView").dataSource.data(scheduleData);
+            var listviewDataSource = $j("#" + scheduleEventsListViewId).data("kendoMobileListView").dataSource;
+            
+            uob.kendo.setDataOnListViewDataSource(listviewDataSource, scheduleData);
         }
         else{
             console.log("Initialising schedules list view");
@@ -265,7 +267,7 @@
         if (!moveEvent)
         {
             navigator.notification.alert("Cannot move activity in schedule -- you may need to move some of your other events to fit it in.", null,"Schedule clash", 'OK');
-            return;
+            return false;
         }
         app.uobEvents.populateScheduleEventList();
         return false;
