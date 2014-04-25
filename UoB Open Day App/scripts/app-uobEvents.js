@@ -140,23 +140,24 @@
         uob.log.addLogMessage("Populate Schedule");
         
         uob.log.addLogMessage("Got Data");
+
+        var scheduleData = app.uobRepository.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate());
         
-        var eventsListDataSource = new kendo.data.DataSource({
-                data: app.uobRepository.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate()),
+        if ($j("#" + scheduleEventsListViewId).data("kendoMobileListView"))
+        {
+            uob.log.addLogMessage("Updating schedule list view data source");
+            $j("#" + scheduleEventsListViewId).data("kendoMobileListView").dataSource.data(scheduleData);
+        }
+        else{
+            console.log("Initialising schedules list view");
+            var eventsListDataSource = new kendo.data.DataSource({
+                data: scheduleData,
                 sort: [
                     { field: "getScheduleStartDate()", dir: "asc" },
                     { field: "Title", dir: "asc" }
                   ],
                 pageSize: 10000
             });
-        
-        if ($j("#" + scheduleEventsListViewId).data("kendoMobileListView"))
-        {
-            uob.log.addLogMessage("Updating schedule list view data source");
-            $j("#" + scheduleEventsListViewId).data("kendoMobileListView").setDataSource(eventsListDataSource);
-        }
-        else{
-            console.log("Initialising schedules list view");
             $j("#" + scheduleEventsListViewId).kendoMobileListView({
                 dataSource: eventsListDataSource,
                 template: $j("#events-schedule-template").text(),
