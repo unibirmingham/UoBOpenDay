@@ -72,6 +72,9 @@ body#appBody.km-flat .km-content
     padding-bottom: 0;
 }
 
+#appBody .events-list div.highlightEvent{
+    background-color: lightblue;
+}
 
 #appBody .events-list li>div
 {

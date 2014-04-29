@@ -137,18 +137,30 @@
     
     app.uobEvents.populateScheduleEventList = function (e){
         
-        uob.log.addLogMessage("Populate Schedule");
+    	uob.log.addLogMessage("Populate Schedule Data Source");
+        refreshScheduleDataSource();
+    };
+    
+    var refreshScheduleDataSource = function(contentIdToHighlight)
+    {
+        uob.log.addLogMessage("Refresh Schedule Data Source");
         
-        uob.log.addLogMessage("Got Data");
-
         var scheduleData = app.uobRepository.eventsRepository.getSelectedEventItems(scheduleEventGroup, true, getFilterFunctionForOpenDayDate());
         
         if ($j("#" + scheduleEventsListViewId).data("kendoMobileListView"))
         {
             uob.log.addLogMessage("Updating schedule list view data source");
             var listviewDataSource = $j("#" + scheduleEventsListViewId).data("kendoMobileListView").dataSource;
-            
-            uob.kendo.setDataOnListViewDataSource(listviewDataSource, scheduleData);
+            listviewDataSource.data(scheduleData);
+            if (contentIdToHighlight){
+                var item = $j('#' + scheduleEventsListViewId + ' div[uob-content-id="' + contentIdToHighlight + '"]');
+                
+                item.hide().fadeIn(250);
+                item.addClass('highlightEvent').delay(250).queue(function() {
+                           $(this).removeClass("highlightEvent");
+                           $(this).dequeue();
+                       });
+            }
         }
         else{
             console.log("Initialising schedules list view");
@@ -164,13 +176,10 @@
                 dataSource: eventsListDataSource,
                 template: $j("#events-schedule-template").text(),
                 dataBound: function(){
-                    uob.log.addLogMessage("Data Bound");
-                    hideIcons(scheduleEventsListViewId, favouriteEventGroup);
-                    hideIcons(scheduleEventsListViewId, scheduleEventGroup);
+                    uob.log.addLogMessage("Schedule Data Bound");
                     setupMoveUpAndDown(scheduleEventsListViewId, this.dataSource);
                     reportNoData(scheduleEventsListViewId, this.dataSource.data(), "You have no scheduled activities selected.");
                 } 
-                
             });
         }    
     };
@@ -205,8 +214,6 @@
             
             if (eventItem.isAllDayEvent())
             {
-                console.log("Make move up visible");
-                var data = {dataSource: dataSource};
                 if (eventItem.getScheduleStartDate()>eventItem.StartDate){
                     moveUp = true;
                 }
@@ -217,10 +224,7 @@
             
             if (moveUp)
             {
-                $j(div).find('.event-move-up').removeClass('moveup-false').addClass('moveup-true').kendoTouch({
-                         enableSwipe: false,
-                         touchstart: scheduleMoveClick
-                    });
+                $j(div).find('.event-move-up').removeClass('moveup-false').addClass('moveup-true').on('click', scheduleMoveClick);
             }
             else{
                 //Hide and remove click bindings
@@ -228,10 +232,7 @@
             }
             
             if (moveDown){
-                 $j(div).find('.event-move-down').removeClass('movedown-false').addClass('movedown-true').kendoTouch({
-                         enableSwipe: false,
-                         touchstart: scheduleMoveClick
-                    });
+                 $j(div).find('.event-move-down').removeClass('movedown-false').addClass('movedown-true').on('click', scheduleMoveClick);
             }
             else{
                 $j(div).find('.event-move-down').removeClass('movedown-true').addClass('movedown-false').off('click');      
@@ -242,11 +243,11 @@
     
     var scheduleMoveClick = function(event)
     {
-        uob.log.addLogMessage("Move Clicked");
-        var span=$j(this.element[0]);
-        span.hide();
+    	uob.log.addLogMessage("Move clicked");
+        var scheduleMover=$j(this);
+        scheduleMover.hide();
         //Get UID:
-        var currentLi = span.parent().parent().parent();
+        var currentLi = scheduleMover.parent().parent().parent();
         var uid = $j(currentLi).attr('data-uid');
         //Get datasource:
         
@@ -256,7 +257,7 @@
         
         var moveEvent;
         
-        if (span.hasClass('event-move-up'))
+        if (scheduleMover.hasClass('event-move-up'))
         {
             moveEvent = app.uobRepository.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }
@@ -269,7 +270,8 @@
             navigator.notification.alert("Cannot move activity in schedule -- you may need to move some of your other events to fit it in.", null,"Schedule clash", 'OK');
             return false;
         }
-        app.uobEvents.populateScheduleEventList();
+        uob.log.addLogMessage("Repopulate list view");
+        refreshScheduleDataSource(eventItem.ContentId);
         return false;
     };
         
