@@ -49,14 +49,6 @@ body, html {
     margin: 0px auto;
 }
 
-.logo {
-    background-image: url(../styles/images/logo.gif);
-    background-repeat: no-repeat;
-    width: 85px;
-    height: 60px;
-    margin: 40px auto;
-}
-
 /* BUTTON STYLES*/
 .buttonArea {
     text-align: center;

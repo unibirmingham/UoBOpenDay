@@ -12,21 +12,20 @@
     
     app.uobSettings.populateSettingsInfo = function(e)  {
         
-        var consoleLog = $j('#consoleLog');
-        var consoleLogHeader = $j('#consoleLogHeader');
-        consoleLog.hide();
-
+        var settingsAndMessages = $j('#settingsAndMessages');
+        var settingsButton = $j('#settingsButton');
+        settingsAndMessages.hide();
         
-        $j('#consoleLogHeader').click(function(){
+        settingsButton.click(function(){
            
-           if (consoleLog.hasClass('openLog') ){
-               consoleLogHeader.text('Show Log Messages');
-               consoleLog.removeClass('openLog');
-               consoleLog.slideUp();
+           if (settingsAndMessages.hasClass('openLog') ){
+               settingsButton.text('Show Settings and Logs');
+               settingsAndMessages.removeClass('openLog');
+               settingsAndMessages.slideUp();
            } else {
-               consoleLogHeader.text('Hide Log Messages');
-               consoleLog.addClass('openLog');
-               consoleLog.slideDown();
+               settingsButton.text('Hide Settings and Logs');
+               settingsAndMessages.addClass('openLog');
+               settingsAndMessages.slideDown();
            }
         });
         

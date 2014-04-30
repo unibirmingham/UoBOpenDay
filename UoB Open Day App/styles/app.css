@@ -18,6 +18,7 @@
     display: none;
 }
 
+/* Basic colour overrides */
 /* Set the background colour to be white to match the image*/
 body#appBody,
 body#appBody.km-flat,
@@ -25,34 +26,49 @@ body#appBody.km-flat .km-navbar,
 body#appBody.km-flat .km-content
 {
     background-color: #FFF;
+    color: #757577;
+}
+
+.km-flat .km-content
+
+body#appBody .km-state-active,
+body#appBody .km-state-active .km-listview-link,
+body#appBody .km-tabstrip .km-state-active
+{
+    background-color: #C1D72F;
+}
+
+body#appBody.km-flat .km-button.km-back
+{
+    background-color: #D7F0F9;
 }
 
 /* Console log colours */
 #appBody div#consoleLog p{
-    color: green;
+    color: #6FC055;
 }
 
 #appBody div#consoleLog p.logError
 {
-    color: red;
+    color: #B1006F;
 }
 
 #appBody div#consoleLog p.logInfo
 {
-    color: blue;
+    color: #00BAE5;
 }
 #appBody div#consoleLog p.logWarning{
-    color: orange;
+    color: #F7941D;
 }
 
 #appBody div#status-message p
 {
-    color:red;
+    color:#B1006F;
 }
 
 #appBody div#loading-message p
 {
-    color:orange;
+    color: #F7941D;
 }
 
 /* Drop down always appears too high */
@@ -66,6 +82,14 @@ body#appBody.km-flat .km-content
     margin-right: .3em;
 }
 
+#appBody .acknowledgementButton
+{
+    float:right;
+    padding-top: 3em;
+    margin-right: 2em;
+    font-size: .7em;
+}
+
 /*Events listings */
 #appBody .events-list>li
 {
@@ -73,7 +97,7 @@ body#appBody.km-flat .km-content
 }
 
 #appBody .events-list div.highlightEvent{
-    background-color: lightblue;
+    background-color: #A0D8F6;
 }
 
 #appBody .events-list li>div
@@ -99,6 +123,11 @@ body#appBody.km-flat .km-content
     margin-top: 0;
 }
 
+#appBody .activitiesButton
+{
+    color: #B1006F;
+}
+
 #appBody .event-favourite,
 #appBody .event-schedule
 {
@@ -120,26 +149,42 @@ body#appBody.km-flat .km-content
     padding-left: .1em;
 }
 
-#appBody .favourite-true
+#appBody .favourite-true,
+#appBody .favouritesButton
 {
-    color: red;
+    color: #EF549F;
     }
 
 #appBody .favourite-false
 {
-    color: blue;
+    color: #00BAE5;
     }
 
 
 #appBody .schedule-false
 {
-    color: blue;
+    color: #00BAE5;
     }
 
-#appBody .schedule-true
+#appBody .schedule-true,
+#appBody .scheduleButton
 {
-    color: green;
+    color: #6FC055;
     }
+
+#appBody .mapButton
+{
+    color: #00BAE5;
+}
+
+#appBody .faqButton
+{
+    color: #A053A0;
+}
+
+#appBody .gettingHereButton{
+    color: #757577;
+}
 
 #appBody .moveup-false,
 #appBody .movedown-false
@@ -151,7 +196,7 @@ body#appBody.km-flat .km-content
 #appBody .movedown-true
 {
     display: block;
-    color: green;
+    color: #6FC055;
     height: 1em;
     font-size: 2.5em;
     }

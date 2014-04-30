@@ -100,15 +100,14 @@
                 </ul>
             </div>
             <ul data-role="listview" datatype="group">
-                <li class="eventsRepositoryButton startDatesButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
-                <li class="eventsRepositoryButton startDatesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
-                <li class="eventsRepositoryButton startDatesButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
-                <li class=""><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
-                <li class=""><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
-                <li><a data-icon="settings" href="#tabstrip-settings" data-transition="slide">Settings</a></li>
+                <li class="eventsRepositoryButton startDatesButton activitiesButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
+                <li class="eventsRepositoryButton startDatesButton favouritesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
+                <li class="eventsRepositoryButton startDatesButton scheduleButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
+                <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton mapButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
+                <li class="gettingHereButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
             </ul>
-            <div class="img"></div>
+            <a class="acknowledgementButton" href="#tabstrips-acknowledgements">Acknowledgements</a>
         </div>
     </div>
     
@@ -182,19 +181,27 @@
      </div>
     
     <!-- Settings information -->
-    <div id="tabstrip-settings" data-role="view" data-init="app.uobSettings.populateSettingsInfo" data-title="Settings">
+    <div id="tabstrips-acknowledgements" data-role="view" data-init="app.uobSettings.populateSettingsInfo" data-title="Acknowledgements">
         <div class="view-content">
-            <div id="settingsContent">
-                <ul data-role="listview" data-style="inset">
-                    <li>Connection type: <span class="connectionTypeData">Loading ...</span></li>
-                    <li>Birmingham Web Site: <span class="birminghamWebSite">Loading ...</span></li>
-                    <li>Events Web Service: <span class="eventsWebService">Loading ...</span></li>
-                    <li>Maps Web Service: <span class="mapsWebService">Loading ...</span></li>
+            <div>
+                <p>This software uses the following libraries:</p>
+                <ul>
+                    <li>Moment.js</li>
                 </ul>
             </div>
-            <button id="consoleLogHeader">Show Log Messages</button>
-            <div id="consoleLog">
-                
+            <div><button class="position-right" id="settingsButton">Show Settings and Logs</button></div>
+            <div id="settingsAndMessages" class="position-left">
+                <div id="settingsContent">
+                    <ul data-role="listview" data-style="inset">
+                        <li>Connection type: <span class="connectionTypeData">Loading ...</span></li>
+                        <li>Birmingham Web Site: <span class="birminghamWebSite">Loading ...</span></li>
+                        <li>Events Web Service: <span class="eventsWebService">Loading ...</span></li>
+                        <li>Maps Web Service: <span class="mapsWebService">Loading ...</span></li>
+                    </ul>
+                </div>    
+                <div id="consoleLog">
+                    
+                </div>
             </div>
         </div>
      </div>
