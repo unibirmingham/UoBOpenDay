@@ -103,6 +103,26 @@
        }
         
     };
+    
+    app.uobEvents.openHelp = function(e){
+        if (app.application.view().id==="#tabstrip-events")
+        {
+        	app.uobEvents.openEventsListHelp();    
+        }
+        if (app.application.view().id==="#tabstrip-schedule")
+        {
+        	app.uobEvents.openScheduleListHelp();    
+        }
+        
+    }
+    
+    app.uobEvents.openEventsListHelp = function(e){
+        $j("#modalview-activities-help").data("kendoMobileModalView").open();
+    };
+    
+    app.uobEvents.closeEventsListHelp = function (e){
+    	$j("#modalview-activities-help").data("kendoMobileModalView").close();    
+    };
 
     app.uobEvents.populateFavouriteEventList = function (e){
         
@@ -139,6 +159,14 @@
         
     	uob.log.addLogMessage("Populate Schedule Data Source");
         refreshScheduleDataSource();
+    };
+    
+        app.uobEvents.openScheduleListHelp = function(e){
+        $j("#modalview-schedule-help").data("kendoMobileModalView").open();
+    };
+    
+    app.uobEvents.closeScheduleListHelp = function (e){
+    	$j("#modalview-schedule-help").data("kendoMobileModalView").close();    
     };
     
     var refreshScheduleDataSource = function(contentIdToHighlight)

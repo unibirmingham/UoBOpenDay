@@ -104,7 +104,7 @@
                 <li class="eventsRepositoryButton startDatesButton favouritesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="eventsRepositoryButton startDatesButton scheduleButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton mapButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
-                <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">FAQs</a></li>
+                <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">Open Day FAQs</a></li>
                 <li class="gettingHereButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
             </ul>
             <a class="acknowledgementButton" href="#tabstrips-acknowledgements">Acknowledgements</a>
@@ -112,7 +112,7 @@
     </div>
     
     <!--Events screen-->
-    <div id="tabstrip-events" data-role="view" data-show="app.uobEvents.populateEventList" data-title="Activities">
+    <div id="tabstrip-events" data-role="view" data-show="app.uobEvents.populateEventList" data-title="Activities" data-layout="tabstrip-layout-with-help">
         <div class="events-type">
             <ul data-role="listview" data-style="inset">
                 <li>
@@ -125,10 +125,23 @@
                     </label>
                 </li>
             </ul>
+            
         </div>
-        <ul id="open-day-events-view" class="events-list"></ul>
         
+        <ul id="open-day-events-view" class="events-list"></ul>
+         
     </div>
+
+    <div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
+            <div data-role="content" style="min-height: 150px">
+                <a data-click="app.uobEvents.closeEventsListHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                <h2>Activities</h2>  
+                <ul data-role="listview">
+                    <li>To add an event to your favourites click on the Heart and to add an event to your personal schedule click on the clock icon. You can add as many activities as you like to your favourites but you can only add events to your schedule which do not clash.</li>
+                </ul>
+            </div>
+    </div>
+    
 
     <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
     <div id="tabstrip-favourites" data-role="view" data-show="app.uobEvents.populateFavouriteEventList" data-title="Favourite Activities">
@@ -137,10 +150,20 @@
     </div>
     
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
-    <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule">
+    <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule" data-layout="tabstrip-layout-with-help">
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
     </div>
-        
+    
+    <div data-role="modalview" id="modalview-schedule-help" style="width: 90%;">
+            <div data-role="content" style="min-height: 150px">
+                <a data-click="app.uobEvents.closeScheduleListHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                <h2>Schedule</h2>  
+                <ul data-role="listview">
+                    <li>Events which can be visited throughout the day can have their scheduled time changed by using the arrows to move them to a later or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move.</li>
+                </ul>
+            </div>
+    </div>
+    
     <!--Campus Map-->
     <div id="tabstrip-map"
         data-role="view"
@@ -163,7 +186,7 @@
     </div>
       
     <!-- Registration information -->
-    <div id="tabstrip-faqs" data-role="view" data-init="app.uobWebpage.getFAQs" data-title="FAQs">
+    <div id="tabstrip-faqs" data-role="view" data-init="app.uobWebpage.getFAQs" data-title="Open Day FAQs">
         <div class="view-content">
             <div id="faqsContent">
                 
@@ -212,11 +235,10 @@
 
         <!--Header-->
         <div data-role="header">
-        <div data-role="navbar">
-            <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
-            <span data-role="view-title"></span>
-        </div>
-
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
+                <span data-role="view-title"></span>
+            </div>
         </div>
 
         <!--Footer-->
@@ -228,7 +250,27 @@
                 <a class="mapRepositoryButton eventsRepositoryButton webConnectionButton" href="#tabstrip-map" data-icon="globe">Map</a>
             </div>
         </div>
-    </div>    
+    </div>
+    <div data-role="layout" data-id="tabstrip-layout-with-help">
+        <!--Header-->
+        <div data-role="header">
+            <div data-role="navbar">
+                <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
+                <span data-role="view-title"></span>
+                <a data-role="button" data-click="app.uobEvents.openHelp" data-align="right" data-icon="questionmark" id="header-help-button"></a>
+            </div>
+        </div>
+		<!--Footer-->
+        <div id="appFooterWithHelp" data-role="footer">
+            <div data-role="tabstrip">
+                <a href="#tabstrip-home" data-icon="home">Home</a>
+                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
+                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-schedule" data-icon="recents">Schedule</a>
+                <a class="mapRepositoryButton eventsRepositoryButton webConnectionButton" href="#tabstrip-map" data-icon="globe">Map</a>
+            </div>
+        </div>
+	</div>    
+    
 <!-- Layout End -->
     
     <!-- Template Loading -->
