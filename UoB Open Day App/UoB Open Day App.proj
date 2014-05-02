@@ -3,7 +3,7 @@
   <PropertyGroup>
     <ProjectGuid>ecac56ba-78c0-40b8-af93-df61c46bafa3</ProjectGuid>
     <ProjectTypeGuids>{070BCB52-5A75-4F8C-A973-144AF0EAFCC9}</ProjectTypeGuids>
-    <AppIdentifier>uk.ac.birmingham.m.UoBOpenDay</AppIdentifier>
+    <AppIdentifier>uk.ac.birmingham.m.UoBOpenDayApp</AppIdentifier>
     <ProjectName>UoB Open Day App</ProjectName>
     <IsRunnable>true</IsRunnable>
     <FrameworkVersion>3.2.0</FrameworkVersion>
