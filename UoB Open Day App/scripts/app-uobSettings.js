@@ -8,7 +8,7 @@
     app.uobSettings.MapsService = 'http://www.bhamtest4.bham.ac.uk/web_services/Maps.svc/';
     app.uobSettings.WebSite = 'www.birmingham.ac.uk';
     
-    app.uobSettings.testMode = true; //test mode uses the local data files.
+    app.uobSettings.testMode = false; //test mode uses the local data files.
     
     app.uobSettings.populateSettingsInfo = function(e)  {
         
