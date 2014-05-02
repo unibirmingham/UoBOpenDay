@@ -70,6 +70,7 @@
         
         var eventsListDataSource = new kendo.data.DataSource({
                 data: app.uobRepository.eventsRepository.getEventItems(filterFunction),
+            	sort: [{ field: "Title", dir: "asc" }, { field: "StartTime", dir: "asc" }],
                 pageSize: 10000
             });
         
