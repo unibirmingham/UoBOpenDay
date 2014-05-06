@@ -6,11 +6,11 @@
     uob.date.formatDateAsUK = function(date, format)
     {
         
-        var newDate = moment(date).tz('Europe/London');
+        var newMoment = moment(date).tz('Europe/London');
         
-        var format = newDate.format(format);
+        var formattedDate = newMoment.format(format);
         
-        return format;
+        return formattedDate;
         
     }
 

@@ -118,6 +118,7 @@
 		if (index>=0){
             initialisationList.splice(index, 1);
         }
+        uob.log.addLogMessage("Initialised: " + itemInitialised);
 		displayInitialisationMessage();
     };
     

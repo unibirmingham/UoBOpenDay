@@ -34,8 +34,7 @@
             
             activityFilter =  $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
         }        
-        
-        
+                
         //Make sure the activity type filters:
         var activityType = ""
         
@@ -47,10 +46,10 @@
             	activityType = "Open-Day-General";
             	break;
         }
-        console.log("Filtering by " + activityType + " and date: " + openDayDate);
-        
+               
         //Date filter:
-        var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
+        
+        console.log("Filtering by Activity: " + activityType );
         var filterFunctionForOpenDayDate = getFilterFunctionForOpenDayDate();
         
         filterFunction = function(eventItem){
@@ -67,11 +66,11 @@
             //There's no filter
             return true;
         };
-        
+        var eventItems = app.uobRepository.eventsRepository.getEventItems(filterFunction);
         var eventsListDataSource = new kendo.data.DataSource({
-                data: app.uobRepository.eventsRepository.getEventItems(filterFunction),
-            	sort: [{ field: "Title", dir: "asc" }, { field: "StartTime", dir: "asc" }],
-                pageSize: 10000
+                data: eventItems,
+            	sort: { field: "Title", dir: "asc" },
+                pageSize: 1000
             });
         
         var eventsListView = $j("#" + eventsListViewId).data("kendoMobileListView");
@@ -88,21 +87,19 @@
             $j("#" + eventsListViewId).kendoMobileListView({
                 dataSource: eventsListDataSource,
                 template: $j("#events-template").text(),
-                 filterable: {
-                        field: "Title",
-                        operator: "contains"
-                    },
+                filterable: {
+                    autoFilter: false,
+                    field: "Title",
+                    operator: "contains"
+                },
                 dataBound: function(){
                     setUpIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
                     setUpIcons(eventsListViewId, scheduleEventGroup, this.dataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, this.dataSource, true);
-                      
                 } 
-                
             });
+            setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup);
+            setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, true);
        }
-        
     };
     
     app.uobEvents.openHelp = function(e){
@@ -130,8 +127,7 @@
         var eventsListViewId = "open-day-favourite-events-view";
          
         var eventsListDataSource = new kendo.data.DataSource({
-                data:  app.uobRepository.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate()),
-                pageSize: 10000
+                data:  app.uobRepository.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, getFilterFunctionForOpenDayDate())
             });
         
         if ($j("#" + eventsListViewId).data("kendoMobileListView"))
@@ -148,10 +144,10 @@
                 dataBound: function(){
                     hideIcons(eventsListViewId, favouriteEventGroup);
                     setUpIcons(eventsListViewId, scheduleEventGroup,this.dataSource);
-                    setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, this.dataSource, true);
                     reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
                 } 
             });
+            setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, true);
         }
         
     };
@@ -299,7 +295,7 @@
             navigator.notification.alert("Cannot move activity in schedule -- you may need to move some of your other events to fit it in.", null,"Schedule clash", 'OK');
             return false;
         }
-        uob.log.addLogMessage("Repopulate list view");
+        
         refreshScheduleDataSource(eventItem.ContentId);
         return false;
     };
@@ -335,42 +331,49 @@
         });
     }
     
-    var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, dataSource, scheduledEvent)
+    var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, scheduledEvent)
     {
-        console.log("Set up favourite icons");
-        var selectedEventSpans = $j("#" + listViewId + " .event-" + eventGroup);
-        
-        console.log("Selected " + eventGroup + " spans = " + selectedEventSpans.length);
-        
-        $j(selectedEventSpans).kendoTouch({
-            enableSwipe: false,
-            touchstart: function (e){
-                
-                	var span=this.element[0];
-                    
-                    var uid = $j(span).parent().parent().parent().attr('data-uid');
-                    
-                    var eventItem = dataSource.getByUid(uid);
-                    
-                    if ($j(span).hasClass(eventGroup + "-true"))
-                    {
-                        setupIconSpan(eventGroup, span, false);
-                        app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
-                    }
-                    else{
-                        if(app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
-                        {
-                            setupIconSpan(eventGroup, span, true);
-                        }
-                        else{
-                            navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
-                        }
-                    }
-                	return false;
-               }
-        });
+        console.log("Setup selected icon click for " + eventGroup);
+        var eventData = {listViewId: listViewId,
+            			scheduledEvent: scheduledEvent,
+        				eventGroup: eventGroup};
+
+        $j("#" + listViewId).on('click', '.event-' + eventGroup, eventData, selectorClick);
+
     };
 
+    var selectorClick = function(event)
+    {
+        var selector=this;
+                    
+        var uid = $j(selector).parent().parent().parent().attr('data-uid');
+        
+        var listViewId = event.data.listViewId;
+        var listView = $j("#" + listViewId).data("kendoMobileListView");
+        var dataSource = listView.dataSource;
+        
+        var scheduledEvent = event.data.scheduledEvent;
+        var eventGroup = event.data.eventGroup;
+        
+        var eventItem = dataSource.getByUid(uid);
+        
+        if ($j(selector).hasClass(eventGroup + "-true"))
+        {
+            setupIconSpan(eventGroup, selector, false);
+            app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
+        }
+        else{
+            if(app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+            {
+                setupIconSpan(eventGroup, selector, true);
+            }
+            else{
+                navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
+            }
+        }
+        return false;
+    }
+    
     var setupIconSpan = function (eventGroup, span, isSelected)
     {
         var trueClass = eventGroup + "-true";

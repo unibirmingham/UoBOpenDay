@@ -171,8 +171,9 @@
 
         var setEventItems = function(eventItemData){
 
-            console.log("Retrieved " + eventItemData.length + " event items");
+            uob.log.addLogMessage("Retrieved " + eventItemData.length + " event items");
             eventItems = parseEventItems(eventItemData);
+            uob.log.addLogMessage("Parsed " + eventItems.length + " event items");
         };
         
         var parseEventItems = function(eventItemData){
@@ -526,8 +527,7 @@
                 console.log("No selected events so nothing to retrieve");
                 return selectedEventItems;
             }
-            
-            
+                        
             for (index = 0; index < allEventItems.length; ++index) {
                 var eventItem = allEventItems[index];
                 var contentId = eventItem.ContentId;
@@ -537,7 +537,6 @@
                     //Supplement the event data with that from the event group:
                     if (scheduledEvents)
                     {
-                        console.log("Set Schedule date if got one, otherwise set to Start Date");
                         eventItem.setScheduleStartDate(selectedEventDataItem.ScheduleStartDate);
                     }
                     selectedEventItems.push(eventItem);

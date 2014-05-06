@@ -7,19 +7,17 @@
         </div>
         <div>
             <h1>
-                <span class="event-info date">${StartTimeInUK} - ${EndTimeInUK} #
+                <span class="event-info date">#= StartTimeInUK# - #=EndTimeInUK# #
     			if (AttendanceDuration>0){
-                #(Allow ${AttendanceDuration} minutes)#
+                #(Allow #= AttendanceDuration# minutes)#
     			}
     			#</span>
-                <span class="event-title">#:Title#</span>
+                <span class="event-title">#= Title#</span>
             </h1>
         </div>
     	<div class="event-details">
-    		<p><span class="event-description">${Description}</span></p>    
+    		<p><span class="event-description">#= Description#</span></p>    
     	</div>
-        
-        
     </div>
 </script>
     
