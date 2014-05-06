@@ -25,10 +25,6 @@
         this.StartDate = uob.json.parseJsonDate(this.StartDate);
         this.EndDate = uob.json.parseJsonDate(this.EndDate);
         
-        //Sort out the preformatting of the dates to save resource later:
-        this.StartDayInUK = uob.date.formatDateAsUK(this.StartDate, 'YYYY-MM-DD');
-        this.StartTimeInUK = uob.date.formatDateAsUK(this.StartDate, 'HH:mm');
-        this.EndTimeInUK = uob.date.formatDateAsUK(this.EndDate, 'HH:mm');
     }
     
     uob.events.EventItem.prototype = {
@@ -370,8 +366,7 @@
             
             return true;
         };
-        
-        
+                
         var checkAndResolveScheduleClashesForFixedEvent = function(eventGroup, eventItem)
         {
 
@@ -479,10 +474,11 @@
             return (getSelectedEventDataForContentId(eventGroup, contentId));
         };
         
-        var getSelectedEventDataForContentId = function(eventGroup, contentId)
+        var getSelectedEventDataForContentId = function(eventGroup, contentId, selectedEventData)
         {
-            var selectedEventData = getSelectedEventData(eventGroup);
-            
+            if (!selectedEventData){
+            	selectedEventData = getSelectedEventData(eventGroup);
+            }
             var eventsWithContentId = $j.grep(selectedEventData, function(e){ return e.ContentId === contentId; });
             if (eventsWithContentId && eventsWithContentId.length){
                 
@@ -531,7 +527,7 @@
             for (index = 0; index < allEventItems.length; ++index) {
                 var eventItem = allEventItems[index];
                 var contentId = eventItem.ContentId;
-                var selectedEventDataItem = getSelectedEventDataForContentId(eventGroup, contentId)
+                var selectedEventDataItem = getSelectedEventDataForContentId(eventGroup, contentId, selectedEventData)
                 if (selectedEventDataItem)
                 {
                     //Supplement the event data with that from the event group:

@@ -90,7 +90,7 @@
         var message;
         message = '';
         
-        if (initialisationList.length){
+        if (initialisationList.length>0){
             message = "Initialising: ";
             for (i = 0; i < initialisationList.length; i += 1) {
                 message = message + initialisationList[i];
@@ -114,7 +114,7 @@
     {
         var index;
         
-		index = $j.inArray(itemInitialised, initialisationList);
+		index = $j.inArray(itemInitialised, initialisationList);date
 		if (index>=0){
             initialisationList.splice(index, 1);
         }

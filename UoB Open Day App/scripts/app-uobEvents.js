@@ -18,6 +18,9 @@
       
     app.uobEvents.populateEventList = function (e){
         
+        uob.log.addLogMessage("Starting event list population");
+        app.application.showLoading();
+        
         var eventsListViewId = "open-day-events-view";
         
         //Set up activity filter
@@ -46,10 +49,9 @@
             	activityType = "Open-Day-General";
             	break;
         }
-               
-        //Date filter:
-        
         console.log("Filtering by Activity: " + activityType );
+        
+        //Date filter:
         var filterFunctionForOpenDayDate = getFilterFunctionForOpenDayDate();
         
         filterFunction = function(eventItem){
@@ -67,6 +69,7 @@
             return true;
         };
         var eventItems = app.uobRepository.eventsRepository.getEventItems(filterFunction);
+        console.log("Retrieved " + eventItems.length + " eventItems");
         var eventsListDataSource = new kendo.data.DataSource({
                 data: eventItems,
             	sort: { field: "Title", dir: "asc" },
@@ -94,11 +97,14 @@
                 },
                 dataBound: function(){
                     setUpIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
-                    setUpIcons(eventsListViewId, scheduleEventGroup, this.dataSource);
+                    setUpIcons(eventsListViewId, scheduleEventGroup, this.dataSource, true);
+                    reportNoData(eventsListViewId, this.dataSource.data(), "No activities found.");
+                    uob.log.addLogMessage("Data bind complete");
+                    app.application.hideLoading();
+
                 } 
             });
-            setUpClickEventOnSelectedIcons(eventsListViewId, favouriteEventGroup);
-            setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, true);
+            
        }
     };
     
@@ -143,11 +149,10 @@
                 template: $j("#events-template").text(),
                 dataBound: function(){
                     hideIcons(eventsListViewId, favouriteEventGroup);
-                    setUpIcons(eventsListViewId, scheduleEventGroup,this.dataSource);
+                    setUpIcons(eventsListViewId, scheduleEventGroup,this.dataSource, true);
                     reportNoData(eventsListViewId, this.dataSource.data(), "You have no favourite activities selected.");
                 } 
             });
-            setUpClickEventOnSelectedIcons(eventsListViewId, scheduleEventGroup, true);
         }
         
     };
@@ -213,11 +218,10 @@
     {
         var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
         var openDayDateInUk = uob.date.formatDateAsUK(openDayDate, 'YYYY-MM-DD');
-        
+        console.log("Filter for: " + openDayDateInUk);
         var filterFunction = function(eventItem){
             
-            //Make sure the day matches
-            return eventItem.StartDayInUK===  openDayDateInUk;
+            return eventItem.StartDateInUk=== openDayDateInUk;
         };
         
         return filterFunction;
@@ -313,40 +317,34 @@
         $j("#" + listViewId + " .event-" + eventGroup).hide();    
     }
     
-    var setUpIcons = function(listViewId, eventGroup, dataSource){
+    var setUpIcons = function(listViewId, eventGroup, dataSource, scheduledEvent){
         
-        console.log("Setup favourite icons");
+        console.log("Setup icons for " + eventGroup);
         $j("#" + listViewId + " .event-" + eventGroup).each(function() {
             
-            var span = this;
-
-            var uid = $j(span).parent().parent().parent().attr('data-uid');
+            var selector = this;
+			var eventData = {listViewId: listViewId,
+            			scheduledEvent: scheduledEvent,
+        				eventGroup: eventGroup};
+            var uid = $j(selector).parent().parent().attr('data-uid');
             
             var eventItem = dataSource.getByUid(uid);
             
             if (eventItem){
-                setupIconSpan(eventGroup, span, app.uobRepository.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
+                setupIconSpan(eventGroup, selector, app.uobRepository.eventsRepository.isContentIdSelected(eventGroup, eventItem.ContentId));
+                
+                $j(selector).click(eventData, selectorClick);
             }
             
         });
     }
     
-    var setUpClickEventOnSelectedIcons=function(listViewId, eventGroup, scheduledEvent)
-    {
-        console.log("Setup selected icon click for " + eventGroup);
-        var eventData = {listViewId: listViewId,
-            			scheduledEvent: scheduledEvent,
-        				eventGroup: eventGroup};
-
-        $j("#" + listViewId).on('click', '.event-' + eventGroup, eventData, selectorClick);
-
-    };
-
     var selectorClick = function(event)
     {
         var selector=this;
-                    
-        var uid = $j(selector).parent().parent().parent().attr('data-uid');
+
+        console.log("Click start");
+        var uid = $j(selector).parent().parent().attr('data-uid');
         
         var listViewId = event.data.listViewId;
         var listView = $j("#" + listViewId).data("kendoMobileListView");

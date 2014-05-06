@@ -84,7 +84,7 @@ body#appBody.km-flat .km-button.km-back
 
 #appBody .acknowledgementButton
 {
-    float:right;
+    float:right; 
     padding-top: 3em;
     margin-right: 2em;
     font-size: .7em;
@@ -100,11 +100,14 @@ body#appBody.km-flat .km-button.km-back
     background-color: #A0D8F6;
 }
 
-#appBody .events-list li>div
+#appBody .events-list li
 {
-    float: left;
     width: 100%;
-    border-bottom: solid 1px rgba(0, 0, 0, 0.0980392);
+}
+
+#appBody .events-list li .event-details
+{
+    border-bottom: solid 1px rgba(0,0,0,0.1);
 	padding-bottom: .2em;
 }
 
@@ -114,7 +117,6 @@ body#appBody.km-flat .km-button.km-back
     margin-bottom: 0;
     margin-top: 0;
 }
-
 
 #appBody .events-list .event-details p
 {
@@ -128,6 +130,13 @@ body#appBody.km-flat .km-button.km-back
     color: #B1006F;
 }
 
+#appBody .event-selectors
+{
+    float: right;
+    margin: 0;
+    padding: 0;
+}
+
 #appBody .event-favourite,
 #appBody .event-schedule
 {
@@ -136,17 +145,21 @@ body#appBody.km-flat .km-button.km-back
     padding-right: .1em;
     padding-left: .1em;
     margin-right: .1em;
+    margin-left: .1em;
+    margin-top:0;
+    margin-bottom: 0;
+    padding-top:0;
+    padding-bottom: 0;
+    width: auto;
 }
+
 #appBody .event-favourite
 {
     float: left;
-    margin-left: 0;
 }
-#appBody .event-schedule
-{
-	float: right;
-	margin-left: .1em;
-    padding-left: .1em;
+
+#appBody .event-schedule{
+ 	float:right;   
 }
 
 #appBody .favourite-true,
@@ -185,6 +198,35 @@ body#appBody.km-flat .km-button.km-back
 #appBody .gettingHereButton{
     color: #757577;
 }
+
+#appBody .events-list li .event-details
+{
+    border: none;
+	padding-bottom: .2em;
+}
+
+#appBody .schedule-item 
+{
+    border-bottom: solid 1px rgba(0,0,0,0.1);
+    float: left;
+    width: 100%;
+}
+
+#appBody .schedule-movers
+{
+    float: right;
+}
+
+#appBody .schedule-movers .event-move-up,
+#appBody .schedule-movers .event-move-down
+{
+    width: auto;
+    padding-left: .1em;
+    padding-right: .1em;
+    margin-left: .1em;
+    margin-right: .1em;
+}
+
 
 #appBody .moveup-false,
 #appBody .movedown-false

@@ -35,6 +35,7 @@
         $j.ajax({
             dataType: "json",
             url: jsonUrl,
+            cache: false,
             success:function(jsonData) {
 
                 if (jsonData.length===0)

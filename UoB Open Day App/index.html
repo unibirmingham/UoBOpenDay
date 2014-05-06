@@ -129,10 +129,7 @@
         </div>
         
         <ul id="open-day-events-view" class="events-list"></ul>
-         
-    </div>
-
-    <div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
+		<div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
             <div data-role="content" style="min-height: 150px">
                 <a data-click="app.uobEvents.closeEventsListHelp" data-role="button" data-align="right" class="position-right">Close</a>
                 <h2>Activities</h2>  
@@ -140,7 +137,10 @@
                     <li>To add an event to your favourites click on the Heart and to add an event to your personal schedule click on the clock icon. You can add as many activities as you like to your favourites but you can only add events to your schedule which do not clash.</li>
                 </ul>
             </div>
+        </div>         
     </div>
+
+        
     
 
     <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
@@ -152,9 +152,7 @@
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
     <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule" data-layout="tabstrip-layout-with-help">
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
-    </div>
-    
-    <div data-role="modalview" id="modalview-schedule-help" style="width: 90%;">
+        <div data-role="modalview" id="modalview-schedule-help" style="width: 90%;">
             <div data-role="content" style="min-height: 150px">
                 <a data-click="app.uobEvents.closeScheduleListHelp" data-role="button" data-align="right" class="position-right">Close</a>
                 <h2>Schedule</h2>  
@@ -162,7 +160,10 @@
                     <li>Events which can be visited throughout the day can have their scheduled time changed by using the arrows to move them to a later or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move.</li>
                 </ul>
             </div>
+    	</div>
     </div>
+    
+
     
     <!--Campus Map-->
     <div id="tabstrip-map"
