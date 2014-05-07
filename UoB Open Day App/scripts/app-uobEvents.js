@@ -68,8 +68,9 @@
             //There's no filter
             return true;
         };
+        uob.log.addLogMessage("Getting event items");
         var eventItems = app.uobRepository.eventsRepository.getEventItems(filterFunction);
-        console.log("Retrieved " + eventItems.length + " eventItems");
+        uob.log.addLogMessage("Retrieved " + eventItems.length + " eventItems");
         var eventsListDataSource = new kendo.data.DataSource({
                 data: eventItems,
             	sort: { field: "Title", dir: "asc" },
@@ -96,10 +97,12 @@
                     operator: "contains"
                 },
                 dataBound: function(){
+                    uob.log.addLogMessage("Data bind start");
                     setUpIcons(eventsListViewId, favouriteEventGroup, this.dataSource);
                     setUpIcons(eventsListViewId, scheduleEventGroup, this.dataSource, true);
                     reportNoData(eventsListViewId, this.dataSource.data(), "No activities found.");
                     uob.log.addLogMessage("Data bind complete");
+                    
                     app.application.hideLoading();
 
                 } 

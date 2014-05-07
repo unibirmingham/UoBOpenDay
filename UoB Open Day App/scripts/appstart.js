@@ -5,6 +5,7 @@
     app.uobRepository = app.uobRepository || {};
     app.uobOpenDay = app.uobOpenDay || {};
     app.uobSettings = app.uobSettings || {};
+    app.uobMap = app.uobMap || {};
     
     var uob = global.uob = global.uob || {};
     uob.data = uob.data || {};
@@ -23,7 +24,7 @@
     var startDatesUrl = app.uobSettings.EventsService + '/startdates/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var startDatesLocalFile = "data/events-dates.json";
     
-    var initialisationList = ["Web Connection", "Start Dates", "Maps", "Events"];
+    var initialisationList = [];
     
     var webConnection;
     
@@ -31,6 +32,16 @@
     {
         
         $j.support.cors = true;
+        
+        initialiseData();
+        
+    };
+    
+    var initialiseData = function(){
+    
+        setupButtons();
+                
+        initialisationList = ["Web Connection", "Start Dates", "Maps", "Events"];
         
         displayInitialisationMessage();
         
@@ -51,38 +62,66 @@
         
         app.uobRepository.eventsRepository.initialise();
         
-    };
+        app.uobMap.reinitialise();
+    }
+    
+    app.initialiseDataWithCheck = function()
+    {
+        navigator.notification.confirm('Do you wish to refresh the application data?', confirmInitialiseData, 'Refresh data?','Refresh, Cancel');
+    }
+    
+    var confirmInitialiseData = function(buttonIndex)
+    {
+        if (buttonIndex===1)
+        {
+            initialiseData();
+        }
+    }
+    
+    var setupButtons = function()
+    {
+        $j('.activitiesButton, .favouritesButton, .scheduleButton, .mapButton').addClass('eventsRepositoryButton');
+        $j('.activitiesButton, .favouritesButton, .scheduleButton').addClass('startDatesButton');
+        $j('.mapButton').addClass('webConnectionButton');
+        $j('.mapButton').addClass('mapRepositoryButton');
+           
+    }
     
     var showStatus = function()
     {
-        var status;
-        
+        var status='';
+                
         if (app.uobRepository.startDateRepository.getStatus() === uob.json.JsonStatus.LIVE
 			&& app.uobRepository.mapRepository.getStatus() === uob.json.JsonStatus.LIVE
         	&& app.uobRepository.eventsRepository.getStatus() === uob.json.JsonStatus.LIVE
         	&& webConnection===true){
-            uob.log.addLogInfo("All data retrieved from internet and web connection in place");
+            uob.log.addLogInfo("All data retrieved from internet and web connection in place.");
+                
             return;
-        }
+        }else{
         
-        if (app.uobRepository.startDateRepository.hasData()
-			&& app.uobRepository.mapRepository.hasData()
-        	 && app.uobRepository.eventsRepository.hasData()) {
-            //Application has data but at least some is cached:
-        	if (webConnection) {
-            	status = "Using cached data: Restart application for latest data";
-        	} else {
-            	status = "Using cached data: Restart application with internet connection of 3G or higher for latest data and maps functionality.";
+            if (app.uobRepository.startDateRepository.hasData()
+    			&& app.uobRepository.mapRepository.hasData()
+            	 && app.uobRepository.eventsRepository.hasData()) {
+                //Application has data but at least some is cached:
+            	if (webConnection) {
+                	status = "Using cached data: Unable to retrieve all data.";
+            	} else {
+                	status = "Using cached data: Internet connection of 3G or higher required for latest data and maps.";
+                }
+            } else {
+                //At least some part of the app doesn't have even cached data:
+                status = "Limited data available: Internet connection of 3G or higher required for latest data and maps.";
             }
-        } else {
-            //At least some part of the app doesn't have even cached data:
-            status = "Limited data available: Restart application with an internet connection of 3G or higher";
-        }
-
+		}
+        
         if (status) {
+            
             uob.log.addLogWarning(status);
-            $j('#status-message').html("<p>" + status + "</p>");
+            
+            status = "<p>" + status + " Click button below to refresh data." + "</p>";
         }
+        $j('#status-message').html(status);
     };
     var displayInitialisationMessage = function()
     {

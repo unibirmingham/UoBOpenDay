@@ -100,14 +100,18 @@
                 </ul>
             </div>
             <ul data-role="listview" datatype="group">
-                <li class="eventsRepositoryButton startDatesButton activitiesButton"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
-                <li class="eventsRepositoryButton startDatesButton favouritesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
-                <li class="eventsRepositoryButton startDatesButton scheduleButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="mapRepositoryButton eventsRepositoryButton webConnectionButton mapButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="activitiesButton"><a data-icon="cal" href="#tabstrip-events">Activities</a></li>
+                <li class="favouritesButton eventsRepositoryButton startDatesButton favouritesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
+                <li class="scheduleButton eventsRepositoryButton startDatesButton scheduleButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
+                <li class="mapButton mapRepositoryButton eventsRepositoryButton webConnectionButton mapButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">Open Day FAQs</a></li>
                 <li class="gettingHereButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
+                
             </ul>
-            <a class="acknowledgementButton" href="#tabstrips-acknowledgements">Acknowledgements</a>
+            <div class="bottomRow">
+                <a data-icon="refresh" data-role="button" data-click="app.initialiseDataWithCheck">Refresh data</a>
+                <a class="acknowledgementButton" href="#tabstrips-acknowledgements">Acknowledgements</a>
+            </div>
         </div>
     </div>
     
@@ -246,9 +250,9 @@
         <div id="appFooter" data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
-                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
-                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-schedule" data-icon="recents">Schedule</a>
-                <a class="mapRepositoryButton eventsRepositoryButton webConnectionButton" href="#tabstrip-map" data-icon="globe">Map</a>
+                <a class="activitiesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
+                <a class="scheduleButton" href="#tabstrip-schedule" data-icon="recents">Schedule</a>
+                <a class="mapButton" href="#tabstrip-map" data-icon="globe">Map</a>
             </div>
         </div>
     </div>
@@ -265,9 +269,9 @@
         <div id="appFooterWithHelp" data-role="footer">
             <div data-role="tabstrip">
                 <a href="#tabstrip-home" data-icon="home">Home</a>
-                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
-                <a class="eventsRepositoryButton startDatesButton" href="#tabstrip-schedule" data-icon="recents">Schedule</a>
-                <a class="mapRepositoryButton eventsRepositoryButton webConnectionButton" href="#tabstrip-map" data-icon="globe">Map</a>
+                <a class="activitiesButton" href="#tabstrip-events" data-icon="cal">Activities</a>
+                <a class="scheduleButton" href="#tabstrip-schedule" data-icon="recents">Schedule</a>
+                <a class="mapButton" href="#tabstrip-map" data-icon="globe">Map</a>
             </div>
         </div>
 	</div>    

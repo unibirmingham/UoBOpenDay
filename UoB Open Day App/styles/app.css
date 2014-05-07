@@ -82,10 +82,20 @@ body#appBody.km-flat .km-button.km-back
     margin-right: .3em;
 }
 
+#appBody .bottomRow
+{
+	padding:1em;
+}
+
+#appBody .bottomRow a.km-button
+{
+	font-size: .75em;
+}
+
 #appBody .acknowledgementButton
 {
     float:right; 
-    padding-top: 3em;
+    padding-top: 1.5em;
     margin-right: 2em;
     font-size: .7em;
 }
@@ -125,7 +135,7 @@ body#appBody.km-flat .km-button.km-back
     margin-top: 0;
 }
 
-#appBody .activitiesButton
+#appBody #tabstrip-home .km-content .activitiesButton
 {
     color: #B1006F;
 }
@@ -163,7 +173,7 @@ body#appBody.km-flat .km-button.km-back
 }
 
 #appBody .favourite-true,
-#appBody .favouritesButton
+#appBody #tabstrip-home .km-content .favouritesButton
 {
     color: #EF549F;
     }
@@ -180,12 +190,12 @@ body#appBody.km-flat .km-button.km-back
     }
 
 #appBody .schedule-true,
-#appBody .scheduleButton
+#appBody #tabstrip-home .km-content .scheduleButton
 {
     color: #6FC055;
     }
 
-#appBody .mapButton
+#appBody #tabstrip-home .km-content .mapButton
 {
     color: #00BAE5;
 }
