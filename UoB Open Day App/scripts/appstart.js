@@ -107,15 +107,18 @@
     			&& app.uobRepository.mapRepository.hasData()
             	 && app.uobRepository.eventsRepository.hasData()) {
                 //Application has data but at least some is cached:
-            	if (webConnection) {
-                	status = "Using cached data: Unable to retrieve all data.";
-            	} else {
-                	status = "Using cached data: Internet connection of 3G or higher required for latest data and maps.";
-                }
+                status = "Currently using cached data.";
             } else {
                 //At least some part of the app doesn't have even cached data:
-                status = "Limited data available: Internet connection of 3G or higher required for latest data and maps.";
+                status = "Limited data available.";
             }
+            
+            if (!webConnection)
+            {
+                //Give a reminder about the web connection.
+                status = status + " An internet connection of 3G or higher is required for latest data and maps.";
+            }
+            
 		}
         
         if (status) {
