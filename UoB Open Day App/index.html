@@ -24,6 +24,7 @@
     <script src="scripts/uob-date.js"></script>
     <script src="scripts/uob-screen.js"></script>
     <script src="scripts/uob-log.js"></script>
+    <script src="scripts/uob-kendo.js"></script>
     <script src="scripts/uob-localstorage.js"></script>
     <script src="scripts/uob-google.js"></script>
     <script src="scripts/uob-json.js"></script>
@@ -80,7 +81,12 @@
             .km-movedown:before
             {
                 content: "\e012";
-            }      
+            }
+            .km-clear:after,
+            .km-clear:before
+            {
+                content: "\e038";
+            }
         </style>
     <!--Screens-->
     <!--Home-->
@@ -100,17 +106,18 @@
                 </ul>
             </div>
             <ul data-role="listview" datatype="group">
-                <li class="activitiesButton"><a data-icon="cal" href="#tabstrip-events">Activities</a></li>
-                <li class="favouritesButton eventsRepositoryButton startDatesButton favouritesButton"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
-                <li class="scheduleButton eventsRepositoryButton startDatesButton scheduleButton"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
-                <li class="mapButton mapRepositoryButton eventsRepositoryButton webConnectionButton mapButton"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
+                <li class="activitiesButton initialiseHidden"><a data-icon="cal" href="#tabstrip-events">Activities</a></li>
+                <li class="favouritesButton initialiseHidden"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
+                <li class="scheduleButton initialiseHidden"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
+                <li class="mapButton initialiseHidden"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">Open Day FAQs</a></li>
                 <li class="gettingHereButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
+                <li class="feedbackButton"><a data-icon="contacts" href="#tabstrip-feedback" data-transition="slide">Feedback</a></li>
                 
             </ul>
             <div class="bottomRow">
                 <a data-icon="refresh" data-role="button" data-click="app.initialiseDataWithCheck">Refresh data</a>
-                <a class="acknowledgementButton" href="#tabstrips-acknowledgements">Acknowledgements</a>
+                <a class="acknowledgementButton" href="#tabstrip-acknowledgements">Acknowledgements</a>
             </div>
         </div>
     </div>
@@ -129,9 +136,12 @@
                     </label>
                 </li>
             </ul>
-            
         </div>
-        
+		<div class="searchHolder">
+    		<input id="activity-search-text" type="text"/>
+        	<a data-role="button" data-click="app.uobEvents.searchEvents" data-icon="search" ></a>
+            <a data-role="button" data-click="app.uobEvents.clearEventSearch" data-icon="clear" ></a>
+        </div>
         <ul id="open-day-events-view" class="events-list"></ul>
 		<div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
             <div data-role="content" style="min-height: 150px">
@@ -207,9 +217,19 @@
             </div>
         </div>
      </div>
+    <div id="tabstrip-feedback" data-role="view" data-title="Feedback">
+        <div class="view-content">
+            <div>
+                <p>We are always trying to improve our services at the University of Birmingham and if you can we'd love you to fill in our feedback form:</p>
+                <div class="iframeHolder">
+                	<iframe style="height: 600px;" src="http://www.birmingham.ac.uk/forms/events/open-day-app-feedback.aspx"></iframe>
+				</div>
+            </div>
+        </div>
+     </div>
     
     <!-- Settings information -->
-    <div id="tabstrips-acknowledgements" data-role="view" data-init="app.uobSettings.populateSettingsInfo" data-title="Acknowledgements">
+    <div id="tabstrip-acknowledgements" data-role="view" data-init="app.uobSettings.populateSettingsInfo" data-title="Acknowledgements">
         <div class="view-content">
             <div>
                 <p>This software uses the following libraries:</p>

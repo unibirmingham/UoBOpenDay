@@ -4,6 +4,7 @@
 #tabstrip-home li.mapRepositoryButton,
 #tabstrip-home li.startDatesButton,
 #tabstrip-home li.webConnectionButton,
+#tabstrip-home li.initialiseHidden,
 #appFooter a.webSiteButton,
 #appFooter a.eventsRepositoryButton,
 #appFooter a.mapRepositoryButton,
@@ -104,6 +105,29 @@ body#appBody.km-flat .km-button.km-back
 #appBody .events-list>li
 {
     padding-bottom: 0;
+}
+
+
+#appBody .searchHolder
+{
+    position: relative;
+    margin: 0 .7em;
+    padding: .2em .4em;
+    border: 1px solid transparent;
+}
+.km-tablet #appBody .searchHolder {
+    max-width: 24em;
+    margin: 0 auto;
+}
+#appBody .searchHolder input
+{
+    width: 65%;
+    margin-left: .4em;
+}
+
+#appBody .searchHolder a
+{
+    font-size: 75%;
 }
 
 #appBody .events-list div.highlightEvent{
@@ -253,3 +277,13 @@ body#appBody.km-flat .km-button.km-back
     font-size: 2.5em;
     }
 
+#appBody .iframeHolder
+{
+    padding-left: 10%;
+    padding-right: 10%;
+    width: 100%;
+}
+#appBody .iframeHolder iframe
+{
+    width: 100%;
+}

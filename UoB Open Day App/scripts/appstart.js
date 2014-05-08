@@ -40,6 +40,7 @@
     var initialiseData = function(){
     
         setupButtons();
+        $j('#status-message').html("");
                 
         initialisationList = ["Web Connection", "Start Dates", "Maps", "Events"];
         
@@ -62,7 +63,7 @@
         
         app.uobRepository.eventsRepository.initialise();
         
-        app.uobMap.reinitialise();
+        app.uobMap.openDayMap.reinitialise();
     }
     
     app.initialiseDataWithCheck = function()
@@ -82,9 +83,9 @@
     {
         $j('.activitiesButton, .favouritesButton, .scheduleButton, .mapButton').addClass('eventsRepositoryButton');
         $j('.activitiesButton, .favouritesButton, .scheduleButton').addClass('startDatesButton');
-        $j('.mapButton').addClass('webConnectionButton');
+        $j('.mapButton, .feedbackButton').addClass('webConnectionButton');
         $j('.mapButton').addClass('mapRepositoryButton');
-           
+        $j('.initialiseHidden').removeClass('initialiseHidden');
     }
     
     var showStatus = function()
