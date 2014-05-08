@@ -12,14 +12,14 @@
     <DeviceOrientations>Portrait;Landscape</DeviceOrientations>
     <iOSStatusBarStyle>Default</iOSStatusBarStyle>
     <AndroidHardwareAcceleration>false</AndroidHardwareAcceleration>
-    <BundleVersion>2.1</BundleVersion>
+    <BundleVersion>2.2</BundleVersion>
     <iOSDisplayName />
     <iOSDeviceFamily>1;2</iOSDeviceFamily>
     <iOSBackgroundMode />
-    <AndroidVersionCode>3</AndroidVersionCode>
-    <DisplayName />
+    <AndroidVersionCode>4</AndroidVersionCode>
+    <DisplayName>UoB Open Day</DisplayName>
     <Author />
-    <Description>UoB Open Day</Description>
+    <Description>University of Birmingham Open Day Application</Description>
     <WP8Requirements />
     <WP8Capabilities />
     <WP8TileTitle />
