@@ -177,9 +177,8 @@
             console.log("Initialising favourites list view");
             $j("#" + eventsListViewId).kendoMobileListView({
                 dataSource: eventsListDataSource,
-                template: $j("#events-template").text(),
+                template: $j("#events-favourite-template").text(),
                 dataBound: function(){
-                    hideIcons(eventsListViewId, favouriteEventGroup);
                     setUpIcons(eventsListViewId, scheduleEventGroup,true);
                     reportNoData(eventsListViewId,  "You have no favourite activities selected.");
                 } 
