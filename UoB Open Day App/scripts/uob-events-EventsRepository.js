@@ -262,7 +262,7 @@
                             }
                             else{
                                 //We're going later so try a later date -- you can start at the scheduled end date as the next thing can start at the point the previous one ended
-                                if (selectedEventItem.getScheduleStartDate()<selectedEventItem.getScheduleEndDate()){
+                                if (selectedEventItem.getScheduleEndDate()>eventItemToTest.getScheduleStartDate()){
                                     eventItemToTest.setScheduleStartDate (new Date(selectedEventItem.getScheduleEndDate()));
                                 }
                                 else{
@@ -277,7 +277,7 @@
             //We carry on if there is a last date and it has a value which is different to the schedule date (as that means there's a new date to test).
             }while (lastDate && (lastDate)!==eventItemToTest.getScheduleStartDate());
                         
-            if (eventItemToTest.getScheduleEndDate()>eventItem.EndDate)
+            if (eventItemToTest.getScheduleStartDate()>eventItem.EndDate)
             {
                 console.log("Cannot find a new schedule date which is before the end date -- returning null");
                 lastDate = null;
