@@ -5,17 +5,8 @@
         <div class="event-schedule km-icon km-personalschedule schedule-false"></div>
     </div>
     <div>
-        <h1>
-            <span class="event-info date">#= StartTimeInUk# - #=EndTimeInUk# #
-			if (AttendanceDuration>0){
-            #(Allow #= AttendanceDuration# minutes)#
-			}
-			#</span>
-            <span class="event-title">#= Title#</span>
-        </h1>
+        <h1>#= StartTimeInUk# - #=EndTimeInUk# #= Title# # if (AttendanceDuration>0){ #(Allow #= AttendanceDuration# minutes)#} # </h1>
     </div>
-	<div class="event-details">
-		<p><span class="event-description">#= Description#</span></p>    
-	</div>
+	<div class="event-details"><p>#= Description#</p></div>
 </script>
     

@@ -6,24 +6,21 @@
             <div class="event-move-down km-icon km-movedown movedown-false"></div>
         </div>
         <div>
-            <h1>
-                <span class="event-info date">#= uob.date.formatDateAsUK(getScheduleStartDate(), 'HH:mm') # #
-    				if (!isAllDayEvent() || AttendanceDuration>0){ # - #= uob.date.formatDateAsUK(getScheduleEndDate(), 'HH:mm') # #} #
-    			</span>
-                <span class="event-title">#:Title#</span>
-            </h1>
+            <h1>#= uob.date.formatDateAsUK(getScheduleStartDate(), 'HH:mm') # #
+    				if (!isAllDayEvent() || AttendanceDuration>0){ # - #= uob.date.formatDateAsUK(getScheduleEndDate(), 'HH:mm') # #} # #= Title#
+		    </h1>
         </div>
         <div class="event-details">
             <p>
                 # if (Location.length){ 
                     if (BuildingIds.length){
-                #<span class="event-location"><a href="\\#tabstrip-map?buildingId=${BuildingIds[0]}">${Location}</a>: </span>#
+                #<a href="\\#tabstrip-map?buildingId=${BuildingIds[0]}">${Location}</a>: #
                     }
                     else{
-                #<span class="event-location">${Location}: </span>#
+                #${Location}: #
                     }    
                 } #
-                <span class="event-description">${Description}</span>
+                ${Description}
             </p>
         </div>
     </div>
