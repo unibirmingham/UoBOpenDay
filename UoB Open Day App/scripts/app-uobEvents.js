@@ -330,20 +330,20 @@
             var uid = $j(div).parent().parent().attr('data-uid');
             
             var eventItem = dataSource.getByUid(uid);
-            var moveUp = false;
-            var moveDown = false;
+            var moveEarlier = false;
+            var moveLater = false;
             
             if (eventItem.isAllDayEvent())
             {
                 if (eventItem.getScheduleStartDate()>eventItem.StartDate){
-                    moveUp = true;
+                    moveEarlier = true;
                 }
-                if (eventItem.getScheduleEndDate()<eventItem.EndDate){
-                    moveDown = true;
+                if (eventItem.getScheduleStartDate()<eventItem.EndDate){
+                    moveLater = true;
                 }
             }
             
-            if (moveUp)
+            if (moveEarlier)
             {
                 $j(div).find('.event-move-up').removeClass('moveup-false').addClass('moveup-true').on('click', scheduleMoveClick);
             }
@@ -352,7 +352,7 @@
                 $j(div).find('.event-move-up').removeClass('moveup-true').addClass('moveup-false').off('click');
             }
             
-            if (moveDown){
+            if (moveLater){
                  $j(div).find('.event-move-down').removeClass('movedown-false').addClass('movedown-true').on('click', scheduleMoveClick);
             }
             else{
