@@ -30,9 +30,7 @@
     
     var onDeviceReady= function()
     {
-        //Fix for keyboard overlaying keyboard (http://www.telerik.com/forums/click-on-input-levels-up-the-footer-on-the-keyboard-whitout-change-the-view-!-)
-        $(document.body).height(window.innerHeight);
-        
+       
         $j.support.cors = true;
         
         initialiseData();
