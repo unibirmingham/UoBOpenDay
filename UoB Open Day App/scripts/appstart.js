@@ -18,10 +18,10 @@
     
     var date = new Date();
     var year = date.getFullYear();
-    var openDayEventsUrl = app.uobSettings.EventsService + '?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var openDayEventsUrl = app.uobSettings.EventsService + '?folderPath=' + app.uobSettings.OpenDayEventsFolder + '&category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var openDayLocalFile = 'data/events.json';
     
-    var startDatesUrl = app.uobSettings.EventsService + '/startdates/?category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
+    var startDatesUrl = app.uobSettings.EventsService + 'startdates/?folderPath=' + app.uobSettings.OpenDayEventsFolder + '&category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var startDatesLocalFile = "data/events-dates.json";
     
     var initialisationList = [];

@@ -7,7 +7,7 @@
     app.uobSettings.EventsService = 'http://www.bhamtest4.bham.ac.uk/web_services/Events.svc/';
     app.uobSettings.MapsService = 'http://www.bhamtest4.bham.ac.uk/web_services/Maps.svc/';
     app.uobSettings.WebSite = 'www.birmingham.ac.uk';
-    
+    app.uobSettings.OpenDayEventsFolder='/undergraduate/visit/opendays/';
     app.uobSettings.testMode = false; //test mode uses the local data files.
     
     app.uobSettings.populateSettingsInfo = function(e)  {
@@ -15,8 +15,10 @@
         var settingsAndMessages = $j('#settingsAndMessages');
         var settingsButton = $j('#settingsButton');
         settingsAndMessages.hide();
+                
+        settingsButton.off('click');
         
-        settingsButton.click(function(){
+        settingsButton.on('click', function(){
            
            if (settingsAndMessages.hasClass('openLog') ){
                settingsButton.text('Show Settings and Logs');
