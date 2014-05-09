@@ -33,7 +33,7 @@
         {
             var eventItem = this;
             if (eventItem 
-                && (Math.abs(eventItem.EndDate-eventItem.StartDate) / 36e5 > 6))
+                && (Math.abs(eventItem.EndDate-eventItem.StartDate) / 36e5 > 3))
             {
                 if (eventItem.AttendanceDuration ===0)
                 {
