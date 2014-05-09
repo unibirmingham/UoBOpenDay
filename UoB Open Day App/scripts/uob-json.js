@@ -48,7 +48,7 @@
                 setDataInLocalCache(dataDescription, jsonUrl, jsonData);
                 successFunction(jsonData, uob.json.JsonStatus.LIVE);
             },
-            timeout: 10000
+            timeout: 30000
         }).fail( function( xhr, status ) {
             uob.log.addLogMessage(dataDescription + ": Failure getting JSON data from " + jsonUrl + " Error status: " + status + " incoming Text " + xhr.responseText);
             retrieveDataFromLocalCache(dataDescription, jsonUrl, localFile, successFunction, errorFunction, canUseLocalFileWhenLive);
