@@ -4,26 +4,19 @@
         <div class="event-schedule km-icon km-personalschedule schedule-false"></div>
     </div>
     <div>
-        <h1>
-            <span class="event-info date">#= StartTimeInUk# - #=EndTimeInUk# #
-			if (AttendanceDuration>0){
-            #(Allow #= AttendanceDuration# minutes)#
-			}
-			#</span>
-            <span class="event-title">#= Title#</span>
-        </h1>
+        <h1>#= StartTimeInUk# - #=EndTimeInUk# #= Title# # if (AttendanceDuration>0){ #(Allow #= AttendanceDuration# minutes)#} # </h1>
     </div>
     <div class="event-details">
         <p>
             # if (Location.length){ 
                 if (BuildingIds.length){
-            #<span class="event-location"><a href="\\#tabstrip-map?buildingId=${BuildingIds[0]}">${Location}</a>: </span>#
+            #<a href="\\#tabstrip-map?buildingId=${BuildingIds[0]}">${Location}</a>: #
                 }
                 else{
-            #<span class="event-location">${Location}: </span>#
+            #${Location}: #
                 }    
             } #
-            <span class="event-description">${Description}</span>
+            ${Description}
         </p>
     </div>
 </script>
