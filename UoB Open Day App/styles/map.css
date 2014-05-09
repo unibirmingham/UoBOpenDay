@@ -32,14 +32,11 @@
     color: #fff;
     border: none;
     background: none;
-    background-image: url(../styles/images/location.png);
     background-repeat: no-repeat;
     background-position: center center;
-}
-
-#map-return-to-campus:active {
-    background-image: url(../styles/images/location_active.png);
-    background-repeat: no-repeat;
+    font-size: 32px;
+    padding: 2px;
+    margin: 0;
 }
 
 #appBody #map-header .mapMessage,
