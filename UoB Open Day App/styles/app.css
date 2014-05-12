@@ -101,6 +101,10 @@ body#appBody.km-flat .km-button.km-back
     font-size: .7em;
 }
 
+#appBody .helpIcon{
+margin-left: .2em;
+    }
+
 /*Events listings */
 #appBody .events-list>li
 {
@@ -204,7 +208,8 @@ body#appBody.km-flat .km-button.km-back
 }
 
 #appBody .favourite-true,
-#appBody #tabstrip-home .favouritesButton
+#appBody #tabstrip-home .favouritesButton,
+#appBody .favouritesColour
 {
     color: #EF549F;
     }
@@ -221,7 +226,8 @@ body#appBody.km-flat .km-button.km-back
     }
 
 #appBody .schedule-true,
-#tabstrip-home .km-content .scheduleButton
+#tabstrip-home .km-content .scheduleButton,
+#appBody .scheduleColour
 {
     color: #6FC055;
     }

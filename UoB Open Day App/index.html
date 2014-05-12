@@ -39,6 +39,7 @@
     <script src="scripts/app-uobEvents.js"></script>
     <script src="scripts/app-uobMap.js"></script>
     <script src="scripts/app-uobWebpage.js"></script>
+    <script src="scripts/app-uobHelp.js"></script>
     <script src="scripts/appstart.js"></script>
 </head>
 
@@ -113,7 +114,6 @@
                 <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">Open Day FAQs</a></li>
                 <li class="gettingHereButton"><a data-icon="road" href="#tabstrip-getting-here" data-transition="slide">Getting here</a></li>
                 <li class="feedbackButton"><a data-icon="contacts" href="#tabstrip-feedback" data-transition="slide">Feedback</a></li>
-                
             </ul>
             <div class="bottomRow">
                 <a data-icon="refresh" data-role="button" data-click="app.initialiseDataWithCheck">Refresh data</a>
@@ -145,10 +145,16 @@
         <ul id="open-day-events-view" class="events-list"></ul>
 		<div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
             <div data-role="content" style="min-height: 150px">
-                <a data-click="app.uobEvents.closeEventsListHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                <a data-click="app.uobHelp.closeEventsListHelp" data-role="button" data-align="right" class="position-right">Close</a>
                 <h2>Activities</h2>  
                 <ul data-role="listview">
-                    <li>To add an event to your favourites click on the Heart and to add an event to your personal schedule click on the clock icon. You can add as many activities as you like to your favourites but you can only add events to your schedule which do not clash.</li>
+                    <li>To add an event to your favourites click on the <span class="km-icon km-heart helpIcon favouritesColour"></span> and to add an event to your personal schedule click on the <span class="km-icon km-recents helpIcon scheduleColour"></span>. You can add as many activities as you like to your favourites but you can only add events to your schedule which do not clash with other activities already in your schedule.</li>
+                    <li>Some hints:
+                        <ul>
+                            <li>If you know what you are looking for, you can use the search to avoid scrolling through the entire list.</li>
+                            <li>You might find it easier to create a schedule if you <span class="km-icon km-heart helpIcon favouritesColour"></span> the activities you are interested in to put them in your favourites before building a schedule in the favourites list.</li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>         
@@ -158,20 +164,28 @@
     
 
     <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
-    <div id="tabstrip-favourites" data-role="view" data-show="app.uobEvents.populateFavouriteEventList" data-title="Favourite Activities">
+    <div id="tabstrip-favourites" data-role="view" data-show="app.uobEvents.populateFavouriteEventList" data-title="Favourite Activities" data-layout="tabstrip-layout-with-help">
         <ul id="open-day-favourite-events-view" class="events-list"></ul>
-        
+        <div data-role="modalview" id="modalview-favourites-help" style="width: 90%;">
+            <div data-role="content" style="min-height: 150px">
+                <a data-click="app.uobHelp.closeFavouritesListHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                <h2>Favourites</h2>  
+                <ul data-role="listview">
+                    <li>To add an event to your personal schedule click on the <span class="km-icon km-recents helpIcon scheduleColour"></span>. You can also remove items from your favourites by clicking on <span class="km-icon km-trash helpIcon"></span>.</li>
+                </ul>
+            </div>
+        </div>    
     </div>
     
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
     <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule" data-layout="tabstrip-layout-with-help">
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
         <div data-role="modalview" id="modalview-schedule-help" style="width: 90%;">
-            <div data-role="content" style="min-height: 150px">
-                <a data-click="app.uobEvents.closeScheduleListHelp" data-role="button" data-align="right" class="position-right">Close</a>
+            <div data-role="content" style="min-height: 100px">
+                <a data-click="app.uobHelp.closeScheduleListHelp" data-role="button" data-align="right" class="position-right">Close</a>
                 <h2>Schedule</h2>  
                 <ul data-role="listview">
-                    <li>Events which can be visited throughout the day can have their scheduled time changed by using the arrows to move them to a later or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move.</li>
+                    <li>Events which can be visited throughout the day can have their scheduled time changed by using the <span class="km-icon km-moveup helpIcon scheduleColour"></span> <span class="km-icon km-movedown helpIcon scheduleColour"></span> to move them to an earlier or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move. You can also remove items from your favourites by clicking on <span class="km-icon km-trash helpIcon"></span></li>
                 </ul>
             </div>
     	</div>
@@ -186,7 +200,8 @@
         data-init="app.uobMap.openDayMap.initialise"
         data-show="app.uobMap.openDayMap.show"
         data-hide="app.uobMap.openDayMap.hide"
-        data-stretch="true">
+        data-stretch="true"
+        data-layout="tabstrip-layout-with-help">
 
         <div id="no-map">
             Campus map requires internet connection to display.
@@ -197,7 +212,16 @@
             <div class="mapStatus"></div>
         </div>
         <div id="map-canvas"></div>
-
+		<div data-role="modalview" id="modalview-map-help" style="width: 90%;">
+            <div data-role="content" style="min-height: 100px; max-height: 150px;">
+                <a data-click="app.uobHelp.closeMapHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                <h2>Map</h2>  
+                <div data-role="listview">
+                    <p>You can tap on buildings and facilities to see the building name in the information header. If your location is available and you are on campus you will be told how long it will take you to walk to a selected building or facility. If you tap on two buildings you can see how long it takes to get from one to the other. To reselect a single building, simply tap on the same building twice.</p>
+                    <p>If you find you have moved the map away from campus click on <span class="km-icon km-refresh helpIcon"></span> to return to the campus.</p>
+                </div>
+            </div>
+    	</div>
     </div>
       
     <!-- Registration information -->
@@ -282,7 +306,7 @@
             <div data-role="navbar">
                 <a class="nav-button" data-align="left" data-role="backbutton">Back</a>
                 <span data-role="view-title"></span>
-                <a data-role="button" data-click="app.uobEvents.openHelp" data-align="right" data-icon="questionmark" id="header-help-button"></a>
+                <a data-role="button" data-click="app.uobHelp.openHelp" data-align="right" data-icon="questionmark" id="header-help-button"></a>
             </div>
         </div>
 		<!--Footer-->
