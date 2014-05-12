@@ -163,7 +163,14 @@ body#appBody.km-flat .km-button.km-back
 {
     color: #B1006F;
 }
-
+#appBody .show-location
+{
+    font-size: 1.1em;
+    padding: .1em .4em;
+    width: auto;
+    color: #00BAE5;
+    margin-right: .2em;
+}
 #appBody .event-selectors
 {
     float: right;
@@ -248,6 +255,7 @@ body#appBody.km-flat .km-button.km-back
 
 #appBody .remove-favourite
 {
+    width: auto;
     font-size: .8em;
     float: right;
     margin-left: .5em;
@@ -255,6 +263,7 @@ body#appBody.km-flat .km-button.km-back
 
 #appBody .remove-schedule
 {
+    width: auto;
     font-size: .65em;
     top: -.3em;
     float: right;
@@ -264,6 +273,7 @@ body#appBody.km-flat .km-button.km-back
 #appBody .schedule-movers
 {
     float: right;
+    margin-right: .2em;
 }
 
 #appBody .event-move-up,

@@ -129,6 +129,7 @@
                     uob.log.addLogMessage("Data bind start with "+ this.items().length + " items.");
                     setupSelectors(eventsListViewId, favouriteEventGroup, false);
                     setupSelectors(eventsListViewId, scheduleEventGroup, true);
+                    setupShowLocationClick(eventsListViewId);
                     reportNoData(eventsListViewId, "No activities found.");
                     uob.log.addLogMessage("Data bind complete");
                     app.application.hideLoading();
@@ -150,11 +151,45 @@
     {
         $j('#activity-search-text').val("");
         setupEventList(true);
-    }
+    };
     
     app.uobEvents.searchEvents = function()
     {
         setupEventList(true);
+    };
+    
+    var setupShowLocationClick = function(listViewId)
+    {
+        eventData = {
+            			listViewId: listViewId
+        }
+        $j("#" + listViewId + " .show-location").click(eventData, showLocationClick);
+    };
+    
+    var showLocationClick = function(event)
+    {
+        var button = $j(this);
+            var eventDetails = button.parent().parent();
+            button.remove();
+            var listView = $j("#" + event.data.listViewId).data("kendoMobileListView");
+    		var dataSource = listView.dataSource;
+            var uid = eventDetails.parent().attr('data-uid');
+            var eventItem = dataSource.getByUid(uid);
+            if (eventItem){
+                var locationText;
+                if (eventItem.BuildingIds.length)
+                {
+                    locationText = '<a href="#tabstrip-map?buildingId=' + eventItem.BuildingIds[0] + '">' + eventItem.Location + '</a>';
+                }
+                else{
+                    locationText = eventItem.Location ;
+                }
+                eventDetails.hide();
+            	eventDetails.find("p").prepend( locationText + ": ");   
+                eventDetails.addClass("locationPresent");
+                eventDetails.fadeIn();
+			}
+
     }
     
     app.uobEvents.populateFavouriteEventList = function (e){
