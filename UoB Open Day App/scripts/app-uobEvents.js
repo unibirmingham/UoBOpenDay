@@ -70,11 +70,12 @@
         }        
                 
         var openDayDate = getOpenDayDateValue();
-        
+        console.log("Filter on date: " + openDayDate);
         var filterForDatasource = [{field: "StartDateInUk", operator: "eq", value:openDayDate}];
         
         var searchText = $j('#activity-search-text').val();
         if (searchText){
+            console.log("Filter on search text: " + searchText);
             filterForDatasource.push({field: "Title", operator: "contains", value: searchText});
         }
         
@@ -92,6 +93,7 @@
         console.log("Filtering by Activity: " + activityType );
         
         if (activityType){
+            console.log("Filter on activity: " + activityType);
             filterForDatasource.push({field: "Keywords", operator: "contains", value:activityType});
         }
         
@@ -124,9 +126,9 @@
                 dataSource: eventsListDataSource,
                 template: $j("#events-template").text(),
                 dataBound: function(){
-                    uob.log.addLogMessage("Data bind start");
-                    setUpIcons(eventsListViewId, favouriteEventGroup, false);
-                    setUpIcons(eventsListViewId, scheduleEventGroup, true);
+                    uob.log.addLogMessage("Data bind start with "+ this.items().length + " items.");
+                    setupSelectors(eventsListViewId, favouriteEventGroup, false);
+                    setupSelectors(eventsListViewId, scheduleEventGroup, true);
                     reportNoData(eventsListViewId, "No activities found.");
                     uob.log.addLogMessage("Data bind complete");
                     app.application.hideLoading();
@@ -179,20 +181,15 @@
                 dataSource: eventsListDataSource,
                 template: $j("#events-favourite-template").text(),
                 dataBound: function(){
-                    setUpIcons(eventsListViewId, scheduleEventGroup,true);
+                    setupSelectors(eventsListViewId, scheduleEventGroup,true);
+                    setupRemoveFromSelection(eventsListViewId, favouriteEventGroup, app.uobEvents.populateFavouriteEventList);
                     reportNoData(eventsListViewId,  "You have no favourite activities selected.");
                 } 
             });
         }
-        
     };
-    
-    var hideIcons = function (listViewId, eventGroup)
-    {
-        $j("#" + listViewId + " .event-" + eventGroup).hide();    
-    }
-    
-    var setUpIcons = function(listViewId, eventGroup, scheduledEvent, filterFunction){
+   
+    var setupSelectors = function(listViewId, eventGroup, scheduledEvent, filterFunction){
         
         var index;
         
@@ -208,11 +205,10 @@
         var selectedEventItems = app.uobRepository.eventsRepository.getSelectedEventItems(eventGroup, scheduledEvent, filterFunction);
         
         for (index = 0; index < selectedEventItems.length; ++index) {
-        
             var selectedEventItem = selectedEventItems[index];
             var selectorClass ="event-content-id-" + selectedEventItem.ContentId;
         	var selector = $j( "#" + listViewId + " div.event-selectors." + selectorClass + " .event-" + eventGroup);
-            setupIconSpan(eventGroup, selector, true);
+            setupSelectorState(eventGroup, selector, true);
         }
         
     }
@@ -235,37 +231,71 @@
         
         if ($j(selector).hasClass(eventGroup + "-true"))
         {
-            setupIconSpan(eventGroup, selector, false);
+            setupSelectorState(eventGroup, selector, false);
             app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
         }
         else{
             if(app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
             {
-                setupIconSpan(eventGroup, selector, true);
+                setupSelectorState(eventGroup, selector, true);
             }
             else{
-                navigator.notification.alert("Cannot add '" + eventItem.Title + "' (" + kendo.toString(eventItem.StartDate, 'HH:mm') + " - " + kendo.toString(eventItem.EndDate, 'HH:mm') + ") to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
+                navigator.notification.alert("Cannot add '" + eventItem.getTitleAndTime() + "' to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
             }
         }
         return false;
     }
     
-    var setupIconSpan = function (eventGroup, span, isSelected)
+    var setupSelectorState = function (eventGroup, selector, isSelected)
     {
         var trueClass = eventGroup + "-true";
         var falseClass = eventGroup  + "-false";
         
         if (isSelected)
         {
-            $j(span).removeClass(falseClass);
-            $j(span).addClass(trueClass);   
+            $j(selector).removeClass(falseClass);
+            $j(selector).addClass(trueClass);   
         }
         else{
-             $j(span).removeClass(trueClass);
-            $j(span).addClass(falseClass);
+             $j(selector).removeClass(trueClass);
+            $j(selector).addClass(falseClass);
         }
     }
  
+    var setupRemoveFromSelection = function (listViewId, eventGroup, reloadFunction){
+    
+               var eventData = {listViewId: listViewId,
+        				eventGroup: eventGroup,
+               			reloadFunction: reloadFunction};
+        
+        $j("#" + listViewId + " .remove-" + eventGroup).click(eventData, removeClick);
+        
+        
+    }
+    var removeClick = function(event)
+    {
+        
+        var uid = $j(this).parent().parent().attr('data-uid');
+        var listViewId = event.data.listViewId;
+        var eventGroup = event.data.eventGroup;
+        var reloadFunction = event.data.reloadFunction;
+		var listView = $j("#" + listViewId).data("kendoMobileListView");
+        var dataSource = listView.dataSource;
+        var eventItem = dataSource.getByUid(uid);
+        
+        if (eventItem){
+        
+            navigator.notification.confirm("Are you sure you wish to remove the activity '" + eventItem.getTitleAndTime() + "'?", 
+            	function(buttonIndex){
+                    if (buttonIndex===1){
+    					app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
+                        reloadFunction();
+                    }
+                },
+            'Remove activity?','Remove, Cancel');
+        }
+    	
+    };
     
     app.uobEvents.populateScheduleEventList = function (e){
         
@@ -310,6 +340,7 @@
                 dataBound: function(){
                     uob.log.addLogMessage("Schedule Data Bound starting");
                     setupMoveUpAndDown(scheduleEventsListViewId, this.dataSource);
+                    setupRemoveFromSelection(scheduleEventsListViewId, scheduleEventGroup, refreshScheduleDataSource);
                     reportNoData(scheduleEventsListViewId,  "You have no scheduled activities selected.");
                     uob.log.addLogMessage("Schedule Data Bound complete");
                 } 

@@ -87,6 +87,11 @@
             var scheduleEndDate = new Date(eventItem.getScheduleStartDate().getTime() + (eventItem.AttendanceDuration *60000));
             return scheduleEndDate;
         },
+        getTitleAndTime: function()
+        {
+            var titleAndTime = this.Title + " (" + this.StartTimeInUk + "-" + this.EndTimeInUk + ")";
+            return titleAndTime;
+        },
         //Does this event's schedule clash with another event's schedule?
         isClashingScheduledEvent: function(eventItem2){
             var eventItem1 = this;

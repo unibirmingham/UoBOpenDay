@@ -1,13 +1,16 @@
 <!--Events template-->
 <script type="text/x-kendo-tmpl" id="events-schedule-template">
     <div class="schedule-item" uob-content-id="${ContentId}">
-        <div class="schedule-movers">
+    	<a class="remove-schedule" data-role="button"data-icon="trash"></a>
+    	<div class="schedule-movers">
             <div class="event-move-up km-icon km-moveup moveup-false"></div>
             <div class="event-move-down km-icon km-movedown movedown-false"></div>
         </div>
         <div>
-            <h1>#= uob.date.formatDateAsUK(getScheduleStartDate(), 'HH:mm') # #
+    		
+            <h1 class="events-header">#= uob.date.formatDateAsUK(getScheduleStartDate(), 'HH:mm') # #
     				if (!isAllDayEvent() || AttendanceDuration>0){ # - #= uob.date.formatDateAsUK(getScheduleEndDate(), 'HH:mm') # #} # #= Title#
+    			
 		    </h1>
         </div>
         <div class="event-details">
