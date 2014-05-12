@@ -11,11 +11,13 @@
         
         //Private variables:
         var buildingOpacity = {
-        	DEFAULT: .5,
-        	SELECTED: .7,
-        	UNSELECTED: .2
+        	DEFAULT: .3,
+        	SELECTED: .8,
+        	UNSELECTED: .1
         }
 
+        var selectedBuildingColour = '#EF549F';
+        
         var googleMapWrapper = googleMapWrapper;
         var googleMap = googleMapWrapper.getGoogleMap();
         
@@ -75,15 +77,24 @@
             building.googlePolygon.setMap(googleMap);
             
             if (highlightBuildingId){
-                //If a specified building is being asked for then make it darker to stand out
+                //If a specified building is being asked for then make it darker and an Open Day Colour to stand out
                 if (building.ContentId===highlightBuildingId){
-                   building.googlePolygon.setOptions({fillOpacity:buildingOpacity.SELECTED});  
+                   building.googlePolygon.setOptions({fillOpacity:buildingOpacity.SELECTED,
+                   									strokeColor: selectedBuildingColour,
+                   									fillColor: selectedBuildingColour
+                   									});
                 } else {
-                    building.googlePolygon.setOptions({fillOpacity:buildingOpacity.UNSELECTED});
+                    building.googlePolygon.setOptions({fillOpacity:buildingOpacity.UNSELECTED,
+                    									strokeColor: building.Colour,
+                   									fillColor: building.Colour								
+                    								});
                 }
             } else {
                 //If we're showing all buildings leave them with a middling level of opacity
-                building.googlePolygon.setOptions({fillOpacity:buildingOpacity.DEFAULT});
+                building.googlePolygon.setOptions({fillOpacity:buildingOpacity.DEFAULT,
+                    									strokeColor: building.Colour,
+                   									 fillColor: building.Colour								
+                    								});
             }
             
         }
@@ -330,7 +341,7 @@
             requestsInProgress.push(requestUrl);
         }
         
-        var restoreAllBuildingOpacity = function(opacity)
+        var restoreAllBuildingColourAndOpacity = function(opacity)
         {
             
             if (!opacity)
@@ -341,7 +352,10 @@
             for (var i in allBuildings) {
             
                 var building = allBuildings[i];
-                building.googlePolygon.setOptions({fillOpacity:opacity});
+                	
+                building.googlePolygon.setOptions({fillOpacity:opacity,
+                    									strokeColor: building.Colour,
+                   									 fillColor: building.Colour});
             }
 		}
         
@@ -360,7 +374,7 @@
                     }
                 }else{
                     //If there are already 2 selected items or no selected items then reset the opacity.
-                    restoreAllBuildingOpacity();
+                    restoreAllBuildingColourAndOpacity();
                     clickedBuildings = [];
                 }
                 
