@@ -27,6 +27,7 @@
     var campusGoogleMap = null;
     var campusMapData = null;
     var buildingAndFacilitiesMap = null;
+    var reinitialise = false;
     
     
     app.uobMap.openDayMap = {
@@ -117,19 +118,16 @@
         
         reinitialise: function(){
           
-            //Function to force new instances of the uob data holding objects to be created:
-            if (googleMapWrapper){
-            
-            	googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);
-            }
-            
-            if (buildingAndFacilitiesMap){
-                buildingAndFacilitiesMap =  new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);
-            }
-            
+            //Function to force initialisation:
+            reinitialise = true;
         },
         
         show: function (e) {
+            
+            if (reinitialise)
+            {
+                app.uobMap.openDayMap.initialise();
+            }
             
             console.log("Map show");
             if (!campusGoogleMap) {
