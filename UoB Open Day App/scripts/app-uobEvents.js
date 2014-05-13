@@ -16,6 +16,8 @@
     var scheduleEventGroup = 'schedule';
     var favouriteEventGroup = 'favourite';
     
+    app.uobEvents.lastEventListPopulation = "";
+    
     app.uobEvents.populateEventList = function (e){
     
         setupEventList();
@@ -24,21 +26,21 @@
     var setupEventList = function(resetScroller){
         
         uob.log.addLogMessage("Starting event list population");
-        app.application.showLoading();
-        
+        var today = new Date();
+        var todayAsString = today.getDate() + "-" + (today.getMonth()+1) + "-" +  today.getFullYear();
         var eventsListViewId = "open-day-events-view";
-        
+       
         //Set up activity filter
-        var activityFilter = $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
+        var activityTypeFilter = $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
         
-        if (!activityFilter){
+        if (!activityTypeFilter){
         
             $j("#event-activity-type-filter").kendoMobileButtonGroup({
                 select: app.uobEvents.populateEventList,
                 index: 0
             });            
             
-            activityFilter =  $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
+            activityTypeFilter =  $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
         }        
                 
         var openDayDate = getOpenDayDateValue();
@@ -54,7 +56,7 @@
         //Make sure the activity type filters:
         var activityType = ""
         
-        switch(activityFilter.current().text()){
+        switch(activityTypeFilter.current().text()){
             case "Subject":
             	activityType = "Open-Day-Subject";
             	break;
@@ -73,9 +75,51 @@
         
         if (eventsListView)
         {
-            console.log("Updating data source filter");
-        	eventsListView.dataSource.filter(filterForDatasource);
-    		if (resetScroller)
+
+            //Check if data needs to be updated:
+            if (!app.uobEvents.lastEventListPopulation || todayAsString !== app.uobEvents.lastEventListPopulation){
+                $j('#activityStatus').text("Refreshing activities");
+                var refreshEventItems = app.uobRepository.eventsRepository.getEventItems();
+            	uob.log.addLogMessage("Retrieved " + refreshEventItems.length + " for data refresh");
+                eventsListView.dataSource.data(refreshEventItems);
+            }
+            
+            //Now check if the filter needs updating:
+            var currentOpenDayDateFilter = '';
+            var currentSearchTextFilter = '';
+            var currentActivityTypeFilter = '';
+            var currentFilter = eventsListView.dataSource.filter();
+            var currentFilters = currentFilter.filters;
+            for(var filterIndex in currentFilters)
+            {
+            	var filterEntry = currentFilters[filterIndex];
+                if (filterEntry.field === "Keywords"){
+                    currentActivityTypeFilter = filterEntry.value;
+                }
+                if (filterEntry.field === "Title"){
+                    currentSearchTextFilter = filterEntry.value;
+                }
+                if (filterEntry.field === "StartDateInUk"){
+                    currentOpenDayDateFilter = filterEntry.value;
+                }
+            }
+           
+            if (currentOpenDayDateFilter===openDayDate && currentSearchTextFilter ===searchText && currentActivityTypeFilter === activityType)
+            {
+                console.log("No need to update filter as already in place updating favourites and schedule values");
+                //The user could've changed the selected items in one of the other screens so reinitialise them:
+                initialiseSelectorValues(eventsListViewId, favouriteEventGroup);
+                initialiseSelectorValues(eventsListViewId, scheduleEventGroup);
+                //Now set the values
+                setupSelectorValues(eventsListViewId, favouriteEventGroup, false);
+                setupSelectorValues(eventsListViewId, scheduleEventGroup, true);
+                 
+            }
+            else{
+                $j('#activityStatus').text("Reloading activities");
+            	eventsListView.dataSource.filter(filterForDatasource);
+            }
+            if (resetScroller)
             {
                 app.application.scroller().reset();
             }
@@ -83,7 +127,7 @@
         else{
             
         	uob.log.addLogMessage("Getting event items");
-        
+        	$j('#activityStatus').text("Loading activities");
             var eventItems = app.uobRepository.eventsRepository.getEventItems();
             uob.log.addLogMessage("Retrieved " + eventItems.length + " eventItems");
             
@@ -98,16 +142,18 @@
                 dataSource: eventsListDataSource,
                 template: $j("#events-template").text(),
                 dataBound: function(){
-                    uob.log.addLogMessage("Data bind start with "+ this.items().length + " items.");
+                    uob.log.addLogMessage("Data bind start.");
                     setupSelectors(eventsListViewId, favouriteEventGroup, false);
                     setupSelectors(eventsListViewId, scheduleEventGroup, true);
                     setupShowLocationClick(eventsListViewId);
                     reportNoData(eventsListViewId, "No activities found.");
+                    $j('#activityStatus').text(this.items().length + " activities retrieved");
                     uob.log.addLogMessage("Data bind complete");
-                    app.application.hideLoading();
-
+					
                 } 
             });
+            //Set the data of the population
+            app.uobEvents.lastEventListPopulation = todayAsString;
             
             $("#activity-search-text" ).keypress(function( event ) {
       			if ( event.which === 13 ) {
@@ -198,8 +244,6 @@
    
     var setupSelectors = function(listViewId, eventGroup, scheduledEvent, filterFunction){
         
-        var index;
-        
         console.log("Setup icons for " + eventGroup);
         var eventData = {listViewId: listViewId,
             			scheduledEvent: scheduledEvent,
@@ -208,16 +252,27 @@
         //Set up the click events
         $j("#" + listViewId + " .event-" + eventGroup).click(eventData, selectorClick);
         
+        setupSelectorValues(listViewId, eventGroup, scheduledEvent, filterFunction);
+        
+    }
+    
+    var initialiseSelectorValues = function(listViewId, eventGroup)
+    {
+        $j( "#" + listViewId + " .event-" + eventGroup).removeClass(eventGroup + "-true").addClass(eventGroup + "-false");
+    }
+    
+    var setupSelectorValues = function(listViewId, eventGroup, scheduledEvent, filterFunction)
+    {
+        var index;
         //Make selected items true:
         var selectedEventItems = app.uobRepository.eventsRepository.getSelectedEventItems(eventGroup, scheduledEvent, filterFunction);
         
         for (index = 0; index < selectedEventItems.length; ++index) {
             var selectedEventItem = selectedEventItems[index];
-            var selectorClass ="event-content-id-" + selectedEventItem.ContentId;
-        	var selector = $j( "#" + listViewId + " div.event-selectors." + selectorClass + " .event-" + eventGroup);
+            var selectorContentIdClass ="event-content-id-" + selectedEventItem.ContentId;
+        	var selector = $j( "#" + listViewId + " div.event-selectors." + selectorContentIdClass + " .event-" + eventGroup);
             setupSelectorState(eventGroup, selector, true);
         }
-        
     }
     
     var selectorClick = function(event)

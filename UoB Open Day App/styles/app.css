@@ -134,6 +134,12 @@ margin-left: .2em;
     font-size: 75%;
 }
 
+#activityStatus{
+    margin-right: 2em;
+    float: right;
+    font-size: .75em;
+}
+
 #appBody .events-list div.highlightEvent{
     background-color: #A0D8F6;
 }

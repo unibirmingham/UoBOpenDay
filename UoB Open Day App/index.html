@@ -107,7 +107,7 @@
                 </ul>
             </div>
             <ul data-role="listview" datatype="group">
-                <li class="activitiesButton initialiseHidden"><a data-icon="cal" href="#tabstrip-events">Activities</a></li>
+                <li class="activitiesButton initialiseHidden"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
                 <li class="favouritesButton initialiseHidden"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="scheduleButton initialiseHidden"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapButton initialiseHidden"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
@@ -142,6 +142,7 @@
         	<a data-role="button" data-click="app.uobEvents.searchEvents" data-icon="search" ></a>
             <a data-role="button" data-click="app.uobEvents.clearEventSearch" data-icon="clear" ></a>
         </div>
+        <div id="activityStatus"></div>
         <ul id="open-day-events-view" class="events-list"></ul>
 		<div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
             <div data-role="content" style="min-height: 150px">

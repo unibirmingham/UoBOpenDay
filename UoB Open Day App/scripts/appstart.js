@@ -41,7 +41,9 @@
     
         setupButtons();
         $j('#status-message').html("");
-                
+        
+        app.uobEvents.lastEventListPopulation = '';
+        
         initialisationList = ["Web Connection", "Start Dates", "Maps", "Events"];
         
         displayInitialisationMessage();
