@@ -50,7 +50,17 @@
         var searchText = $j('#activity-search-text').val();
         if (searchText){
             console.log("Filter on search text: " + searchText);
-            filterForDatasource.push({field: "Title", operator: "contains", value: searchText});
+            
+            var filterForSearchText = {
+                						logic: "or",
+                						filters: [
+                							{field: "Title", operator: "contains", value: searchText},
+											{field: "Keywords", operator: "contains", value: searchText},
+                							{field: "Description", operator: "contains", value: searchText}
+                						]	
+            }
+            
+            filterForDatasource.push(filterForSearchText);
         }
         
         //Make sure the activity type filters:
@@ -93,11 +103,14 @@
             for(var filterIndex in currentFilters)
             {
             	var filterEntry = currentFilters[filterIndex];
+                
+                //Activity Type value filter
                 if (filterEntry.field === "Keywords"){
                     currentActivityTypeFilter = filterEntry.value;
                 }
-                if (filterEntry.field === "Title"){
-                    currentSearchTextFilter = filterEntry.value;
+                
+                if (filterEntry.filters){
+					currentSearchTextFilter = filterEntry.filters[0].value;                    
                 }
                 if (filterEntry.field === "StartDateInUk"){
                     currentOpenDayDateFilter = filterEntry.value;
@@ -146,8 +159,8 @@
                     setupSelectors(eventsListViewId, favouriteEventGroup, false);
                     setupSelectors(eventsListViewId, scheduleEventGroup, true);
                     setupShowLocationClick(eventsListViewId);
-                    reportNoData(eventsListViewId, "No activities found.");
                     $j('#activityStatus').text(this.items().length + " activities retrieved");
+                    reportNoData(eventsListViewId, "No activities found.");
                     uob.log.addLogMessage("Data bind complete");
 					
                 } 
