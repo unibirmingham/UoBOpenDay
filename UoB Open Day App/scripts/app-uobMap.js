@@ -104,7 +104,7 @@
             
             googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);
             
-            var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true, suppressInfoWindows: true});
+            var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true});
         
             helpPointsLayer.setMap(campusGoogleMap);
                         
