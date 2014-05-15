@@ -127,6 +127,7 @@
             if (reinitialise)
             {
                 app.uobMap.openDayMap.initialise();
+                reinitialise = false;
             }
             
             console.log("Map show");
