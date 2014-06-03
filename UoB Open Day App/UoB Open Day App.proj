@@ -12,11 +12,11 @@
     <DeviceOrientations>Portrait;Landscape</DeviceOrientations>
     <iOSStatusBarStyle>Default</iOSStatusBarStyle>
     <AndroidHardwareAcceleration>false</AndroidHardwareAcceleration>
-    <BundleVersion>3.0</BundleVersion>
+    <BundleVersion>3.1</BundleVersion>
     <iOSDisplayName />
     <iOSDeviceFamily>1;2</iOSDeviceFamily>
     <iOSBackgroundMode />
-    <AndroidVersionCode>8</AndroidVersionCode>
+    <AndroidVersionCode>9</AndroidVersionCode>
     <DisplayName>UoB Open Day</DisplayName>
     <Author />
     <Description>University of Birmingham Open Day Application</Description>
