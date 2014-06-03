@@ -121,9 +121,6 @@
             {
                 console.log("No need to update filter as already in place updating favourites and schedule values");
                 //The user could've changed the selected items in one of the other screens so reinitialise them:
-                initialiseSelectorValues(eventsListViewId, favouriteEventGroup);
-                initialiseSelectorValues(eventsListViewId, scheduleEventGroup);
-                //Now set the values
                 setupSelectorValues(eventsListViewId, favouriteEventGroup, false);
                 setupSelectorValues(eventsListViewId, scheduleEventGroup, true);
                  
@@ -158,13 +155,34 @@
                     uob.log.addLogMessage("Data bind start.");
                     setupSelectors(eventsListViewId, favouriteEventGroup, false);
                     setupSelectors(eventsListViewId, scheduleEventGroup, true);
-                    setupShowLocationClick(eventsListViewId);
                     $j('#activityStatus').text(this.items().length + " activities retrieved");
                     reportNoData(eventsListViewId, "No activities found.");
                     uob.log.addLogMessage("Data bind complete");
 					
                 } 
             });
+            
+            //Set up location click events
+            var locationClickEventData = {
+            			listViewId: eventsListViewId
+        	}
+            
+        	$j("#" + eventsListViewId).on('click', '.show-location', locationClickEventData, showLocationClick);
+            
+            //Set up favourite click events
+            var favouriteClickData = {listViewId: eventsListViewId,
+            			scheduledEvent: false,
+        				eventGroup: favouriteEventGroup};
+        
+            $j("#" + eventsListViewId).on('click', " .event-" + favouriteEventGroup, favouriteClickData, selectorClick);
+        
+            //Set up schedule click events
+            var scheduleClickData = {listViewId: eventsListViewId,
+            			scheduledEvent: true,
+        				eventGroup: scheduleEventGroup};
+        
+            $j("#" + eventsListViewId).on('click', " .event-" + scheduleEventGroup, scheduleClickData, selectorClick);
+        
             //Set the data of the population
             app.uobEvents.lastEventListPopulation = todayAsString;
             
@@ -174,7 +192,7 @@
                      app.uobEvents.searchEvents();
       			}
   			});
-            
+
        }
     };
     
@@ -188,38 +206,31 @@
     {
         setupEventList(true);
     };
-    
-    var setupShowLocationClick = function(listViewId)
-    {
-        eventData = {
-            			listViewId: listViewId
-        }
-        $j("#" + listViewId + " .show-location").click(eventData, showLocationClick);
-    };
-    
+        
     var showLocationClick = function(event)
     {
         var button = $j(this);
-            var eventDetails = button.parent().parent();
-            button.remove();
-            var listView = $j("#" + event.data.listViewId).data("kendoMobileListView");
-    		var dataSource = listView.dataSource;
-            var uid = eventDetails.parent().attr('data-uid');
-            var eventItem = dataSource.getByUid(uid);
-            if (eventItem){
-                var locationText;
-                if (eventItem.BuildingIds.length)
-                {
-                    locationText = '<a href="#tabstrip-map?buildingId=' + eventItem.BuildingIds[0] + '">' + eventItem.Location + '</a>';
-                }
-                else{
-                    locationText = eventItem.Location ;
-                }
-                eventDetails.hide();
-            	eventDetails.find("p").prepend( locationText + ": ");   
-                eventDetails.addClass("locationPresent");
-                eventDetails.fadeIn();
-			}
+    	console.log("Location click start.");
+        var eventDetails = button.parent().parent();
+        button = null;
+        var listView = $j("#" + event.data.listViewId).data("kendoMobileListView");
+		var dataSource = listView.dataSource;
+        var uid = eventDetails.parent().attr('data-uid');
+        var eventItem = dataSource.getByUid(uid);
+        if (eventItem){
+            var descriptionText;
+            if (eventItem.BuildingIds.length)
+            {
+                descriptionText = '<a href="#tabstrip-map?buildingId=' + eventItem.BuildingIds[0] + '">' + eventItem.Location + '</a>';
+            }
+            else{
+                descriptionText = eventItem.Location ;
+            }
+            descriptionText = descriptionText + ": " + eventItem.Description;
+            
+        	eventDetails.find("p").html(descriptionText);
+		}
+    	console.log("Location click end.");
 
     }
     
@@ -248,42 +259,41 @@
                 template: $j("#events-favourite-template").text(),
                 dataBound: function(){
                     setupSelectors(eventsListViewId, scheduleEventGroup,true);
-                    setupRemoveFromSelection(eventsListViewId, favouriteEventGroup, app.uobEvents.populateFavouriteEventList);
                     reportNoData(eventsListViewId,  "You have no favourite activities selected.");
                 } 
             });
+        
+            //Set up schedule click events
+            var scheduleClickData = {listViewId: eventsListViewId,
+            			scheduledEvent: true,
+        				eventGroup: scheduleEventGroup};
+            $j("#" + eventsListViewId).on('click', " .event-" + scheduleEventGroup, scheduleClickData, selectorClick);
+            
+            setupRemoveFromSelection(eventsListViewId, favouriteEventGroup, app.uobEvents.populateFavouriteEventList);
         }
     };
    
     var setupSelectors = function(listViewId, eventGroup, scheduledEvent, filterFunction){
         
         console.log("Setup icons for " + eventGroup);
-        var eventData = {listViewId: listViewId,
-            			scheduledEvent: scheduledEvent,
-        				eventGroup: eventGroup};
-        
-        //Set up the click events
-        $j("#" + listViewId + " .event-" + eventGroup).click(eventData, selectorClick);
-        
         setupSelectorValues(listViewId, eventGroup, scheduledEvent, filterFunction);
-        
-    }
-    
-    var initialiseSelectorValues = function(listViewId, eventGroup)
-    {
-        $j( "#" + listViewId + " .event-" + eventGroup).removeClass(eventGroup + "-true").addClass(eventGroup + "-false");
     }
     
     var setupSelectorValues = function(listViewId, eventGroup, scheduledEvent, filterFunction)
     {
+        
+        //Clear out any existing true settings:
+        var selectedClass = eventGroup + "-true";
+        $j( "#" + listViewId).find("." + selectedClass).removeClass(selectedClass);
+        
         var index;
         //Make selected items true:
         var selectedEventItems = app.uobRepository.eventsRepository.getSelectedEventItems(eventGroup, scheduledEvent, filterFunction);
         
         for (index = 0; index < selectedEventItems.length; ++index) {
             var selectedEventItem = selectedEventItems[index];
-            var selectorContentIdClass ="event-content-id-" + selectedEventItem.ContentId;
-        	var selector = $j( "#" + listViewId + " div.event-selectors." + selectorContentIdClass + " .event-" + eventGroup);
+            var selectorHolder = $j('#' + listViewId + ' div[uob-content-id="' + selectedEventItem.ContentId + '"]');
+            var selector = selectorHolder.find(".event-" + eventGroup);
             setupSelectorState(eventGroup, selector, true);
         }
     }
@@ -292,7 +302,7 @@
     {
         var selector=this;
 
-        console.log("Click start");
+        console.log("Select click start");
         var uid = $j(selector).parent().parent().attr('data-uid');
         
         var listViewId = event.data.listViewId;
@@ -324,27 +334,22 @@
     var setupSelectorState = function (eventGroup, selector, isSelected)
     {
         var trueClass = eventGroup + "-true";
-        var falseClass = eventGroup  + "-false";
-        
         if (isSelected)
         {
-            $j(selector).removeClass(falseClass);
             $j(selector).addClass(trueClass);   
         }
         else{
              $j(selector).removeClass(trueClass);
-            $j(selector).addClass(falseClass);
         }
     }
  
     var setupRemoveFromSelection = function (listViewId, eventGroup, reloadFunction){
     
-               var eventData = {listViewId: listViewId,
-        				eventGroup: eventGroup,
-               			reloadFunction: reloadFunction};
+       var eventData = {listViewId: listViewId,
+				eventGroup: eventGroup,
+       			reloadFunction: reloadFunction};
         
-        $j("#" + listViewId + " .remove-" + eventGroup).click(eventData, removeClick);
-        
+        $j("#" + listViewId).on('click', " .remove-" + eventGroup,eventData, removeClick);
         
     }
     var removeClick = function(event)
@@ -414,18 +419,22 @@
                 template: $j("#events-schedule-template").text(),
                 dataBound: function(){
                     uob.log.addLogMessage("Schedule Data Bound starting");
-                    setupMoveUpAndDown(scheduleEventsListViewId, this.dataSource);
-                    setupRemoveFromSelection(scheduleEventsListViewId, scheduleEventGroup, refreshScheduleDataSource);
+                    setupMoveEarlierAndLater(scheduleEventsListViewId, this.dataSource);
                     reportNoData(scheduleEventsListViewId,  "You have no scheduled activities selected.");
                     uob.log.addLogMessage("Schedule Data Bound complete");
                 } 
             });
+            
+            setupRemoveFromSelection(scheduleEventsListViewId, scheduleEventGroup, refreshScheduleDataSource);
+            
+            $j("#" + scheduleEventsListViewId).on('click', " .move-earlier-true", scheduleMoveClick);
+            $j("#" + scheduleEventsListViewId).on('click', " .move-later-true", scheduleMoveClick);
+            
         }    
     };
+ 
     
-
-    
-    var setupMoveUpAndDown = function(listViewId, dataSource){
+    var setupMoveEarlierAndLater = function(listViewId, dataSource){
         
         uob.log.addLogMessage("Setup move up and down icons");
                 
@@ -449,22 +458,19 @@
                 }
             }
             
-            if (moveEarlier)
-            {
-                $j(div).find('.event-move-up').removeClass('moveup-false').addClass('moveup-true').on('click', scheduleMoveClick);
-            }
-            else{
-                //Hide and remove click bindings
-                $j(div).find('.event-move-up').removeClass('moveup-true').addClass('moveup-false').off('click');
+            if (moveEarlier){
+                //Show the button
+                $j(div).find('.event-move-earlier').addClass('move-earlier-true');    
+            }else{
+                //Hide the button
+                $j(div).find('.event-move-earlier').removeClass('move-earlier-true');
             }
             
             if (moveLater){
-                 $j(div).find('.event-move-down').removeClass('movedown-false').addClass('movedown-true').on('click', scheduleMoveClick);
+                $j(div).find('.event-move-later').addClass('move-later-true');
+            }else{
+                $j(div).find('.event-move-later').removeClass('move-later-true');
             }
-            else{
-                $j(div).find('.event-move-down').removeClass('movedown-true').addClass('movedown-false').off('click');      
-            }
-             
         });
     }
     
@@ -484,7 +490,7 @@
         
         var moveEvent;
         
-        if (scheduleMover.hasClass('event-move-up'))
+        if (scheduleMover.hasClass('event-move-earlier'))
         {
             moveEvent = app.uobRepository.eventsRepository.moveEventEarlierInSchedule(scheduleEventGroup, eventItem);
         }

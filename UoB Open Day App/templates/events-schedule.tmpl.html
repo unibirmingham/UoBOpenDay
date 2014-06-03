@@ -3,8 +3,8 @@
     <div class="schedule-item" uob-content-id="${ContentId}">
     	<a class="remove-schedule" data-role="button"data-icon="trash"></a>
     	<div class="schedule-movers">
-            <div class="event-move-up km-icon km-moveup moveup-false"></div>
-            <div class="event-move-down km-icon km-movedown movedown-false"></div>
+            <div class="event-move-earlier km-icon km-moveup"></div>
+            <div class="event-move-later km-icon km-movedown"></div>
         </div>
         <div>
     		
@@ -15,8 +15,8 @@
         </div>
         <div class="event-details">
             <p>
-                # if (Location.length){ 
-                    if (BuildingIds.length){
+                # if (Location && Location.length){ 
+                    if (BuildingIds && BuildingIds.length){
                 #<a href="\\#tabstrip-map?buildingId=${BuildingIds[0]}">${Location}</a>: #
                     }
                     else{

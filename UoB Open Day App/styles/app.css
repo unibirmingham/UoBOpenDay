@@ -207,10 +207,12 @@ margin-left: .2em;
 #appBody .event-favourite
 {
     float: left;
+    color: #00BAE5;
 }
 
 #appBody .event-schedule{
- 	float:right;   
+ 	float:right;
+     color: #00BAE5;
 }
 
 #appBody .favourite-true,
@@ -218,17 +220,6 @@ margin-left: .2em;
 #appBody .favouritesColour
 {
     color: #EF549F;
-    }
-
-#appBody .favourite-false
-{
-    color: #00BAE5;
-    }
-
-
-#appBody .schedule-false
-{
-    color: #00BAE5;
     }
 
 #appBody .schedule-true,
@@ -288,30 +279,24 @@ margin-left: .2em;
     margin-right: .2em;
 }
 
-#appBody .event-move-up,
-#appBody  .event-move-down
-{
-    width: auto;
-    padding-left: .1em;
-    padding-right: .1em;
-    margin-left: .1em;
-    margin-right: .1em;
-}
-
-
-#appBody .moveup-false,
-#appBody .movedown-false
+#appBody .event-move-earlier,
+#appBody  .event-move-later
 {
     display: none;
-    }
+}
 
-#appBody .moveup-true,
-#appBody .movedown-true
+#appBody .move-earlier-true,
+#appBody .move-later-true
 {
+    width: auto;
     display: block;
     color: #6FC055;
     height: 1em;
     font-size: 2.5em;
+    padding-left: .1em;
+    padding-right: .1em;
+    margin-left: .1em;
+    margin-right: .1em;
     }
 
 #appBody .iframeHolder

@@ -1,12 +1,12 @@
 <!--Events template-->
 <script type="text/x-kendo-tmpl" id="events-template">
-    <div class="event-selectors event-content-id-#= ContentId#">
-        <div class="event-favourite km-icon km-favourite favourite-false"></div>
-        <div class="event-schedule km-icon km-personalschedule schedule-false"></div>
+    <div class="event-selectors" uob-content-id="${ContentId}">
+        <div class="event-favourite km-icon km-favourite"></div>
+        <div class="event-schedule km-icon km-personalschedule"></div>
     </div>
     <div>
         <h1 class="events-header">#= StartTimeInUk# - #=EndTimeInUk# #= Title# # if (AttendanceDuration>0){ #(Allow #= AttendanceDuration# minutes)#} # </h1>
     </div>
-	<div class="event-details"><p><span class="show-location km-icon km-globe"></span>#= Description#</p></div>
+	<div class="event-details"><p><a class="show-location km-icon km-globe"></a>#= Description#</p></div>
 </script>
     
