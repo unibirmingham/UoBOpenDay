@@ -143,7 +143,10 @@
             
             var eventsListDataSource = new kendo.data.DataSource({
                 data: eventItems,
-            	sort: { field: "Title", dir: "asc" },
+                sort: [
+                    { field: "Title", dir: "asc" },
+                    { field: "StartDate", dir: "asc" }
+                  ],
                 pageSize: 1000,
                 filter: filterForDatasource
             });
@@ -250,7 +253,11 @@
         else{
             
             var eventsListDataSource = new kendo.data.DataSource({
-                data:  favouriteEvents
+                data:  favouriteEvents,
+                sort: [
+                    { field: "StartDate", dir: "asc" },
+                	{ field: "Title", dir: "asc" }
+                  ]
             });
             
             console.log("Initialising favourites list view");

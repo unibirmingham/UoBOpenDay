@@ -1,0 +1,55 @@
+{
+  "ProjectGuid": "ecac56ba-78c0-40b8-af93-df61c46bafa3",
+  "ProjectTypeGuids": "{070BCB52-5A75-4F8C-A973-144AF0EAFCC9}",
+  "AppIdentifier": "uk.ac.birmingham.m.UoBOpenDayApp",
+  "ProjectName": "UoB Open Day App",
+  "FrameworkVersion": "3.2.0",
+  "AndroidPermissions": [
+    "android.permission.ACCESS_COARSE_LOCATION",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.ACCESS_LOCATION_EXTRA_COMMANDS",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.INTERNET"
+  ],
+  "CorePlugins": [
+    "org.apache.cordova.console",
+    "org.apache.cordova.device",
+    "org.apache.cordova.device-motion",
+    "org.apache.cordova.device-orientation",
+    "org.apache.cordova.geolocation",
+    "org.apache.cordova.globalization",
+    "org.apache.cordova.inappbrowser",
+    "org.apache.cordova.network-information",
+    "org.apache.cordova.dialogs",
+    "org.apache.cordova.splashscreen"
+  ],
+  "DeviceOrientations": [
+    "Portrait",
+    "Landscape"
+  ],
+  "iOSStatusBarStyle": "Default",
+  "AndroidHardwareAcceleration": "false",
+  "BundleVersion": "3.2",
+  "iOSDisplayName": "",
+  "iOSDeviceFamily": [
+    "1",
+    "2"
+  ],
+  "iOSBackgroundMode": [],
+  "AndroidVersionCode": "10",
+  "DisplayName": "UoB Open Day",
+  "Author": "",
+  "Description": "University of Birmingham Open Day Application",
+  "WP8Requirements": [],
+  "WP8Capabilities": [],
+  "WP8TileTitle": "",
+  "WP8ProductID": "{ecac56ba-78c0-40b8-af93-df61c46bafa3}",
+  "WP8PublisherID": "{c3035f43-5981-4f1c-9033-545db2a641fe}",
+  "WP8Publisher": "",
+  "WP8SupportedResolutions": [
+    "ID_RESOLUTION_WVGA",
+    "ID_RESOLUTION_WXGA",
+    "ID_RESOLUTION_HD720P"
+  ],
+  "Framework": "Cordova"
+}
