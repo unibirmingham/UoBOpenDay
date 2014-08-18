@@ -1,6 +1,7 @@
 (function (global, $j) {
     
     var uob = global.uob = global.uob || {};
+    var app = global.app = global.app || {};
     uob.error = uob.error || {};
     
     //Handler for the global object
@@ -40,7 +41,10 @@
                         var platform = global.device.platform;
                         var version = global.device.version;
                         
-                        $j.post("http://uob-mob-report.bham.ac.uk/report.aspx", {device: encodeValue(device), 
+                        $j.post("http://uob-mob-report.bham.ac.uk/report.aspx",
+                                {
+                                application: encodeValue(app.uobApplicationName),
+                                device: encodeValue(device), 
                             	platform: encodeValue(platform), 
                             	version: encodeValue(version), 
                             	name: encodeValue(name), 

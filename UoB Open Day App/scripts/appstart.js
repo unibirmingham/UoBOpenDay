@@ -6,7 +6,8 @@
     app.uobOpenDay = app.uobOpenDay || {};
     app.uobSettings = app.uobSettings || {};
     app.uobMap = app.uobMap || {};
-    
+    app.uobApplicationName = "UoB Open Day";
+        
     var uob = global.uob = global.uob || {};
     uob.data = uob.data || {};
 
