@@ -12,7 +12,7 @@
     }
     
     var jQueryDispatchFunction = jQuery.event.dispatch;
-    jQuery.event.handle = function () {
+    jQuery.event.dispatch = function () {
        try {
           jQueryDispatchFunction.apply(this, arguments);
        } catch (exception) {
