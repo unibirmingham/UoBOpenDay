@@ -185,9 +185,6 @@
             showAllBuildingsAndFacilities();
 
         };
-        
-        
-        
                
         var showAllFacilities = function()
         {
@@ -313,7 +310,7 @@
         
         var getFacilitiesError = function()
         {
-            uob.log.addErrorMessage('Facilities data: Failed to retrieve data for ' + + this.facilitiesServiceUrl);
+            uob.log.addLogError('Facilities data: Failed to retrieve data for ' + + this.facilitiesServiceUrl);
         };
         
         var isRequestInProgress = function(requestUrl){

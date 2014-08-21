@@ -64,7 +64,7 @@
                 }
             }
             if (!campusMapData) {
-                uob.log.addErrorMessage('Error initialising map: Edgbaston Campus Map data not found');
+                uob.log.addLogError('Error initialising map: Edgbaston Campus Map data not found');
                 return;
             }
             
