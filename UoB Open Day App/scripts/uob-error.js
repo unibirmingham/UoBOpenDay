@@ -11,30 +11,37 @@
     //Handler for the global object
     global.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
     
-        uob.error.sendErrorMessageToUoB("Global Error", errorMsg, url, lineNumber, column, errorObj);
+        uob.error.sendErrorDetailsToUoB("Global Error", errorMsg, url, lineNumber, column, errorObj);
         
     }
     
     var jQueryDispatchFunction = jQuery.event.dispatch;
     jQuery.event.dispatch = function () {
-       try {
-          jQueryDispatchFunction.apply(this, arguments);
-       } catch (exception) {
+        try {
+            jQueryDispatchFunction.apply(this, arguments);
+       }
+       catch (exception) {
           
-    		var name = exception.name;
-    		var message = exception.message;
-    		var filename = exception.fileName;
-    		var lineNumber = exception.lineNumber;
-    		var columnNumber = exception.columnNumber;
-    		var stack = exception.stack;
+            var name = exception.name;
+            var message = exception.message;
+            var filename = exception.fileName;
+            var lineNumber = exception.lineNumber;
+            var columnNumber = exception.columnNumber;
+            var stack = exception.stack;
+               
+            if (!name)
+           {
+               //If there's no value for name then it might be that the exception itself is just a string.
+                name = exception;
+           }
 
-			uob.error.sendErrorMessageToUoB(name, message, filename, lineNumber, columnNumber, stack);
+			uob.error.sendErrorDetailsToUoB(name, message, filename, lineNumber, columnNumber, stack);
     		
        }
     }
     
     
-    uob.error.sendErrorMessageToUoB = function(name, message, filename, lineNumber, columnNumber, stack)
+    uob.error.sendErrorDetailsToUoB = function(name, message, filename, lineNumber, columnNumber, stack)
     {
         try{
         
@@ -45,23 +52,26 @@
                     function(buttonIndex){
                         if (buttonIndex===1){
                             postErrorMessage = true;
-                            postErrorMessageToUoB(name, message, filename, lineNumber, columnNumber, stack);
-                                 }
+                            postErrorDetailsToUoB(name, message, filename, lineNumber, columnNumber, stack);
+                        }
+                        else{
+                            postErrorMessage = false;
+                        }
                     },
                     'Send error data to UoB?','Send data, Cancel');
         	}
             else{
                 if (postErrorMessage){
-                    postErrorMessageToUoB(name, message, filename, lineNumber, columnNumber, stack);
+                    postErrorDetailsToUoB(name, message, filename, lineNumber, columnNumber, stack);
                 }
                 else{
-                    logErrorSummary("Unposted error:" + name, message, filename, lineNumber, columnNumber, stack);
+                    logErrorSummary("Unposted error: " + name, message, filename, lineNumber, columnNumber, stack);
                 }
             }
         }
         catch(err)
         {
-            logErrorSummary("Posting error:" + name, message, filename, lineNumber, columnNumber, stack);
+            logErrorSummary("Problem posting error: " + name, message, filename, lineNumber, columnNumber, stack);
         }
     }
     
@@ -70,30 +80,47 @@
         uob.log.addLogError("Error: Name: " + name + ", message: " + message + ", filename: " + filename + ", line: " + lineNumber + ", column: " + columnNumber + ", stack: " + stack);
     };
     
-    var postErrorMessageToUoB = function(name, message, filename, lineNumber, columnNumber, stack)
+    var postErrorDetailsToUoB = function(name, message, filename, lineNumber, columnNumber, stack)
     {
         
-        var device = global.device.model;
+        var deviceModel = global.device.model;
         var platform = global.device.platform;
-        var version = global.device.version;
+        var deviceVersion = global.device.version;
+        var applicationName = app.uobApplicationName;
+        
+        if (cordova.getAppVersion)
+        {
+            cordova.getAppVersion(function (applicationVersion) {
+                postErrorAndApplicationDetailsToUoB(applicationName, applicationVersion, name, message, filename, lineNumber, columnNumber, stack, deviceModel, platform, deviceVersion);
+               });
+        }
+        else{
+            postErrorAndApplicationDetailsToUoB(applicationName, null, name, message, filename, lineNumber, columnNumber, stack, deviceModel, platform, deviceVersion);
+        }
+
+        logErrorSummary("Sending message about:" + name, message, filename, lineNumber, columnNumber, stack);        
+                
+    }
+    
+    var postErrorAndApplicationDetailsToUoB = function(applicationName, applicationVersion, name, message, filename, lineNumber, columnNumber, stack, deviceModel, platform, deviceVersion){
+        
+        if (applicationVersion){
+            applicationName = applicationName + "-"+ version;
+        }
         
         $j.post("http://uob-mob-report.bham.ac.uk/report.aspx",
                 {
-                application: encodeValue(app.uobApplicationName),
-                device: encodeValue(device), 
+                application: encodeValue(applicationName),
+                device: encodeValue(deviceModel), 
             	platform: encodeValue(platform), 
-            	version: encodeValue(version), 
+            	version: encodeValue(deviceVersion), 
             	name: encodeValue(name), 
             	message: encodeValue(message), 
             	filename: encodeValue(filename), 
             	lineNumber: encodeValue(lineNumber), 
             	columnNumber: encodeValue(columnNumber), 
             	stack: encodeValue(stack)});
-
-        logErrorSummary("Sending message about:" + name, message, filename, lineNumber, columnNumber, stack);
-        
-    }
-    
+   };
     var encodeValue = function(value)
     {
         value = "" + value;

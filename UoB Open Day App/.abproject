@@ -12,6 +12,7 @@
     "android.permission.INTERNET"
   ],
   "CorePlugins": [
+    "uk.co.whiteoctober.cordova.appversion@0.1.4",
     "org.apache.cordova.console",
     "org.apache.cordova.device",
     "org.apache.cordova.device-motion",
