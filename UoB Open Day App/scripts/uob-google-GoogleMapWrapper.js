@@ -157,8 +157,7 @@
             if (watchId){
                 //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
                 uob.log.addLogWarning("High accuracy position error. Code: "+ error.code + " Message: " + error.message);
-                untrackUser();
-                setMapStatus('GPS unavailable');
+                setMapStatus('Position currently unavailable');
             }
         }
         
@@ -204,6 +203,10 @@
             global.addEventListener('orientationchange', orientationchange);
             //Setup user geolocation tracking
             trackUser();
+            if (googleMap){
+                //This should handle any issues with the view of the map.
+                google.maps.event.trigger(googleMap, "resize");
+            }
         };
         
         var hideMap = function(){
@@ -266,8 +269,6 @@
             clearDestination: clearDestination,
             centerOnMapData: centerOnMapData,
             getTrackingDistanceInKm: getTrackingDistanceInKm
-            
-            
         };
         
     };    
