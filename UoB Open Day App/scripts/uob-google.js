@@ -102,6 +102,41 @@
           return d.toFixed(3);
     }
     
+    uob.google.getDirectionFromBounds = function(latLngBounds, latLngPosition){
+        
+        if (!latLngBounds || ! latLngPosition){
+            console.log("Request for direction from bounds without correct data");
+        }
+        
+        var returnValue = "";
+        
+        var northeast = latLngBounds.getNorthEast();
+        var southwest = latLngBounds.getSouthWest();
+        
+        if (northeast.lat()< latLngPosition.lat()){
+            returnValue = "North ";
+        }
+        
+        if (southwest.lat()>latLngPosition.lat()){
+            returnValue = "South ";
+        }
+        
+        if (northeast.lng()< latLngPosition.lng()){
+            returnValue = returnValue + "East";
+        }
+        
+        if (southwest.lng()>latLngPosition.lng()){
+            returnValue =  returnValue + "West";
+        }
+        
+        returnValue = returnValue.trim();
+        
+        if (!returnValue){
+            returnValue = "In bounds";
+        }
+        return returnValue;
+    }
+    
     var _degreesToRadians = function(degrees) {return degrees*Math.PI/180;}
     
 }
