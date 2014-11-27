@@ -66,7 +66,6 @@
         
         app.uobRepository.eventsRepository.initialise();
         
-        app.uobMap.openDayMap.reinitialise();
     }
     
     app.initialiseDataWithCheck = function()
@@ -79,6 +78,8 @@
         if (buttonIndex===1)
         {
             initialiseData();
+            
+            app.uobMap.openDayMap.reinitialise();
         }
     }
     

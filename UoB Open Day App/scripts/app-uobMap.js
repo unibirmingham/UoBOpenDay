@@ -48,71 +48,74 @@
                 return;     
             }
             
-            var mapItems = app.uobRepository.mapRepository.getMaps();
+            if (!campusGoogleMap){
             
-            if (!mapItems)
-            {
-                $j('#no-map').text('Error initialising map: No campus map data found');
-                return;     
-            }
-            
-            for (var i in mapItems) {
-                //Setup the lat lng bounds on the uob maps:
-                var mapItem = mapItems[i];
-                if (mapItem.MapName.indexOf("Edgbaston") !== -1) {
-                    campusMapData = mapItem;
-                }
-            }
-            if (!campusMapData) {
-                uob.log.addLogError('Error initialising map: Edgbaston Campus Map data not found');
-                return;
-            }
-            
-            var googleMapStyling = [
+                var mapItems = app.uobRepository.mapRepository.getMaps();
+                
+                if (!mapItems)
                 {
-                    featureType: "poi",
-                    elementType: "labels",
-                    stylers: [
-                        { visibility: "off" }
-                    ]
-                },
-                {
-                    featureType: "landscape.man_made",
-                    elementType: "labels",
-                    stylers: [
-                      { visibility: "off" }
-                    ]
+                    $j('#no-map').text('Error initialising map: No campus map data found');
+                    return;     
                 }
-            ];
-            
-            var campusMapStyle = new google.maps.StyledMapType(googleMapStyling, { name: "Campus Map" });
-            
-            var mapOptions = {
-                zoomControl: true,
-                zoomControlOptions: {
-                    position: google.maps.ControlPosition.LEFT_BOTTOM
-                },
-                mapTypeControl: false,
-                streetViewControl: false,
-                mapTypeControlOptions: {mapTypeIds: ['Campus Map']}
-            };
+                
+                for (var i in mapItems) {
+                    //Setup the lat lng bounds on the uob maps:
+                    var mapItem = mapItems[i];
+                    if (mapItem.MapName.indexOf("Edgbaston") !== -1) {
+                        campusMapData = mapItem;
+                    }
+                }
+                if (!campusMapData) {
+                    uob.log.addLogError('Error initialising map: Edgbaston Campus Map data not found');
+                    return;
+                }
+                
+                var googleMapStyling = [
+                    {
+                        featureType: "poi",
+                        elementType: "labels",
+                        stylers: [
+                            { visibility: "off" }
+                        ]
+                    },
+                    {
+                        featureType: "landscape.man_made",
+                        elementType: "labels",
+                        stylers: [
+                          { visibility: "off" }
+                        ]
+                    }
+                ];
+                
+                var campusMapStyle = new google.maps.StyledMapType(googleMapStyling, { name: "Campus Map" });
+                
+                var mapOptions = {
+                    zoomControl: true,
+                    zoomControlOptions: {
+                        position: google.maps.ControlPosition.LEFT_BOTTOM
+                    },
+                    mapTypeControl: false,
+                    streetViewControl: false,
+                    mapTypeControlOptions: {mapTypeIds: ['Campus Map']}
+                };
 
-            campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+                campusGoogleMap = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+                
+                campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
+                campusGoogleMap.setMapTypeId('Campus Map');
+                
+                var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true});
+                helpPointsLayer.setMap(campusGoogleMap);
+            }
             
-            campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
-            campusGoogleMap.setMapTypeId('Campus Map');
-            
-            googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);
-            
-            var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true});
+            if (!googleMapWrapper){
+                googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);    
+                $j('#map-return-to-campus').click(googleMapWrapper.centerOnMapData);
+            }
         
-            helpPointsLayer.setMap(campusGoogleMap);
-                        
             buildingAndFacilitiesMap = new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);
             
             googleMapWrapper.showMap();
-            
-            $j('#map-return-to-campus').click(googleMapWrapper.centerOnMapData);
             
         },
         
