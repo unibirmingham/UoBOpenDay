@@ -40,12 +40,23 @@
              }
         };
         var keepCurrentCenter = function(){
+            
+            if (!googleMap){
+                uob.log.addLogWarning("No google map found to retain current centre");
+                return;
+            }
+            
             var center = googleMap.getCenter();
+            if(!center){
+                uob.log.addLogWarning("No center found to retain");    
+                return;
+            }
             centerToRetain = new google.maps.LatLng( center.lat(), center.lng());
             
             google.maps.event.addListenerOnce(googleMap, 'center_changed', trackCenter);
                         
             console.log("Retaining center: " + centerToRetain);
+                        
         };
                 
         var trackUser = function(){
@@ -84,6 +95,18 @@
             {
                 console.log("There is no watch set so not showing position");
                 return;
+            }
+            
+            if (!googleMap)
+            {
+                ob.log.addLogWarning("There is no google map so not showing position");
+                return;    
+            }
+            
+            if (!googleMap.getBounds())
+            {
+                ob.log.addLogWarning("There is no google map bounds so not showing position");
+                return;    
             }
             
             //Get the current position as LatLng
