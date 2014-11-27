@@ -62,7 +62,7 @@
         var trackUser = function(){
             if (!watchId){
                 var geoLocationOptions = {timeout: 10000, enableHighAccuracy: true, maximumAge: 2000};
-                setMapStatus("Tracking ...");
+                setMapStatus("Locating ...");
                 watchId = navigator.geolocation.watchPosition(watchPositionHighAccuracy, watchPositionHighAccuracyError, geoLocationOptions);
                 console.log("Tracking user with watch id: " + watchId);
             }
@@ -87,10 +87,10 @@
         };
         
         var watchPositionHighAccuracy = function(position){
-            showPositionOnMap(position,"High");
+            showPositionOnMap(position);
         };
         
-        var showPositionOnMap = function (position, accuracy) {
+        var showPositionOnMap = function (position) {
             if (!watchId)
             {
                 console.log("There is no watch set so not showing position");
@@ -113,7 +113,8 @@
             var positionLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             
             //If not on the map don't track more than 3km don't track:
-            var isOnMap = googleMap.getBounds().contains(positionLatLng);
+            var currentMapBounds = googleMap.getBounds();
+            var isOnMap = currentMapBounds.contains(positionLatLng);
             var mapCenter = googleMap.getCenter();
             var kmFromCenterOfMap = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, mapCenter);
             
@@ -128,7 +129,16 @@
             }
             
             setMarker(positionLatLng);
-            setMapStatus(accuracy);
+            
+            if (isOnMap){
+                setMapStatus("On Map");
+            }
+            else{
+                
+                var relation = uob.google.getDirectionFromBounds(currentMapBounds, positionLatLng);
+                setMapStatus(relation + " of Map");   
+            }            
+            
             if (destinationLatLng)
             {
                 var messageDescription = destinationDescription;
