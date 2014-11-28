@@ -13,7 +13,7 @@
     
     var apiLoaded = false;
     var googleApiScript = "https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true";
-    var otherGoogleApiScripts = ["http://google-maps-utility-library-v3.googlecode.com/svn/trunk/maplabel/src/maplabel-compiled.js"];
+    var dependentGoogleApiScripts = ["http://google-maps-utility-library-v3.googlecode.com/svn/trunk/maplabel/src/maplabel-compiled.js"];
 
     var loadScript = function(scriptUrl){
         
@@ -62,8 +62,8 @@
         var apiScriptCounter;
         
         //Now load the additional scripts:
-        for (apiScriptCounter=0; apiScriptCounter < otherGoogleApiScripts.length; apiScriptCounter +=1) {
-            apiScript = otherGoogleApiScripts[apiScriptCounter];
+        for (apiScriptCounter=0; apiScriptCounter < dependentGoogleApiScripts.length; apiScriptCounter +=1) {
+            apiScript = dependentGoogleApiScripts[apiScriptCounter];
             loadScript(apiScript);
         }        
     }

@@ -50,7 +50,7 @@
                 }
                 
                 uob.google.apiLoader.loadApiAsynchronously();
-                app.uobMap.openDayMap.setMapText('Google not found: Attempting to retrieve Google Map dependencies', true);
+                app.uobMap.openDayMap.setMapText('Google not found: Attempting to retrieve Google Map dependencies. Please return to the map', true);
                 return false;
             }
             
