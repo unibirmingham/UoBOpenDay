@@ -10,7 +10,7 @@
     uob.url = uob.url || {};
     uob.map = uob.map || {};
     uob.google = uob.google || {};
-    
+    uob.google.apiLoader = uob.google.apiLoader || {};
     
     var date = new Date();
     var year = date.getFullYear();
@@ -27,25 +27,37 @@
     var campusGoogleMap = null;
     var campusMapData = null;
     var buildingAndFacilitiesMap = null;
-    var reinitialise = false;
-    
-    
+        
     app.uobMap.openDayMap = {
         
-        initialise: function () {
+        setMapText: function (mapText, isWarning){
+            $j('#no-map').text(mapText);
+            if (isWarning){
+                uob.log.addLogWarning(mapText);
+            }
+        },
+        
+        isInitialised: function () {
 
-            $j('#no-map').text('Initialising map ...');
+            app.uobMap.openDayMap.setMapText('Initialising map ...');
             console.log("Map initialise");
-
-            if (typeof google === "undefined"){
-                $j('#no-map').text('Error initialising map: Google not found');
-                return;
-            } 
-
+            
+            if (!uob.google.apiLoader.isApiLoaded()){
+                
+                if (!uob.web.is3GOrBetter()){
+                    app.uobMap.openDayMap.setMapText('Google not found and no internet connection: Connect to internet and return to the map', true);
+                    return false;
+                }
+                
+                uob.google.apiLoader.loadApiAsynchronously();
+                app.uobMap.openDayMap.setMapText('Google not found: Attempting to retrieve Google Map dependencies', true);
+                return false;
+            }
+            
             if (!app.uobRepository.mapRepository || app.uobRepository.mapRepository.getStatus()===uob.json.JsonStatus.ERROR)
             {
-                $j('#no-map').text('Error initialising map: No map repository found');
-                return;     
+                app.uobMap.openDayMap.setMapText('Error initialising map: No map repository found', true);
+                return false;     
             }
             
             if (!campusGoogleMap){
@@ -54,8 +66,8 @@
                 
                 if (!mapItems)
                 {
-                    $j('#no-map').text('Error initialising map: No campus map data found');
-                    return;     
+                    app.uobMap.openDayMap.setMapText('Error initialising map: No campus map data found', true);
+                    return false;     
                 }
                 
                 for (var i in mapItems) {
@@ -66,8 +78,13 @@
                     }
                 }
                 if (!campusMapData) {
-                    uob.log.addLogError('Error initialising map: Edgbaston Campus Map data not found');
-                    return;
+                    app.uobMap.openDayMap.setMapText('Error initialising map: Edgbaston Campus Map data not found', true);
+                    return false;
+                }
+                
+                if (!uob.web.is3GOrBetter()){
+                    app.uobMap.openDayMap.setMapText('Error initialising map: Web connection of 3G or higher required to initialise map. Please connect to the internet and revisit this map', true);
+                    return false;
                 }
                 
                 var googleMapStyling = [
@@ -113,30 +130,21 @@
                 $j('#map-return-to-campus').click(googleMapWrapper.centerOnMapData);
             }
         
-            buildingAndFacilitiesMap = new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);
+            if (!buildingAndFacilitiesMap){
+                buildingAndFacilitiesMap = new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);    
+            }
+            return true;
             
-            googleMapWrapper.showMap();
-            
-        },
-        
-        reinitialise: function(){
-          
-            //Function to force initialisation:
-            reinitialise = true;
         },
         
         show: function (e) {
             
-            if (reinitialise)
+            if (!app.uobMap.openDayMap.isInitialised())
             {
-                app.uobMap.openDayMap.initialise();
-                reinitialise = false;
+                return;
             }
             
             console.log("Map show");
-            if (!campusGoogleMap) {
-                return;
-            }
             
             buildingAndFacilitiesMap.addBuildings(eventBuildingsJsonUrl, eventBuildingsLocalFile );
             buildingAndFacilitiesMap.addBuildings(foodAndDrinkBuildingsJsonUrl, foodAndDrinkBuildingsLocalFile);

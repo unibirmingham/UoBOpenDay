@@ -78,8 +78,6 @@
         if (buttonIndex===1)
         {
             initialiseData();
-            
-            app.uobMap.openDayMap.reinitialise();
         }
     }
     
