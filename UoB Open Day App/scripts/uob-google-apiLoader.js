@@ -11,7 +11,6 @@
     
     var apiLoader = uob.google.apiLoader;
     
-    var apiLoaded = false;
     var googleApiScript = "https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true";
     var dependentGoogleApiScripts = ["http://google-maps-utility-library-v3.googlecode.com/svn/trunk/maplabel/src/maplabel-compiled.js"];
 

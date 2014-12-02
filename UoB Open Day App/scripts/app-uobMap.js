@@ -45,13 +45,14 @@
             if (!uob.google.apiLoader.isApiLoaded()){
                 
                 if (!uob.web.is3GOrBetter()){
-                    app.uobMap.openDayMap.setMapText('Google not found and no internet connection: Connect to internet and return to the map', true);
-                    return false;
+                    app.uobMap.openDayMap.setMapText('Google not found: Please return to the menu, connect to the internet and refresh the data', true);
+                }
+                else{
+                    app.uobMap.openDayMap.setMapText('Google not found: Please return to the menu and refresh the data', true);
                 }
                 
-                uob.google.apiLoader.loadApiAsynchronously();
-                app.uobMap.openDayMap.setMapText('Google not found: Attempting to retrieve Google Map dependencies. Please return to the map', true);
                 return false;
+                
             }
             
             if (!app.uobRepository.mapRepository || app.uobRepository.mapRepository.getStatus()===uob.json.JsonStatus.ERROR)

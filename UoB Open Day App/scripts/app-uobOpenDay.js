@@ -8,7 +8,7 @@
     uob.date = uob.date || {};
     uob.json = uob.json || {};
     uob.log = uob.log || {};
-    uob.screen= uob.screen || {};      
+    uob.screen = uob.screen || {};
     
     var openDayDateLocalStorageName = 'uob-openday-date';
     

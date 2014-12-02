@@ -12,10 +12,13 @@
     uob.data = uob.data || {};
 
     uob.events = uob.events || {};
+    uob.google = uob.google || {};
+    uob.google.apiLoader = uob.google.apiLoader || {};
     uob.log = uob.log || {};
     uob.screen= uob.screen || {};
     uob.url= uob.url || {};
     uob.map= uob.map || {};
+    uob.app = uob.app || {};
     
     var date = new Date();
     var year = date.getFullYear();
@@ -28,6 +31,15 @@
     var initialisationList = [];
     
     var webConnection;
+    
+    app.initialiseDataWithCheck = function()
+    {
+        if (uob.web.is3GOrBetter()){
+            navigator.notification.confirm('Do you wish to refresh the application data?', confirmInitialiseData, 'Refresh data?',['Refresh', 'Cancel']);    
+        }else{
+            navigator.notification.alert("Cannot refresh data as the current connection is not 3G or better.", null,"Refresh unavailable", 'OK');
+        }
+    }
     
     var onDeviceReady= function()
     {
@@ -52,7 +64,6 @@
         checkWebConnection("webConnectionButton");
         
         //Set up repositories:
-    
     	app.uobRepository.startDateRepository = new uob.events.StartDateRepository("Open Day Start Dates",startDatesUrl, startDatesLocalFile, startDateRepositoryInitialised);
         
         app.uobRepository.mapRepository = new uob.map.MapRepository("Maps", app.uobSettings.MapsService, 'data/maps.json', mapRepositoryInitialised);
@@ -67,17 +78,18 @@
         app.uobRepository.eventsRepository.initialise();
         
     }
-    
-    app.initialiseDataWithCheck = function()
-    {
-        navigator.notification.confirm('Do you wish to refresh the application data?', confirmInitialiseData, 'Refresh data?','Refresh, Cancel');
-    }
-    
+   
     var confirmInitialiseData = function(buttonIndex)
     {
         if (buttonIndex===1)
         {
-            initialiseData();
+            if (uob.google.apiLoader.isApiLoaded()){
+                 initialiseData();   
+            }
+            else{
+                //We need to force the reloading of the google javascript files:
+                uob.app.reloadApplication();
+            }
         }
     }
     
@@ -232,7 +244,7 @@
         }
         initialised("Events");
     };
-    
+       
     document.addEventListener("deviceready", onDeviceReady, true);
     
     
