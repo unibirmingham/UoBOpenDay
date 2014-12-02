@@ -202,12 +202,18 @@
 
     var startDateRepositoryInitialised = function()
     {
-                
+        var startDateData,
+            dataSource,
+            storedOpenDayDate,
+            openDayDateToSet,
+            i;
+        
         if (app.uobRepository.startDateRepository.hasData())
         {
-        
-            var dataSource = new kendo.data.DataSource({
-                    data: app.uobRepository.startDateRepository.getStartDates(),
+            startDateData = app.uobRepository.startDateRepository.getStartDates();
+            
+            dataSource = new kendo.data.DataSource({
+                    data: startDateData,
                     pageSize: 10000
                 });
             
@@ -220,16 +226,26 @@
                     }
                 });
             
-            var openDayDate = app.uobOpenDay.getOpenDayDate();
-            if (openDayDate){
-                $j("#open-day-date").data('kendoDropDownList').value(openDayDate);
+            //Check that the stored open day date is an available option.
+            storedOpenDayDate = app.uobOpenDay.getOpenDayDate();
+            
+            for (i = 0; i < startDateData.length; i++) {
+                if (startDateData[i].startDate===storedOpenDayDate){
+                    openDayDateToSet = storedOpenDayDate;
+                    break;
+                }
+            }
+
+            if (openDayDateToSet){
+                //Set the current displayed value to match that from storage
+                $j("#open-day-date").data('kendoDropDownList').value(openDayDateToSet);
             }
             else{
-                //Initialise the stored value to the default one:
+                //Initialise the stored value to the default value:
                 app.uobOpenDay.setOpenDayDate($j("#open-day-date").data('kendoDropDownList').value());
             }
             
-            //Show the open day date selector:
+            //Now show the open day date selector:
             $j('#tabstrip-home .open-day-date-selector').removeClass("open-day-date-selector");
             uob.screen.enableLinks('startDatesButton');
         }
