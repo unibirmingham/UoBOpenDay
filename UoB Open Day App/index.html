@@ -48,11 +48,6 @@
 <body id="appBody">
   
         <style>
-            .km-favourite:after,
-            .km-favourite:before
-            {
-                content: "\e044";
-            }
             .km-personalschedule:after,
             .km-personalschedule:before
             {
@@ -110,7 +105,6 @@
             </div>
             <ul data-role="listview" datatype="group">
                 <li class="activitiesButton initialiseHidden"><a data-icon="cal" href="#tabstrip-events" data-transition="slide">Activities</a></li>
-                <li class="favouritesButton initialiseHidden"><a data-icon="heart" href="#tabstrip-favourites" data-transition="slide">Favourite Activities</a></li>
                 <li class="scheduleButton initialiseHidden"><a data-icon="recents" href="#tabstrip-schedule" data-transition="slide">Personal schedule</a></li>
                 <li class="mapButton initialiseHidden"><a data-icon="globe" href="#tabstrip-map" data-transition="slide">Map</a></li>
                 <li class="faqButton"><a data-icon="questionmark" href="#tabstrip-faqs" data-transition="slide">Open Day FAQs</a></li>
@@ -151,33 +145,15 @@
                 <a data-click="app.uobHelp.closeEventsListHelp" data-role="button" data-align="right" class="position-right">Close</a>
                 <h2>Activities</h2>  
                 <ul data-role="listview">
-                    <li>To add an event to your favourites click on the <span class="km-icon km-heart helpIcon favouritesColour"></span> and to add an event to your personal schedule click on the <span class="km-icon km-recents helpIcon scheduleColour"></span>. You can add as many activities as you like to your favourites but you can only add events to your schedule which do not clash with other activities already in your schedule.</li>
+                    <li>To add an event to your personal schedule click on the <span class="km-icon km-recents helpIcon scheduleColour"></span>. You can only add events to your schedule which do not clash with other activities already in your schedule.</li>
                     <li>Some hints:
                         <ul>
                             <li>If you know what you are looking for, you can use the search to avoid scrolling through the entire list.</li>
-                            <li>You might find it easier to create a schedule if you <span class="km-icon km-heart helpIcon favouritesColour"></span> the activities you are interested in to put them in your favourites before building a schedule in the favourites list.</li>
                         </ul>
                     </li>
                 </ul>
             </div>
         </div>         
-    </div>
-
-        
-    
-
-    <!--Favourites screen (data-show event used as it needs to repopulate in case of changes) -->
-    <div id="tabstrip-favourites" data-role="view" data-show="app.uobEvents.populateFavouriteEventList" data-title="Favourite Activities" data-layout="tabstrip-layout-with-help">
-        <ul id="open-day-favourite-events-view" class="events-list"></ul>
-        <div data-role="modalview" id="modalview-favourites-help" style="width: 90%;">
-            <div data-role="content" style="min-height: 150px">
-                <a data-click="app.uobHelp.closeFavouritesListHelp" data-role="button" data-align="right" class="position-right">Close</a>
-                <h2>Favourites</h2>  
-                <ul data-role="listview">
-                    <li>To add an event to your personal schedule click on the <span class="km-icon km-recents helpIcon scheduleColour"></span>. You can also remove items from your favourites by clicking on <span class="km-icon km-trash helpIcon"></span>.</li>
-                </ul>
-            </div>
-        </div>    
     </div>
     
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
@@ -188,7 +164,7 @@
                 <a data-click="app.uobHelp.closeScheduleListHelp" data-role="button" data-align="right" class="position-right">Close</a>
                 <h2>Schedule</h2>  
                 <ul data-role="listview">
-                    <li>Events which can be visited throughout the day can have their scheduled time changed by using the <span class="km-icon km-moveup helpIcon scheduleColour"></span> <span class="km-icon km-movedown helpIcon scheduleColour"></span> to move them to an earlier or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move. You can also remove items from your favourites by clicking on <span class="km-icon km-trash helpIcon"></span></li>
+                    <li>Events which can be visited throughout the day can have their scheduled time changed by using the <span class="km-icon km-moveup helpIcon scheduleColour"></span> <span class="km-icon km-movedown helpIcon scheduleColour"></span> buttons to move them to an earlier or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move.</li>
                 </ul>
             </div>
     	</div>
@@ -337,7 +313,6 @@
     <script>
         //load templates
         templateLoader.loadExtTemplate("templates/events.tmpl.html");
-        templateLoader.loadExtTemplate("templates/events-favourites.tmpl.html");
         templateLoader.loadExtTemplate("templates/events-schedule.tmpl.html");
     </script>
 

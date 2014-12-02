@@ -95,8 +95,8 @@
     
     var setupButtons = function()
     {
-        $j('.activitiesButton, .favouritesButton, .scheduleButton, .mapButton').addClass('eventsRepositoryButton');
-        $j('.activitiesButton, .favouritesButton, .scheduleButton').addClass('startDatesButton');
+        $j('.activitiesButton, .scheduleButton, .mapButton').addClass('eventsRepositoryButton');
+        $j('.activitiesButton, .scheduleButton').addClass('startDatesButton');
         $j('.mapButton, .feedbackButton').addClass('webConnectionButton');
         $j('.mapButton').addClass('mapRepositoryButton');
         $j('.initialiseHidden').removeClass('initialiseHidden');

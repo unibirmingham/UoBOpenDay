@@ -14,7 +14,6 @@
    
     var scheduleEventsListViewId = "open-day-schedule-events-view";
     var scheduleEventGroup = 'schedule';
-    var favouriteEventGroup = 'favourite';
     
     app.uobEvents.lastEventListPopulation = "";
     
@@ -119,11 +118,9 @@
            
             if (currentOpenDayDateFilter===openDayDate && currentSearchTextFilter ===searchText && currentActivityTypeFilter === activityType)
             {
-                console.log("No need to update filter as already in place updating favourites and schedule values");
+                console.log("No need to update filter as already in place updating schedule values");
                 //The user could've changed the selected items in one of the other screens so reinitialise them:
-                setupSelectorValues(eventsListViewId, favouriteEventGroup, false);
                 setupSelectorValues(eventsListViewId, scheduleEventGroup, true);
-                 
             }
             else{
                 $j('#activityStatus').text("Reloading activities");
@@ -156,7 +153,6 @@
                 template: $j("#events-template").text(),
                 dataBound: function(){
                     uob.log.addLogMessage("Data bind start.");
-                    setupSelectors(eventsListViewId, favouriteEventGroup, false);
                     setupSelectors(eventsListViewId, scheduleEventGroup, true);
                     $j('#activityStatus').text(this.items().length + " activities retrieved");
                     reportNoData(eventsListViewId, "No activities found.");
@@ -172,13 +168,7 @@
             
         	$j("#" + eventsListViewId).on('click', '.show-location', locationClickEventData, showLocationClick);
             
-            //Set up favourite click events
-            var favouriteClickData = {listViewId: eventsListViewId,
-            			scheduledEvent: false,
-        				eventGroup: favouriteEventGroup};
-        
-            $j("#" + eventsListViewId).on('click', " .event-" + favouriteEventGroup, favouriteClickData, selectorClick);
-        
+       
             //Set up schedule click events
             var scheduleClickData = {listViewId: eventsListViewId,
             			scheduledEvent: true,
@@ -237,49 +227,6 @@
 
     }
     
-    app.uobEvents.populateFavouriteEventList = function (e){
-        
-        var eventsListViewId = "open-day-favourite-events-view";
-        
-        var openDayDateFilter = getFilterFunctionForOpenDayDate();
-        
-        var favouriteEvents = app.uobRepository.eventsRepository.getSelectedEventItems(favouriteEventGroup, false, openDayDateFilter);
-        
-        if ($j("#" + eventsListViewId).data("kendoMobileListView"))
-        {
-            console.log("Updating favourites list view data source");
-            $j("#" + eventsListViewId).data("kendoMobileListView").dataSource.data(favouriteEvents);
-        }
-        else{
-            
-            var eventsListDataSource = new kendo.data.DataSource({
-                data:  favouriteEvents,
-                sort: [
-                    { field: "StartDate", dir: "asc" },
-                	{ field: "Title", dir: "asc" }
-                  ]
-            });
-            
-            console.log("Initialising favourites list view");
-            $j("#" + eventsListViewId).kendoMobileListView({
-                dataSource: eventsListDataSource,
-                template: $j("#events-favourite-template").text(),
-                dataBound: function(){
-                    setupSelectors(eventsListViewId, scheduleEventGroup,true);
-                    reportNoData(eventsListViewId,  "You have no favourite activities selected.");
-                } 
-            });
-        
-            //Set up schedule click events
-            var scheduleClickData = {listViewId: eventsListViewId,
-            			scheduledEvent: true,
-        				eventGroup: scheduleEventGroup};
-            $j("#" + eventsListViewId).on('click', " .event-" + scheduleEventGroup, scheduleClickData, selectorClick);
-            
-            setupRemoveFromSelection(eventsListViewId, favouriteEventGroup, app.uobEvents.populateFavouriteEventList);
-        }
-    };
-   
     var setupSelectors = function(listViewId, eventGroup, scheduledEvent, filterFunction){
         
         console.log("Setup icons for " + eventGroup);

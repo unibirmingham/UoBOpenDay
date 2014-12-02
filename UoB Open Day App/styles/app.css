@@ -188,7 +188,6 @@ margin-left: .2em;
     padding: 0;
 }
 
-#appBody .event-favourite,
 #appBody .event-schedule
 {
     box-sizing: content-box;
@@ -204,23 +203,11 @@ margin-left: .2em;
     width: auto;
 }
 
-#appBody .event-favourite
-{
-    float: left;
-    color: #00BAE5;
-}
-
 #appBody .event-schedule{
  	float:right;
      color: #00BAE5;
 }
 
-#appBody .favourite-true,
-#appBody #tabstrip-home .favouritesButton,
-#appBody .favouritesColour
-{
-    color: #EF549F;
-    }
 
 #appBody .schedule-true,
 #tabstrip-home .km-content .scheduleButton,
@@ -254,14 +241,6 @@ margin-left: .2em;
     border-bottom: solid 1px rgba(0,0,0,0.1);
     float: left;
     width: 100%;
-}
-
-#appBody .remove-favourite
-{
-    width: auto;
-    font-size: .8em;
-    float: right;
-    margin-left: .5em;
 }
 
 #appBody .remove-schedule
