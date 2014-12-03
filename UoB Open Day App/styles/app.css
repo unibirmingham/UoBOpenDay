@@ -169,6 +169,11 @@ margin-left: .2em;
     margin-top: 0;
 }
 
+#appBody .event-location
+{
+    text-decoration: underline;
+}
+
 #tabstrip-home .km-content  .activitiesButton
 {
     color: #B1006F;
