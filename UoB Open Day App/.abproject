@@ -30,14 +30,14 @@
   ],
   "iOSStatusBarStyle": "Default",
   "AndroidHardwareAcceleration": "false",
-  "BundleVersion": "3.6",
+  "BundleVersion": "3.7",
   "iOSDisplayName": "",
   "iOSDeviceFamily": [
     "1",
     "2"
   ],
   "iOSBackgroundMode": [],
-  "AndroidVersionCode": "14",
+  "AndroidVersionCode": "15",
   "DisplayName": "UoB Open Day",
   "Author": "",
   "Description": "University of Birmingham Open Day Application",
