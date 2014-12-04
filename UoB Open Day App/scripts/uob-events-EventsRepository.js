@@ -92,6 +92,14 @@
             var titleAndTime = this.Title + " (" + this.StartTimeInUk + "-" + this.EndTimeInUk + ")";
             return titleAndTime;
         },
+        getScheduledTimeDescription: function()
+        {
+            var returnValue = uob.date.formatDateAsUK(this.getScheduleStartDate(), 'HH:mm');
+            if (!this.isAllDayEvent() || this.AttendanceDuration>0){
+                returnValue = returnValue + "- " + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
+            }
+            return returnValue;
+        },
         //Does this event's schedule clash with another event's schedule?
         isClashingScheduledEvent: function(eventItem2){
             var eventItem1 = this;
@@ -319,21 +327,129 @@
             }
         };
     
+        var updateEventInSelectedData = function(eventGroup, eventItem, setScheduleStartDate)
+        {
+            var existingSelectedEventData = getSelectedEventData(eventGroup);
+            var newSelectedEventData = [];
+            
+            if (existingSelectedEventData){
+                for (index = 0; index < existingSelectedEventData.length; ++index) {
+                    
+                    var selectedEventDataItem = existingSelectedEventData[index];
+                    
+                    if (selectedEventDataItem.ContentId === eventItem.ContentId)
+                    {
+                        if (setScheduleStartDate)
+                        {
+                            selectedEventDataItem.ScheduleStartDate = new Date(eventItem.getScheduleStartDate());
+                        }
+                    }
+                    newSelectedEventData.push(selectedEventDataItem);
+                }
+            }
+            
+            setSelectedEventData(eventGroup, newSelectedEventData);
+        };
+        
+        //See if space can be made for the fixed event, moving any moveable items out of the way if they can be moved to make room
+        // Returns: The clashing items if there are any. Null if a space was found
+        var getClashingEventsForNewFixedEventMovingAnyEventsOutOfTheWayWhichCanBeMoved = function(eventGroup, eventItem)
+        {
+
+            var selectedEventItems = getSelectedEventItems(eventGroup, true);
+            
+            //As fixed items cannot be moved we first check to see if there's already something in the schedule which clashes with it:
+            var clashingEventItems = $j.grep(selectedEventItems, function(e){ return e.isClashingScheduledEvent(eventItem);});
+            
+            if (!clashingEventItems || clashingEventItems.length===0)
+            {
+                console.log ("No clashing event items for Event Item: " + eventItem.Title);
+                return null;
+            }
+            
+            
+            var clashingFixedEventItems = $j.grep(clashingEventItems, function(e){return e.getEventType()===uob.events.EventType.FIXED});
+            
+            if (clashingFixedEventItems && clashingFixedEventItems.length>0)
+            {
+                console.log("There are some clashing fixed event items so cannot resolve clash for event "+ eventItem.Title);
+                return clashingFixedEventItems;
+            }
+            
+            console.log("All clashing dates with selected event item are all day -- testing to see if possible to move them out of the way");
+            //All the clashing events are all day and so in theory are moveable -- if we get the non-clashing events and add the 
+            //new event item we could see if we can get a schedule startdate for the clashing ones!
+            var nonClashingEvents = $j.grep(selectedEventItems, function(e){return !e.isClashingScheduledEvent(eventItem);});
+            //Now add the item we want to test against
+            nonClashingEvents.push(eventItem);
+            
+            var unmoveableEvents = [];
+            
+            var newScheduleStartDates = [];
+
+            // Now go through the clashing events and work out if they can be given new schedule dates and so be added to the non-clashing ones.
+            for(var clashingIndex in clashingEventItems)
+            {
+                var clashingEventItem = clashingEventItems[clashingIndex];
+                
+                var newScheduleStartDate = getScheduleStartDateForItem(clashingEventItem, nonClashingEvents, null, clashingEventItem.StartDate);
+                
+                if (!newScheduleStartDate){
+                    //Add this to the list of events which cannot be moved to accomodate the event.
+                    unmoveableEvents.push(clashingEventItem);
+                }
+                else{
+                    
+                    //Add this item to the nonClashingEvents (but only if we've not got an unmoveable event as the new event won't fit in.
+                    if (unmoveableEvents.length===0){
+                        //Take a clone as we don't want to mess up real data:
+                        var eventItemCopy = new uob.events.EventItem(clashingEventItem);
+                        
+                        eventItemCopy.setScheduleStartDate(newScheduleStartDate);
+                        
+                        nonClashingEvents.push(eventItemCopy);
+                        
+                        newScheduleStartDates.push(newScheduleStartDate);
+                    }
+                }
+            }
+            if (unmoveableEvents.length>0)
+            {
+                console.log("Not viable to shuffle all day events to accomodate event: " + eventItem.Title + " " + eventItem.StartDate + " - " + eventItem.EndDate);
+                return unmoveableEvents;
+            }
+
+            //Now update the clashing items with the new schedule dates which prevent the clash.
+            for(var clashingIndex2 in clashingEventItems)
+            {
+                var updateableClashingEventItem = clashingEventItems[clashingIndex2];
+                
+                updateableClashingEventItem.setScheduleStartDate(newScheduleStartDates[clashingIndex2]);
+                
+                updateEventInSelectedData(eventGroup, updateableClashingEventItem, true);
+            }
+
+            return null;
+        };
+        
         var addEventToSelectedData =  function(eventGroup, eventItem, scheduledEvent)
         {
             var scheduleStartDate = null;
+            var returnValue = {
+                                eventAdded: false,
+                                clashingEvents: []
+            };
             
             if(scheduledEvent){
                 
                 if (eventItem.getEventType()===uob.events.EventType.FIXED){
                  
-                    if (!checkAndResolveScheduleClashesForFixedEvent(eventGroup, eventItem))
-                    {
-                     
-                        return false;
-                        
-                    }
+                    var clashingEvents = getClashingEventsForNewFixedEventMovingAnyEventsOutOfTheWayWhichCanBeMoved(eventGroup, eventItem);
                     
+                    if (clashingEvents){
+                        returnValue.clashingEvents = clashingEvents;
+                        return returnValue;
+                    }
                 }
                 else{
                 
@@ -342,7 +458,9 @@
                     
                     if (!scheduleStartDate)
                     {
-                        return false;
+                        //Effectively there's no space anywhere in the schedule
+                        returnValue.clashingEvents = selectedEventItems;
+                        return returnValue;
                     }
                 }
             }
@@ -369,108 +487,9 @@
             
             setSelectedEventData(eventGroup, selectedEventData);
             
-            return true;
-        };
-                
-        var checkAndResolveScheduleClashesForFixedEvent = function(eventGroup, eventItem)
-        {
-
-            var selectedEventItems = getSelectedEventItems(eventGroup, true);
+            returnValue.eventAdded = true;
             
-            //As fixed items cannot be moved we first check to see if there's already something in the schedule which clashes with it:
-            var clashingEventItems = $j.grep(selectedEventItems, function(e){ return e.isClashingScheduledEvent(eventItem);});
-            
-            if (!clashingEventItems || clashingEventItems.length===0)
-            {
-                console.log ("No clashing event items for Event Item: " + eventItem.Title);
-                return true;
-            }
-            
-            
-            var clashingAllDayEventItems = $j.grep(clashingEventItems, function(e){return e.isAllDayEvent();});
-            
-            if (!clashingAllDayEventItems || clashingAllDayEventItems.length!==clashingEventItems.length)
-            {
-                 console.log("Not all clashing event items are all day events so cannot resolve clash for event "+ eventItem.Title);
-                return false;
-            }
-            
-            console.log("All clashing dates with selected event item are all day -- testing to see if possible to move them out of the way");
-            //All the clashing events are all day and so in theory are moveable -- if we get the non-clashing events and add the 
-            //new event item we could see if we can get a schedule startdate for the clashing ones!
-            var nonClashingEvents = $j.grep(selectedEventItems, function(e){return !e.isClashingScheduledEvent(eventItem);});
-            
-            nonClashingEvents.push(eventItem);
-            
-            var viableToShuffle = true;
-            
-            var newScheduleStartDates = [];
-
-            //Create a new set of scheduled events which 
-            for(var clashingIndex in clashingEventItems)
-            {
-                var clashingEventItem = clashingEventItems[clashingIndex];
-                
-                var newScheduleStartDate = getScheduleStartDateForItem(clashingEventItem, nonClashingEvents, null, clashingEventItem.StartDate);
-                
-                if (!newScheduleStartDate)
-                {
-                    viableToShuffle = false;
-                    break;
-                }
-                
-                //Add this item to the nonClashingEvents -- take a clone as we don't want to mess up real data:
-                var eventItemCopy = new uob.events.EventItem(clashingEventItem);
-                
-                eventItemCopy.setScheduleStartDate(newScheduleStartDate);
-                
-                nonClashingEvents.push(eventItemCopy);
-                
-                newScheduleStartDates.push(newScheduleStartDate);
-                
-            }
-            if (!viableToShuffle)
-            {
-                console.log("Not viable to shuffle all day events to accomodate event: " + eventItem.Title + " " + eventItem.StartDate + " - " + eventItem.EndDate);
-                return false;
-            }
-
-            //Now update the existing items with the new schedule dates.
-            for(var clashingIndex2 in clashingEventItems)
-            {
-                var updateableClashingEventItem = clashingEventItems[clashingIndex2];
-                
-                updateableClashingEventItem.setScheduleStartDate(newScheduleStartDates[clashingIndex2]);
-                
-                updateEventInSelectedData(eventGroup, updateableClashingEventItem, true);
-                
-            }
-
-            return true;
-        };
-        
-        var updateEventInSelectedData = function(eventGroup, eventItem, setScheduleStartDate)
-        {
-            var existingSelectedEventData = getSelectedEventData(eventGroup);
-            var newSelectedEventData = [];
-            
-            if (existingSelectedEventData){
-                for (index = 0; index < existingSelectedEventData.length; ++index) {
-                    
-                    var selectedEventDataItem = existingSelectedEventData[index];
-                    
-                    if (selectedEventDataItem.ContentId === eventItem.ContentId)
-                    {
-                        if (setScheduleStartDate)
-                        {
-                            selectedEventDataItem.ScheduleStartDate = new Date(eventItem.getScheduleStartDate());
-                        }
-                    }
-                    newSelectedEventData.push(selectedEventDataItem);
-                }
-            }
-            
-            setSelectedEventData(eventGroup, newSelectedEventData);
+            return returnValue;
         };
         
         var isContentIdSelected = function(eventGroup, contentId)

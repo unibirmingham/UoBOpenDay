@@ -180,6 +180,9 @@
         var eventGroup = event.data.eventGroup;
         
         var eventItem = dataSource.getByUid(uid);
+        var clashingEventsText = "";
+        var clashingEventIndex;
+        var clashingEventItem;
         
         if ($j(selector).hasClass(eventGroup + "-true"))
         {
@@ -187,12 +190,39 @@
             app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
         }
         else{
-            if(app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent))
+            
+            eventAddedResult = app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent);
+                        
+            if(eventAddedResult.eventAdded)
             {
                 setupSelectorState(eventGroup, selector, true);
             }
             else{
-                navigator.notification.alert("Cannot add '" + eventItem.getTitleAndTime() + "' to the schedule -- please check your schedule for clashing events.", null,"Schedule clash", 'OK');
+                
+                if (eventAddedResult.clashingEvents){
+                 
+                     var selectedEvents = app.uobRepository.eventsRepository.getSelectedEventItems(eventGroup, scheduledEvent);   
+                    
+                    if (eventAddedResult.clashingEvents.length === selectedEvents.length){
+                        clashingEventsText = "No space could be found in your schedule for the event. You need a space of " + eventItem.AttendanceDuration + 
+                            " minutes in your schedule between " + eventItem.StartTimeInUk + " and " + eventItem.EndTimeInUk ;
+                    }
+                    else{
+                        for(clashingEventIndex in eventAddedResult.clashingEvents){
+                            clashingEventItem = eventAddedResult.clashingEvents[clashingEventIndex];
+                            if (clashingEventsText.length){
+                                clashingEventsText = clashingEventsText + ", "
+                            }
+                            clashingEventsText = clashingEventsText + "'" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'";
+                        }
+                        clashingEventsText = "This event clashes with: " + clashingEventsText;
+                    }
+                }
+                else{
+                    clashingEventsText = "Adding to schedule failed, but no clashing events were returned";
+                }
+                
+                navigator.notification.alert("Cannot add '" + eventItem.getTitleAndTime() + "' to the schedule. " + clashingEventsText, null,"Schedule clash", 'OK');
             }
         }
         return false;

@@ -8,8 +8,7 @@
         </div>
         <div>
     		
-            <h1 class="events-header">#= uob.date.formatDateAsUK(getScheduleStartDate(), 'HH:mm') # #
-    				if (!isAllDayEvent() || AttendanceDuration>0){ # - #= uob.date.formatDateAsUK(getScheduleEndDate(), 'HH:mm') # #} # #= Title#
+            <h1 class="events-header">#= getScheduledTimeDescription() # #= Title#
     			
 		    </h1>
         </div>
