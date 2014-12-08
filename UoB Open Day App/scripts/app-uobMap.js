@@ -27,7 +27,42 @@
     var campusGoogleMap = null;
     var campusMapData = null;
     var buildingAndFacilitiesMap = null;
+    
+    var helpPointsLayerUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kVz3BwO0IfOg&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
+    var busStopLayerUrl =    'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kdgAOrhp_RrE&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
+    var carParkLayerUrl =    'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kU2Q_Iy_obQY&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
+    
+    var toggleMapOptions = function () {
+        $j('#map-options').slideToggle(); 
+    };
+    
+    var setKmlLayerToggleButtonText = function (kmlLayer, buttonId, layerDescription) {
         
+        var buttonSelector = '#' + buttonId + ' .buttonText';
+        
+        if (kmlLayer.getMap())
+        {
+            $j(buttonSelector).text("Hide " + layerDescription);
+        }
+        else{
+            $j(buttonSelector).text("Show " + layerDescription);
+        }
+    };
+    
+    var createKmlLayerToggleButton = function (googleMap, kmlLayer, buttonId, layerDescription)
+    {
+        $j('#' + buttonId).click(function(){
+            if (kmlLayer.getMap()) {
+                kmlLayer.setMap(null);
+            }
+            else{
+                kmlLayer.setMap(googleMap);
+            }
+            setKmlLayerToggleButtonText(kmlLayer, buttonId, layerDescription);
+        });
+        setKmlLayerToggleButtonText(kmlLayer, buttonId, layerDescription);
+    };
+    
     app.uobMap.openDayMap = {
         
         setMapText: function (mapText, isWarning){
@@ -122,13 +157,38 @@
                 campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
                 campusGoogleMap.setMapTypeId('Campus Map');
                 
-                var helpPointsLayer = new google.maps.KmlLayer('http://mapsengine.google.com/map/kml?mid=zVpAqNihyIqo.kUp2n30TUjHY&amp;lid=zVpAqNihyIqo.k484h8JBYbe8',{preserveViewport: true});
-                helpPointsLayer.setMap(campusGoogleMap);
             }
             
             if (!googleMapWrapper){
                 googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);    
-                $j('#map-return-to-campus').click(googleMapWrapper.centerOnMapData);
+                $j('#map-show-edgbaston-campus').click(googleMapWrapper.centerOnMapData);
+                
+                
+                
+                $j('#map-show-options').click(toggleMapOptions);
+
+                var helpPointsLayer = new google.maps.KmlLayer(helpPointsLayerUrl,{preserveViewport: true});
+                helpPointsLayer.setMap(campusGoogleMap);
+                
+                createKmlLayerToggleButton(campusGoogleMap, helpPointsLayer, 'map-toggle-help-points', 'Help points');                
+                
+                var busStopLayer = new google.maps.KmlLayer(busStopLayerUrl,{preserveViewport: true});
+                busStopLayer.setMap(campusGoogleMap);
+                
+                createKmlLayerToggleButton(campusGoogleMap, busStopLayer, 'map-toggle-bus-stops', 'Bus stops');                
+                
+                var carParkLayer = new google.maps.KmlLayer(carParkLayerUrl,{preserveViewport: true});
+                carParkLayer.setMap(campusGoogleMap);
+                createKmlLayerToggleButton(campusGoogleMap, carParkLayer, 'map-toggle-car-parks', 'Car parks');                
+                                
+                $j('#map-show-all-car-parks').click(function(){
+                    if (!carParkLayer.getMap()){
+                        carParkLayer.setMap(campusGoogleMap);
+                        setKmlLayerToggleButtonText(carParkLayer, 'map-toggle-car-parks', 'Car parks');
+                    }
+                    var latLngBounds = carParkLayer.getDefaultViewport();
+                    campusGoogleMap.fitBounds(latLngBounds);
+                });
             }
         
             if (!buildingAndFacilitiesMap){

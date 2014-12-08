@@ -14,7 +14,7 @@
     right: 0;
 }
 
-#map-header {
+#map-header, #map-options {
     position: absolute;
     z-index: 10;
     background-color: rgba(0, 0, 0, 0.5);
@@ -25,7 +25,7 @@
     -webkit-box-sizing: border-box;
 }
 
-#map-return-to-campus {
+#map-show-options {
     float: left;
     width: 40px;
     height: 40px;
@@ -42,10 +42,14 @@
 #appBody #map-header .mapMessage,
 #appBody #map-header .mapStatus
 {
-    width: 60%;
+    color: white;
     padding-top: .5em;
     padding-left: .3em;
-    color: white;
+}
+
+#appBody #map-header .mapMessage
+{    
+    width: 60%;
     float: left;
 }
 
@@ -56,3 +60,43 @@
     font-size: .6em;
 	padding-right: .3em;
 }
+#appBody #map-options
+{
+    bottom: 0;
+    color: #fff;
+    font-size: .8em;
+    padding-top: 2px;
+}
+
+#appBody .headerLines{
+    width: 100%;
+    border-top: 1px solid #FFF;
+    border-bottom: 1px solid #FFF;
+    height: 4px;
+}
+
+#appBody #map-options div.mapOptionGroupHeader,
+#appBody #map-options div.mapOption
+{
+    width: 100%;   
+    float: left;
+}
+
+#appBody #map-options div.mapOptionGroupHeader
+{
+    font-size: 1.1em;
+    font-weight: bold;
+    padding-top: .2em;
+    padding-bottom: .2em;
+}
+
+#appBody #map-options div.mapOption img{
+    height: 2.5em;
+    float: left;
+}
+#appBody #map-options div.mapOption div.buttonText{
+    float: left;
+    padding-left: .5em;
+    padding-top: .65em;
+}
+
