@@ -58,7 +58,7 @@
                             postErrorMessage = false;
                         }
                     },
-                    'Send error data to UoB?','Send data, Cancel');
+                    'Send error data to UoB?',['Send data','Cancel']);
         	}
             else{
                 if (postErrorMessage){
