@@ -30,6 +30,7 @@
         var allBuildings = [];
         
         var facilities = [];
+        var facilitiesVisibility = [];
         var allFacilities = [];
         
         //Private functions
@@ -185,19 +186,86 @@
             showAllBuildingsAndFacilities();
 
         };
-               
+        
+        
+        var setupFacilityGoogleMarkerVisibility = function (facility){
+
+            var facilitiesServiceUrl;
+            var facilitiesForServiceUrl;
+            var isFacilityInFacilitiesGroup;
+            var showFacility;
+            
+            if (!facility.googleMarker){
+                console.log("No google marker for facility " + facility.Title);
+                return;
+            }
+            
+            // To appear, the facility must be in at least one facility group which is visible.
+            showFacility = false;
+            
+            for(facilitiesServiceUrl in facilities)
+            {
+                showCurrentFacilities = getFacilitiesVisibility(facilitiesServiceUrl);
+                
+                //THis is a visible facility group, so if the facility is in this, it's visible.
+                if (showCurrentFacilities)
+                {
+                    facilitiesForServiceUrl = facilities[facilitiesServiceUrl];
+                    isFacilityInFacilitiesGroup = $j.grep(facilitiesForServiceUrl, function(facilityFromFacilityGroup){return facilityFromFacilityGroup.ContentId===facility.ContentId;});
+                    
+                    if (isFacilityInFacilitiesGroup){
+                        showFacility=true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!showFacility)
+            {
+                facility.googleMarker.setMap(null);
+            }
+            else{
+                facility.googleMarker.setMap(googleMap);
+            }
+            
+        };
+        
         var showAllFacilities = function()
         {
+            
             console.log("Showing all facilities");
             for (var i in allFacilities) {
 
                 var facility = allFacilities[i];
                 
                 setupFacilityGoogleMarker(facility);
-                
+                setupFacilityGoogleMarkerVisibility(facility);
             }
         };
         
+        var getFacilitiesVisibility = function(facilitiesServiceUrl) {
+            var visibility = facilitiesVisibility[facilitiesServiceUrl];
+            
+            if (typeof visibility === 'undefined'){
+                //default to true
+                return true;
+            }
+            return visibility;
+        };
+        
+        var setFacilitiesVisibility = function (facilitiesServiceUrl, visibility) {
+            facilitiesVisibility[facilitiesServiceUrl] = visibility;
+            showAllFacilities();
+        }
+        
+        var showFacilities = function (facilitiesServiceUrl) {
+            setFacilitiesVisibility(facilitiesServiceUrl, true);
+        };
+        
+        var hideFacilities = function (facilitiesServiceUrl) {
+            setFacilitiesVisibility(facilitiesServiceUrl, false);    
+        };
+       
         var setupFacilityGoogleMarker = function (facility) {
 
             if (typeof facility.googleMarker === "undefined") {
@@ -205,7 +273,7 @@
                 
                 facility.googleLatLng = googleLatLng;
 
-                //Look for an existing marker for the same building with the same icon:
+                //Look for an existing marker for the same building facility with the same icon:
                 for (var i in allFacilities)
                 {
                     var existingFacility = allFacilities[i];
@@ -260,7 +328,7 @@
             if (facilities.indexOf(facilitiesServiceUrl)===-1)
             {
                 //We don't already have these buildings so create them from the data, 
-                //but reuse any existing versions of the buildings so we don't end up with more than one of the same building on the map
+                //but reuse any existing versions of the facilities so we don't end up with more than one of the same facility on the map
                 var newFacilities = [];
                 for (var i = 0; i <data.length; ++i)
                 {
@@ -489,6 +557,9 @@
         return{
             addBuildings: addBuildings,
             addFacilities: addFacilities,
+            showFacilities: showFacilities,
+            hideFacilities: hideFacilities,
+            getFacilitiesVisibility: getFacilitiesVisibility,
             setHighlightBuilding: setHighlightBuilding,
             clearHighlightBuilding: clearHighlightBuilding
         }

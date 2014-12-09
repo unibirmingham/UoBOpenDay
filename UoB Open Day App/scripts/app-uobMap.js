@@ -36,32 +36,54 @@
         $j('#map-options').slideToggle(); 
     };
     
-    var setKmlLayerToggleButtonText = function (kmlLayer, buttonId, layerDescription) {
+    var setToggleButtonText = function (buttonId, description, currentlyShown) {
         
         var buttonSelector = '#' + buttonId + ' .buttonText';
         
-        if (kmlLayer.getMap())
+        if (currentlyShown)
         {
-            $j(buttonSelector).text("Hide " + layerDescription);
+            $j(buttonSelector).text("Hide " + description);
         }
         else{
-            $j(buttonSelector).text("Show " + layerDescription);
+            $j(buttonSelector).text("Show " + description);
         }
     };
     
-    var createKmlLayerToggleButton = function (googleMap, kmlLayer, buttonId, layerDescription)
+    var createKmlLayerToggleButton = function (kmlLayer, buttonId, layerDescription)
     {
         $j('#' + buttonId).click(function(){
             if (kmlLayer.getMap()) {
                 kmlLayer.setMap(null);
             }
             else{
-                kmlLayer.setMap(googleMap);
+                kmlLayer.setMap(campusGoogleMap);
             }
-            setKmlLayerToggleButtonText(kmlLayer, buttonId, layerDescription);
+            setToggleButtonText(buttonId, layerDescription, kmlLayer.getMap());
         });
-        setKmlLayerToggleButtonText(kmlLayer, buttonId, layerDescription);
+        setToggleButtonText(buttonId, layerDescription, kmlLayer.getMap());
     };
+        
+    var createFacilitiesToggleButton = function (facilitiesServiceUrl, buttonId, facilitiesDescription)
+    {
+        
+        var initiallyVisible = buildingAndFacilitiesMap.getFacilitiesVisibility(facilitiesServiceUrl);
+        
+        setToggleButtonText(buttonId, facilitiesDescription, initiallyVisible);
+        
+        $j('#' + buttonId).click(function(){
+            
+            var visible = buildingAndFacilitiesMap.getFacilitiesVisibility(facilitiesServiceUrl);
+            
+            if (visible) {
+                buildingAndFacilitiesMap.hideFacilities(facilitiesServiceUrl);
+            }
+            else{
+                buildingAndFacilitiesMap.showFacilities(facilitiesServiceUrl);
+            }
+            setToggleButtonText(buttonId, facilitiesDescription, !visible);
+        });
+        
+    }
     
     app.uobMap.openDayMap = {
         
@@ -170,16 +192,16 @@
                 var helpPointsLayer = new google.maps.KmlLayer(helpPointsLayerUrl,{preserveViewport: true});
                 helpPointsLayer.setMap(campusGoogleMap);
                 
-                createKmlLayerToggleButton(campusGoogleMap, helpPointsLayer, 'map-toggle-help-points', 'Help points');                
+                createKmlLayerToggleButton( helpPointsLayer, 'map-toggle-help-points', 'Help points');                
                 
                 var busStopLayer = new google.maps.KmlLayer(busStopLayerUrl,{preserveViewport: true});
                 busStopLayer.setMap(campusGoogleMap);
                 
-                createKmlLayerToggleButton(campusGoogleMap, busStopLayer, 'map-toggle-bus-stops', 'Bus stops');                
+                createKmlLayerToggleButton(busStopLayer, 'map-toggle-bus-stops', 'Bus stops');                
                 
                 var carParkLayer = new google.maps.KmlLayer(carParkLayerUrl,{preserveViewport: true});
                 carParkLayer.setMap(campusGoogleMap);
-                createKmlLayerToggleButton(campusGoogleMap, carParkLayer, 'map-toggle-car-parks', 'Car parks');                
+                createKmlLayerToggleButton( carParkLayer, 'map-toggle-car-parks', 'Car parks');                
                                 
                 $j('#map-show-all-car-parks').click(function(){
                     if (!carParkLayer.getMap()){
@@ -210,6 +232,7 @@
             buildingAndFacilitiesMap.addBuildings(eventBuildingsJsonUrl, eventBuildingsLocalFile );
             buildingAndFacilitiesMap.addBuildings(foodAndDrinkBuildingsJsonUrl, foodAndDrinkBuildingsLocalFile);
             buildingAndFacilitiesMap.addFacilities(foodAndDrinkFacilitiesJsonUrl,foodAndDrinkFacilitiesLocalFile ,'styles/icons/foodanddrink.png');
+            createFacilitiesToggleButton(foodAndDrinkFacilitiesJsonUrl, 'map-toggle-refreshments', 'Refreshments');
             
             var buildingId = e.view.params.buildingId;
             if (buildingId){

@@ -78,8 +78,17 @@
 #appBody #map-options div.mapOptionGroupHeader,
 #appBody #map-options div.mapOption
 {
-    width: 100%;   
+  
     float: left;
+}
+
+#appBody #map-options div.mapOptionGroupHeader
+{
+    width: 100%;   
+}
+
+#appBody #map-options div.mapOption{
+    width: 50%
 }
 
 #appBody #map-options div.mapOptionGroupHeader
