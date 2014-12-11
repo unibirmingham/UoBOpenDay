@@ -14,8 +14,10 @@
         
         var lastMarker= null;
         var centerToRetain = null;
+        var latLngBoundsToFocusOn = null;
         var destinationLatLng = null;
         var destinationDescription = null;
+        var trackingBounds = null;
         var watchId = "";
               
         //When the orientation is changed this can lose the center of the map -- these functions keep it and reinstate it.
@@ -76,7 +78,7 @@
                 navigator.geolocation.clearWatch(watchId);
                 console.log("Untracking user with watch id: " + watchId);
                 watchId = "";
-                setMarker(null);
+                setCurrentPositionMarker(null);
                 if (destinationLatLng)
                 {
                     //If we've got a destination, just put the description in without the distance -- if the 
@@ -84,6 +86,15 @@
                     setMapMessage(destinationDescription);    
                 }
             }
+        };
+        
+        var getCurrentGoodPositionAsLatLng = function(){
+          
+            if (lastMarker && lastMarker.getMap()){
+                return lastMarker.getPosition();
+            }
+            return null;
+            
         };
         
         var watchPositionHighAccuracy = function(position){
@@ -99,13 +110,13 @@
             
             if (!googleMap)
             {
-                ob.log.addLogWarning("There is no google map so not showing position");
+                uob.log.addLogWarning("There is no google map so not showing position");
                 return;    
             }
             
             if (!googleMap.getBounds())
             {
-                ob.log.addLogWarning("There is no google map bounds so not showing position");
+                uob.log.addLogWarning("There is no google map bounds so not showing position");
                 return;    
             }
             
@@ -115,20 +126,17 @@
             //If not on the map don't track more than 3km don't track:
             var currentMapBounds = googleMap.getBounds();
             var isOnMap = currentMapBounds.contains(positionLatLng);
-            var mapCenter = googleMap.getCenter();
-            var kmFromCenterOfMap = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, mapCenter);
+            var isInTrackingBounds = latLngIsInTrackingBounds(positionLatLng);
             
-            var trackingDistance = getTrackingDistanceInKm();
-            
-            if (!isOnMap && kmFromCenterOfMap> trackingDistance){
+            if (!isOnMap && !isInTrackingBounds){
                 
-                uob.log.addLogMessage("User is off map and " + kmFromCenterOfMap + "km from center. Tracking distance is: " + trackingDistance + "km -- untracking");
-                setMapStatus("Off Map");
+                uob.log.addLogMessage("User is off map and outside the tracking bounds: untracking");
+                setMapStatus("Outside tracking area");
                 untrackUser();
                 return;
             }
             
-            setMarker(positionLatLng);
+            setCurrentPositionMarker(positionLatLng);
             
             if (isOnMap){
                 setMapStatus("On Map");
@@ -139,31 +147,59 @@
                 setMapStatus(relation + " of Map");   
             }            
             
-            if (destinationLatLng)
-            {
-                var messageDescription = destinationDescription;
+            updateDestinationMessage();
+            
+        };
+        
+        var updateDestinationMessage = function(){
+
+            var messageDescription;
+            var positionLatLng;
+            var mapMessage;
+            
+            if(destinationLatLng){
+
+                messageDescription = destinationDescription;
                 if (!messageDescription)
                 {
                     messageDescription = "your destination";
                 }
                 
-                var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, destinationLatLng);
-                var minutesToReach = distanceInKm/.060;
-                minutesToReach = Math.round(minutesToReach);
-                var mapMessage = minutesToReach + " minutes from " + messageDescription;
-                if (minutesToReach===1){
-                    mapMessage = minutesToReach + " minute from " + messageDescription;
+                positionLatLng = getCurrentGoodPositionAsLatLng();
+                
+                if (positionLatLng){
+                    var distanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, destinationLatLng);
+                    var minutesToReach = distanceInKm/.060;
+                    minutesToReach = Math.round(minutesToReach);
+                    
+                    if (minutesToReach===0){
+                        mapMessage = "You have reached " + messageDescription;
+                    }
+                    else{
+                        
+                        mapMessage = messageDescription + ": " + minutesToReach + " ";
+                        
+                        if (minutesToReach===1){
+                            mapMessage = mapMessage + "minute away";
+                        }
+                        else{
+                            mapMessage = mapMessage + "minutes away";
+                        }
+                    }
                 }
-                if (minutesToReach===0){
-                    mapMessage = "You have reached " + messageDescription;
+                else{
+                    mapMessage = destinationDescription;
                 }
+                
                 setMapMessage(mapMessage);
+       
             }
+            
         };
         
         var watchPositionHighAccuracyError = function(error){
             console.log("High accuracy Error watching position. Code: " + error.code + " Message: " + error.message);
-            setMarker(null);
+            setCurrentPositionMarker(null);
             if (watchId){
                 //Only change map status if there's a current watch id being tracked as this could be an error related to a watch being cleared
                 uob.log.addLogWarning("High accuracy position error. Code: "+ error.code + " Message: " + error.message);
@@ -171,10 +207,10 @@
             }
         }
         
-        var setMarker = function(positionLatLng)
+        var setCurrentPositionMarker = function(positionLatLng)
         {
             //Get rid of last marker if there is one
-            if (lastMarker !== null && lastMarker !== undefined) {
+            if (lastMarker) {
                 lastMarker.setMap(null);
             }
             
@@ -184,6 +220,13 @@
                     map: googleMap,
                     position: positionLatLng
                 });
+                
+                if (latLngBoundsToFocusOn){
+                    console.log("Including latLngBoundsToFocusOn");
+                    latLngBoundsToFocusOn.extend(positionLatLng);
+                    googleMap.fitBounds(latLngBoundsToFocusOn);
+                    latLngBoundsToFocusOn = null;
+                }
             }
         };
         
@@ -201,6 +244,48 @@
             return googleMap;
         }
         
+        var addTrackingBounds = function (latLngBounds){
+          
+            if (!latLngBounds || latLngBounds.isEmpty()){
+                console.log("Empty or null tracking bounds added.");
+                return;
+            }
+            
+            if (trackingBounds){
+                trackingBounds.union(latLngBounds);
+            }
+            else{
+                trackingBounds = latLngBounds;
+            }
+            
+        };
+        
+        //This will focus the map on the latLngBounds, but will also include the current position if found later.
+        var setLatLngBoundsToFocusOnAndTrack = function (latLngBoundsName, latLngBounds, minimumZoom){
+
+            latLngBoundsToFocusOn = latLngBounds;
+            if (latLngBounds){
+                
+                if (latLngBoundsName){
+                    //Put the name of the latLng into the message
+                    setDestination(latLngBounds.getCenter(), latLngBoundsName);
+                }
+                
+                if (minimumZoom && googleMap.getZoom() < minimumZoom){
+                    googleMap.setZoom(minimumZoom);
+                }
+                googleMap.setCenter(latLngBounds.getCenter());    
+            }
+        };
+        
+        var latLngIsInTrackingBounds = function (latLng){
+            
+            if (latLng && trackingBounds){
+                return(trackingBounds.contains(latLng));
+            }
+            return false;
+        }
+       
         var setMapMessage = function(text){
             if (!text){
                 text = "";
@@ -236,6 +321,7 @@
 			}            
             destinationLatLng = latLng;
             destinationDescription = description;
+            updateDestinationMessage();
         }
         
         var clearDestination = function()
@@ -258,13 +344,42 @@
              }
         };
         
-        var getTrackingDistanceInKm = function()
+        var centerOnMapDataAndAdditionalKmlLayer = function(kmlLayer)
         {
-            var neLatLng = new google.maps.LatLng(mapData.NorthEastLatitude, mapData.NorthEastLongitude);
-            var swLatLng = new google.maps.LatLng(mapData.SouthWestLatitude, mapData.SouthWestLongitude);
-            var trackingDistanceInKm = uob.google.getDistanceBetweenTwoLatLngsInKm(neLatLng, swLatLng);
-            //The tracking distance is the diagonal map distance (the actual map bounds will be wider) and if a user is just off screen then it's still worth tracking.
-            return trackingDistanceInKm;
+            var mapBounds;
+            var newBounds;
+            
+             if (googleMap && mapData && kmlLayer){
+                newBounds = kmlLayer.getDefaultViewport();
+                if (newBounds){
+                    mapBounds = mapData.getLatLngBounds();
+                    newBounds.extend(mapBounds.getNorthEast());
+                    newBounds.extend(mapBounds.getSouthWest());
+                    googleMap.fitBounds(newBounds);
+                }
+             }
+        };
+        
+        var centerOnMapDataAndAdditionalMapData = function(additionalMapData)
+        {
+            var additionalMapBounds;
+            var newBounds;
+            
+            additionalMapBounds = additionalMapData.getLatLngBounds();
+            if (googleMap && mapData && additionalMapBounds){
+                newBounds = mapData.getLatLngBounds();
+                if (newBounds){
+                    newBounds.extend(additionalMapBounds.getNorthEast());
+                    newBounds.extend(additionalMapBounds.getSouthWest());
+                    googleMap.fitBounds(newBounds);
+                }
+            }
+        };
+      
+        
+        if (mapData && mapData.getLatLngBounds()){
+            //Initialise to track the map data.
+            addTrackingBounds(mapData.getLatLngBounds());
         }
         
         //When initialised center the map.
@@ -278,7 +393,11 @@
             setDestination: setDestination,
             clearDestination: clearDestination,
             centerOnMapData: centerOnMapData,
-            getTrackingDistanceInKm: getTrackingDistanceInKm
+            centerOnMapDataAndAdditionalKmlLayer: centerOnMapDataAndAdditionalKmlLayer,
+            centerOnMapDataAndAdditionalMapData: centerOnMapDataAndAdditionalMapData,
+            setLatLngBoundsToFocusOnAndTrack: setLatLngBoundsToFocusOnAndTrack,
+            addTrackingBounds: addTrackingBounds,
+            trackUser: trackUser
         };
         
     };    

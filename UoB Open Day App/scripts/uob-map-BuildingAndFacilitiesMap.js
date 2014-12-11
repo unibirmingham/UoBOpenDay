@@ -44,6 +44,11 @@
         {
             console.log("Showing all buildings. Current hightlight id: " + highlightBuildingId);
             
+            if (!highlightBuildingId){
+                // Remove any previous settings for focussing on a building.
+                googleMapWrapper.setLatLngBoundsToFocusOnAndTrack(null);
+            }
+            
             for (var i in allBuildings) {
 
                 var building = allBuildings[i];
@@ -116,45 +121,18 @@
         
         var focusMapOnBuilding = function(building){
             
-            console.log("Setting center of map to center of " + building.BuildingName);
+            console.log("Setting center of map to focus on " + building.BuildingName);
 
-            var buildingCenter = uob.google.getPolygonCenter(building.googlePolygon);                        
+            //Now work out what the map should focus on and track
+            var buildingLatLngBounds = uob.google.getPolygonLatLngBounds(building.googlePolygon);
+            var minimumZoom = null;
             if (building.googleMapLabels && googleMap.getZoom()<building.googleMapLabels[0].minZoom){
                 //if the zoom doesn't allow the map labels to be seen then change it to make them visible.
-                googleMap.setZoom(building.googleMapLabels[0].minZoom);
+                minimumZoom = building.googleMapLabels[0].minZoom;
             }
-            googleMap.setCenter(buildingCenter);
             
-            //Put the name of the building on the map
-            googleMapWrapper.setMapMessage(building.BuildingName);
+            googleMapWrapper.setLatLngBoundsToFocusOnAndTrack( "'" + building.BuildingName + "'",buildingLatLngBounds, minimumZoom);
             
-            //Let the google map wrapper know to track the building:
-            googleMapWrapper.setDestination(buildingCenter, "'" + building.BuildingName + "'");
-            
-            //If we've got campus map data, see if we're on campus and if so, show us and the building in relation.
-            navigator.geolocation.getCurrentPosition(
-                function(position){
-                    if (highlightBuildingId!== building.ContentId){
-                        console.log("highlight building id has changed so not centering map");
-                        return;
-                    }
-                    var positionLatLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-                    var distanceFromBuildingToPosition = uob.google.getDistanceBetweenTwoLatLngsInKm(positionLatLng, buildingCenter);
-                    
-                    var trackingDistance = googleMapWrapper.getTrackingDistanceInKm();
-                    
-                    if (distanceFromBuildingToPosition <trackingDistance){
-                        console.log("Showing person on map as " + trackingDistance + "km away");
-                        var bounds =uob.google.getPolygonLatLngBounds(building.googlePolygon);
-                        bounds.extend(positionLatLng);
-                        googleMap.fitBounds(bounds);
-                    }
-                    else{
-                        console.log("Not showing person on map as " + distanceFromBuildingToPosition + "km away");
-                    }
-                }, function(){
-                    console.log("Error getting current position");
-                });
         }
         
         var setBuildings =  function(data, buildingsServiceUrl)
@@ -311,7 +289,6 @@
                     
                     facility.googleMarker = googleMarker;
                     google.maps.event.addListener(googleMarker, 'click', function (event) {
-                        googleMapWrapper.setMapMessage(this.getTitle());
                 		googleMapWrapper.setDestination(this.getPosition(), "'" + this.getTitle() + "'");
                     });
                 }
@@ -453,7 +430,7 @@
                     //Let's wipe out any existing tracking and take over.
                     googleMapWrapper.clearDestination();
                     message = "'" +  clickedBuildings[0].BuildingName + "'";
-                    googleMapWrapper.setMapMessage(message);
+                    googleMapWrapper.setDestination(uob.google.getPolygonCenter(clickedBuildings[0].googlePolygon), message);
                 }
                 
                 if (clickedBuildings.length>1)

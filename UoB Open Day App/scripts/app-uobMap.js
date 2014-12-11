@@ -17,6 +17,9 @@
     var eventBuildingsJsonUrl = app.uobSettings.EventsService + 'buildings/?folderPath=' + app.uobSettings.OpenDayEventsFolder + '&category=Open Day&startDate=01-Jan-' + year + '&endDate=31-Dec-' + year;
     var eventBuildingsLocalFile ='data/events-buildings.json';
     
+    var valeBuildingsJsonUrl = app.uobSettings.MapsService + '54454/buildings/';
+    var valeBuildingsLocalFile ='data/maps-vale-buildings.json';
+    
     var foodAndDrinkFacilitiesJsonUrl = app.uobSettings.MapsService + '54448/facilities/?categoryKey=0/1/2836/2837/2839/2975';
     var foodAndDrinkFacilitiesLocalFile = 'data/facilities-foodanddrink.json';
     
@@ -25,15 +28,24 @@
     
     var googleMapWrapper = null;
     var campusGoogleMap = null;
-    var campusMapData = null;
+    var edgbastonCampusMapData = null;
+    var valeMapData = null;
     var buildingAndFacilitiesMap = null;
     
     var helpPointsLayerUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kVz3BwO0IfOg&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
     var busStopLayerUrl =    'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kdgAOrhp_RrE&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
     var carParkLayerUrl =    'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kU2Q_Iy_obQY&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
+    var walkingMapToValeFromBarberUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kLzEPhIVuH44&cid=mp&cv=dAM1O09h7Mg.en_GB.';
+    var walkingMapToValeFromQuadrangleUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.k8pImEuTDIZ4&cid=mp&cv=dAM1O09h7Mg.en_GB.';
     
     var toggleMapOptions = function () {
         $j('#map-options').slideToggle(); 
+    };
+    
+    var hideMapOptions = function () {
+        if ($j('#map-options').is(':visible')){
+            toggleMapOptions();
+        }
     };
     
     var setToggleButtonText = function (buttonId, description, currentlyShown) {
@@ -70,7 +82,7 @@
         
         setToggleButtonText(buttonId, facilitiesDescription, initiallyVisible);
         
-        $j('#' + buttonId).click(function(){
+        $j('#' + buttonId + ":not(.toggleButtonBound)").addClass("toggleButtonBound").click(function(){
             
             var visible = buildingAndFacilitiesMap.getFacilitiesVisibility(facilitiesServiceUrl);
             
@@ -132,10 +144,13 @@
                     //Setup the lat lng bounds on the uob maps:
                     var mapItem = mapItems[i];
                     if (mapItem.MapName.indexOf("Edgbaston") !== -1) {
-                        campusMapData = mapItem;
+                        edgbastonCampusMapData = mapItem;
+                    }
+                    if (mapItem.MapName.indexOf("Vale")!==-1){
+                        valeMapData = mapItem;
                     }
                 }
-                if (!campusMapData) {
+                if (!edgbastonCampusMapData) {
                     app.uobMap.openDayMap.setMapText('Error initialising map: Edgbaston Campus Map data not found', true);
                     return false;
                 }
@@ -179,15 +194,10 @@
                 campusGoogleMap.mapTypes.set('Campus Map', campusMapStyle);
                 campusGoogleMap.setMapTypeId('Campus Map');
                 
-            }
-            
-            if (!googleMapWrapper){
-                googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, campusMapData);    
-                $j('#map-show-edgbaston-campus').click(googleMapWrapper.centerOnMapData);
-                
-                
-                
+                //Now set up the layers and events on the map:
                 $j('#map-show-options').click(toggleMapOptions);
+                
+                google.maps.event.addListener(campusGoogleMap, 'click', hideMapOptions);
 
                 var helpPointsLayer = new google.maps.KmlLayer(helpPointsLayerUrl,{preserveViewport: true});
                 helpPointsLayer.setMap(campusGoogleMap);
@@ -201,21 +211,60 @@
                 
                 var carParkLayer = new google.maps.KmlLayer(carParkLayerUrl,{preserveViewport: true});
                 carParkLayer.setMap(campusGoogleMap);
-                createKmlLayerToggleButton( carParkLayer, 'map-toggle-car-parks', 'Car parks');                
-                                
+                
+                createKmlLayerToggleButton( carParkLayer, 'map-toggle-car-parks', 'Car parks');
+                
+                walkingMapToValeFromBarberLayer = new google.maps.KmlLayer(walkingMapToValeFromBarberUrl,{preserveViewport: true});
+                createKmlLayerToggleButton(walkingMapToValeFromBarberLayer, 'map-toggle-walking-map-barber-insitute', 'Route from Barber Insitute');
+                
+                walkingMapToValeFromQuadrangleLayer = new google.maps.KmlLayer(walkingMapToValeFromQuadrangleUrl,{preserveViewport: true});
+                createKmlLayerToggleButton(walkingMapToValeFromQuadrangleLayer, 'map-toggle-walking-map-quadrangle', 'Route from Quadrangle');
+                
+            }
+            
+            if (!googleMapWrapper){
+                
+                googleMapWrapper = new uob.google.GoogleMapWrapper(campusGoogleMap, edgbastonCampusMapData);    
+                $j('#map-show-edgbaston-campus').click(googleMapWrapper.centerOnMapData);
+                
+                googleMapWrapper.addTrackingBounds(valeMapData.getLatLngBounds());
+                
+                
                 $j('#map-show-all-car-parks').click(function(){
+                    
+                    //Show the car parks if they're not visible:
                     if (!carParkLayer.getMap()){
                         carParkLayer.setMap(campusGoogleMap);
                         setKmlLayerToggleButtonText(carParkLayer, 'map-toggle-car-parks', 'Car parks');
                     }
-                    var latLngBounds = carParkLayer.getDefaultViewport();
-                    campusGoogleMap.fitBounds(latLngBounds);
+                    googleMapWrapper.centerOnMapDataAndAdditionalKmlLayer(carParkLayer);
                 });
+                
+                if (!carParkLayer.getStatus()){
+                    //Car park layer isn't loaded so add it to the tracking bounds when it is
+                    google.maps.event.addListenerOnce(carParkLayer, "status_changed", function() {
+        				if (carParkLayer.getStatus() === google.maps.KmlLayerStatus.OK)
+        				{
+                            console.log("Car Park layer loaded so increasing tracking bounds");
+        					googleMapWrapper.addTrackingBounds(carParkLayer.getDefaultViewport());
+        				}
+                    });
+                }
+                else{
+                    console.log ("Car Park layer already loaded so increasing tracking bounds");
+                    googleMapWrapper.addTrackingBounds(carParkLayer.getDefaultViewport());
+                } 
+                
+                $j('#map-show-edgbaston-campus-and-vale').click(function(){
+                    googleMapWrapper.centerOnMapDataAndAdditionalMapData(valeMapData);
+                });
+                
             }
         
-            if (!buildingAndFacilitiesMap){
+            if (!buildingAndFacilitiesMap && googleMapWrapper){
                 buildingAndFacilitiesMap = new uob.map.BuildingAndFacilitiesMap(googleMapWrapper);    
             }
+            
             return true;
             
         },
@@ -231,6 +280,8 @@
             
             buildingAndFacilitiesMap.addBuildings(eventBuildingsJsonUrl, eventBuildingsLocalFile );
             buildingAndFacilitiesMap.addBuildings(foodAndDrinkBuildingsJsonUrl, foodAndDrinkBuildingsLocalFile);
+            buildingAndFacilitiesMap.addBuildings(valeBuildingsJsonUrl, valeBuildingsLocalFile);
+                        
             buildingAndFacilitiesMap.addFacilities(foodAndDrinkFacilitiesJsonUrl,foodAndDrinkFacilitiesLocalFile ,'styles/icons/foodanddrink.png');
             createFacilitiesToggleButton(foodAndDrinkFacilitiesJsonUrl, 'map-toggle-refreshments', 'Refreshments');
             
