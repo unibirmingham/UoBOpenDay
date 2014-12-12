@@ -133,6 +133,18 @@
             }
             
             return false;
+        },
+        //If the event matches this one, but at a different time
+        eventIsTheSameAtADifferentTime: function(comparisonEventItem){
+                    
+            //Same title, start date, description, type of event, same day,    
+            return (this.Title             === comparisonEventItem.Title
+                    && this.StartDateInUk  === comparisonEventItem.StartDateInUk
+                    && this.Description    === comparisonEventItem.Description
+                    && this.StartTimeInUk  !== comparisonEventItem.StartTimeInUk
+                    && this.getEventType() === comparisonEventItem.getEventType()
+                    && this.ContentId      !== comparisonEventItem.ContentId);
+            
         }
     };
     
@@ -351,9 +363,10 @@
             setSelectedEventData(eventGroup, newSelectedEventData);
         };
         
-        //See if space can be made for the fixed event, moving any moveable items out of the way if they can be moved to make room
+        //See if space can be made for the fixed event even if that means moving moveable items out of the way
+        // if updateSelectedEventsToMakeSpace is true it actually updates the selected items to make space
         // Returns: The clashing items if there are any. Null if a space was found
-        var getClashingEventsForNewFixedEventMovingAnyEventsOutOfTheWayWhichCanBeMoved = function(eventGroup, eventItem)
+        var getClashingEventsForNewFixedEvent = function(eventGroup, eventItem, updateSelectedEventsToMakeSpace)
         {
 
             var selectedEventItems = getSelectedEventItems(eventGroup, true);
@@ -366,8 +379,7 @@
                 console.log ("No clashing event items for Event Item: " + eventItem.Title);
                 return null;
             }
-            
-            
+                        
             var clashingFixedEventItems = $j.grep(clashingEventItems, function(e){return e.getEventType()===uob.events.EventType.FIXED});
             
             if (clashingFixedEventItems && clashingFixedEventItems.length>0)
@@ -419,6 +431,10 @@
                 return unmoveableEvents;
             }
 
+            if (!updateSelectedEventsToMakeSpace){
+                return null;
+            }
+            
             //Now update the clashing items with the new schedule dates which prevent the clash.
             for(var clashingIndex2 in clashingEventItems)
             {
@@ -444,7 +460,7 @@
                 
                 if (eventItem.getEventType()===uob.events.EventType.FIXED){
                  
-                    var clashingEvents = getClashingEventsForNewFixedEventMovingAnyEventsOutOfTheWayWhichCanBeMoved(eventGroup, eventItem);
+                    var clashingEvents = getClashingEventsForNewFixedEvent(eventGroup, eventItem, true);
                     
                     if (clashingEvents){
                         returnValue.clashingEvents = clashingEvents;
@@ -459,7 +475,7 @@
                     if (!scheduleStartDate)
                     {
                         //Effectively there's no space anywhere in the schedule
-                        returnValue.clashingEvents = selectedEventItems;
+                        returnValue.clashingEvents = [];
                         return returnValue;
                     }
                 }
@@ -511,6 +527,36 @@
             return null;
             
         };
+        
+        var findAlternativeVersionsOfTheEventThatWillFitInTheSchedule = function(eventGroup, eventItem, filteringFunction){
+            
+            var currentEventItems,
+                matchingEvents,
+                matchingEvent;
+            
+            //First of all find any events which match the event passed in:
+            currentEventItems = getEventItems(filteringFunction);
+            
+            matchingEvents = $j.grep(currentEventItems, function(e){ return eventItem.eventIsTheSameAtADifferentTime(e);});
+            
+            //Now check if there's any space in the schedule for them
+            if (!matchingEvents){
+                return null;
+            }
+            
+            var alternativeEvents = [];
+            for (matchingEventCounter in matchingEvents){
+                matchingEvent = matchingEvents[matchingEventCounter];
+                var clashingEvents = getClashingEventsForNewFixedEvent(eventGroup, matchingEvent, false);
+                if (!clashingEvents){
+                    alternativeEvents.push(matchingEvent);
+                }
+            }
+            
+            //Return the alternative events:
+            return alternativeEvents;
+            
+        }
         
         var getEventItems = function (filteringFunction)
         {
@@ -593,7 +639,8 @@
             removeEventFromSelectedData: removeEventFromSelectedData,
             addEventToSelectedData: addEventToSelectedData,
             isContentIdSelected: isContentIdSelected,
-            initialise: initialise
+            initialise: initialise,
+            findAlternativeVersionsOfTheEventThatWillFitInTheSchedule: findAlternativeVersionsOfTheEventThatWillFitInTheSchedule
         };
         
     };

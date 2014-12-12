@@ -165,6 +165,73 @@
 
     };
     
+    var addEventToSelectedData = function(eventGroup, scheduledEvent, eventItem, selector, listViewId){
+        
+        var clashingEventsText = "",
+            clashingEventIndex,
+            clashingEventItem,
+            alternativeEvents,
+            alternativeEventsMessage;
+        
+        eventAddedResult = app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent);
+                        
+        if(eventAddedResult.eventAdded)
+        {
+            setupSelectorState(eventGroup, selector, true);
+        }
+        else{
+            
+            if (eventAddedResult.clashingEvents){
+             
+                if (eventAddedResult.clashingEvents.length === 0){
+                    clashingEventsText = "No space could be found in your schedule for the event. You need a space of " + eventItem.AttendanceDuration + 
+                        " minutes in your schedule between " + eventItem.StartTimeInUk + " and " + eventItem.EndTimeInUk ;
+                }
+                else{
+                    
+                    for(clashingEventIndex in eventAddedResult.clashingEvents){
+                        clashingEventItem = eventAddedResult.clashingEvents[clashingEventIndex];
+                        if (clashingEventsText.length){
+                            clashingEventsText = clashingEventsText + ", "
+                        }
+                        clashingEventsText = clashingEventsText + "'" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'";
+                    }
+                
+                    //Now see if we can find an alternative version of the same event which can go in
+                    alternativeEvents = app.uobRepository.eventsRepository.findAlternativeVersionsOfTheEventThatWillFitInTheSchedule(eventGroup, eventItem, getFilterFunctionForOpenDayDate());
+                    
+                    if (alternativeEvents.length>0){
+                        
+                        //Take the first and offer it
+                        alternativeEventsMessage = "Cannot add " + eventItem.getTitleAndTime() + " to the schedule as it clashes with " + clashingEventsText + ". There is another version of the event, "
+                            + alternativeEvents[0].getTitleAndTime() + " which can be added to the schedule. Do you want to add that instead?";
+                        
+                        navigator.notification.confirm(alternativeEventsMessage, 
+                            function(buttonIndex){
+                                var alternativeEvent = alternativeEvents[0];
+                                var alternativeSelector;
+                                if (buttonIndex===1){
+                                   alternativeSelector = $j('#' + listViewId + ' div[uob-content-id="' + alternativeEvent.ContentId + '"] .event-' + eventGroup);
+                                   addEventToSelectedData(eventGroup, scheduledEvent, alternativeEvent, alternativeSelector);
+                                }
+                            },
+                            'Add alternative event?',['Add event','Cancel']);
+                        
+                        return;
+                    }
+                    
+                    clashingEventsText = "This event clashes with: " + clashingEventsText;
+                }
+            }
+            else{
+                clashingEventsText = "Adding to schedule failed, but no clashing events were returned";
+            }
+            
+            navigator.notification.alert("Cannot add '" + eventItem.getTitleAndTime() + "' to the schedule. " + clashingEventsText, null,"Schedule clash", 'OK');
+        }
+    }
+    
+    
     var selectorClick = function(event)
     {
         var selector=this;
@@ -180,9 +247,7 @@
         var eventGroup = event.data.eventGroup;
         
         var eventItem = dataSource.getByUid(uid);
-        var clashingEventsText = "";
-        var clashingEventIndex;
-        var clashingEventItem;
+
         
         if ($j(selector).hasClass(eventGroup + "-true"))
         {
@@ -190,40 +255,7 @@
             app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, eventItem);
         }
         else{
-            
-            eventAddedResult = app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent);
-                        
-            if(eventAddedResult.eventAdded)
-            {
-                setupSelectorState(eventGroup, selector, true);
-            }
-            else{
-                
-                if (eventAddedResult.clashingEvents){
-                 
-                     var selectedEvents = app.uobRepository.eventsRepository.getSelectedEventItems(eventGroup, scheduledEvent);   
-                    
-                    if (eventAddedResult.clashingEvents.length === selectedEvents.length){
-                        clashingEventsText = "No space could be found in your schedule for the event. You need a space of " + eventItem.AttendanceDuration + 
-                            " minutes in your schedule between " + eventItem.StartTimeInUk + " and " + eventItem.EndTimeInUk ;
-                    }
-                    else{
-                        for(clashingEventIndex in eventAddedResult.clashingEvents){
-                            clashingEventItem = eventAddedResult.clashingEvents[clashingEventIndex];
-                            if (clashingEventsText.length){
-                                clashingEventsText = clashingEventsText + ", "
-                            }
-                            clashingEventsText = clashingEventsText + "'" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'";
-                        }
-                        clashingEventsText = "This event clashes with: " + clashingEventsText;
-                    }
-                }
-                else{
-                    clashingEventsText = "Adding to schedule failed, but no clashing events were returned";
-                }
-                
-                navigator.notification.alert("Cannot add '" + eventItem.getTitleAndTime() + "' to the schedule. " + clashingEventsText, null,"Schedule clash", 'OK');
-            }
+            addEventToSelectedData(eventGroup, scheduledEvent, eventItem, selector, listViewId);
         }
         return false;
     };
