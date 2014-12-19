@@ -44,13 +44,13 @@
 {
     color: white;
     padding-top: .5em;
-    padding-left: .3em;
 }
 
 #appBody #map-header .mapMessage
 {    
     width: 60%;
     float: left;
+    padding-left: 1em;
 }
 
 #appBody #map-header .mapStatus
@@ -58,6 +58,7 @@
     width:15%;
     float: right;
     font-size: .6em;
+    padding-left: .3em;
 	padding-right: .3em;
 }
 #appBody #map-options
@@ -73,16 +74,29 @@
     border-top: 1px solid #FFF;
     border-bottom: 1px solid #FFF;
     height: 4px;
+    margin-bottom: 4px;
 }
 
-#appBody #map-options div.mapOptionGroupHeader,
+
+#appBody #map-options div.mapOptionsGroup
+{
+    float: left;
+    width: 100%;
+    border-top: 1px solid #FFF;
+    border-left: 1px solid #FFF;
+    border-right: 1px solid #FFF;
+    padding: .5em;
+}
+
+
+#appBody #map-options div.mapOptionsGroupHeader,
 #appBody #map-options div.mapOption
 {
   
     float: left;
 }
 
-#appBody #map-options div.mapOptionGroupHeader
+#appBody #map-options div.mapOptionsGroupHeader
 {
     width: 100%;   
 }
@@ -91,7 +105,7 @@
     width: 50%
 }
 
-#appBody #map-options div.mapOptionGroupHeader
+#appBody #map-options div.mapOptionsGroupHeader
 {
     font-size: 1.1em;
     font-weight: bold;

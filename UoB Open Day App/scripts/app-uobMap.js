@@ -197,6 +197,13 @@
                 //Now set up the layers and events on the map:
                 $j('#map-show-options').click(toggleMapOptions);
                 
+                //Set up a swipe event to hide the options:
+                $j("#map-options").kendoTouch({
+                    dragstart: function (e) {
+                        hideMapOptions();
+                    }
+                });
+                
                 google.maps.event.addListener(campusGoogleMap, 'click', hideMapOptions);
 
                 var helpPointsLayer = new google.maps.KmlLayer(helpPointsLayerUrl,{preserveViewport: true});
