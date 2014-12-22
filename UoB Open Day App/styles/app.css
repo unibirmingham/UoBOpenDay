@@ -197,10 +197,10 @@ margin-left: .2em;
 {
     box-sizing: content-box;
     font-size: 2.35em;
-    padding-right: .1em;
-    padding-left: .1em;
-    margin-right: .1em;
-    margin-left: .1em;
+    padding-right: .3em;
+    padding-left: .3em;
+    margin-right: 0em;
+    margin-left: 0em;
     margin-top:0;
     margin-bottom: 0;
     padding-top:0;
