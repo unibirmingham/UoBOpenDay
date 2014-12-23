@@ -168,6 +168,7 @@
     var addEventToSelectedData = function(eventGroup, scheduledEvent, eventItem, selector, listViewId){
         
         var clashingEventsText = "",
+            clashingEventsList = "",
             clashingEventIndex,
             clashingEventItem,
             alternativeEvents,
@@ -189,26 +190,28 @@
                 }
                 else{
                     
+                    //There is more than one clashing event so just list them:
                     for(clashingEventIndex in eventAddedResult.clashingEvents){
                         clashingEventItem = eventAddedResult.clashingEvents[clashingEventIndex];
-                        if (clashingEventsText.length){
-                            clashingEventsText = clashingEventsText + ", "
+                        if (clashingEventsList.length){
+                            clashingEventsList = clashingEventsList + ", "
                         }
-                        clashingEventsText = clashingEventsText + "'" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'";
+                        clashingEventsList = clashingEventsList + "'" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'";
                     }
-                
+                    
                     //Now see if we can find an alternative version of the same event which can go in
                     alternativeEvents = app.uobRepository.eventsRepository.findAlternativeVersionsOfTheEventThatWillFitInTheSchedule(eventGroup, eventItem, getFilterFunctionForOpenDayDate());
                     
+                    //If there are alternative events then offer the first one:
                     if (alternativeEvents.length>0){
                         
+                        var alternativeEvent = alternativeEvents[0];
                         //Take the first and offer it
-                        alternativeEventsMessage = "Cannot add " + eventItem.getTitleAndTime() + " to the schedule as it clashes with " + clashingEventsText + ". There is another version of the event, "
-                            + alternativeEvents[0].getTitleAndTime() + " which can be added to the schedule. Do you want to add that instead?";
+                        alternativeEventsMessage = "Cannot add " + eventItem.getTitleAndTime() + " to the schedule as it clashes with " + clashingEventsList + ". There is another version of the event at "
+                                + alternativeEvent.getTimeDescription() + " which can be added to the schedule. Do you want to add that instead?";
                         
                         navigator.notification.confirm(alternativeEventsMessage, 
                             function(buttonIndex){
-                                var alternativeEvent = alternativeEvents[0];
                                 var alternativeSelector;
                                 if (buttonIndex===1){
                                    alternativeSelector = $j('#' + listViewId + ' div[uob-content-id="' + alternativeEvent.ContentId + '"] .event-' + eventGroup);
@@ -220,6 +223,31 @@
                         return;
                     }
                     
+                    //If there's only one clashing event then offer to swap the event:
+                    if (eventAddedResult.clashingEvents.length ===1){
+                        
+                        clashingEventItem = eventAddedResult.clashingEvents[0];
+                        
+                        clashingEventsText = "The event you are adding clashes with scheduled event '" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'. Do you want to remove it from the schedule "
+                                        + " and add '" + eventItem.Title + " (" + eventItem.getScheduledTimeDescription() + ")' instead?'";
+                        
+                        navigator.notification.confirm(clashingEventsText, 
+                            function(buttonIndex){
+                                var clashingEventSelector;
+                                if (buttonIndex===1){
+                                   clashingEventSelector = $j('#' + listViewId + ' div[uob-content-id="' + clashingEventItem.ContentId + '"] .event-' + eventGroup);
+                                   setupSelectorState(eventGroup, clashingEventSelector, false);
+                                   app.uobRepository.eventsRepository.removeEventFromSelectedData(eventGroup, clashingEventItem);
+                                   //Having cleared space in the schedule, we can call this again.
+                                   addEventToSelectedData(eventGroup, scheduledEvent, eventItem, selector);
+                                }
+                            },
+                            'Replace existing item in schedule?',['Replace','Cancel'])
+                        
+                        return;
+                        
+                    }
+                                        
                     clashingEventsText = "This event clashes with: " + clashingEventsText;
                 }
             }

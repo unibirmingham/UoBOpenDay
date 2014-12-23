@@ -100,6 +100,12 @@
             }
             return returnValue;
         },
+        
+        getTimeDescription: function()
+        {
+            var returnValue = this.StartTimeInUk + "-" + this.EndTimeInUk;
+            return returnValue;    
+        },
         //Does this event's schedule clash with another event's schedule?
         isClashingScheduledEvent: function(eventItem2){
             var eventItem1 = this;
