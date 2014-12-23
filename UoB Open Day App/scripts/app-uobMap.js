@@ -32,11 +32,12 @@
     var valeMapData = null;
     var buildingAndFacilitiesMap = null;
     
-    var helpPointsLayerUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kVz3BwO0IfOg&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
-    var busStopLayerUrl =    'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kdgAOrhp_RrE&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
-    var carParkLayerUrl =    'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kU2Q_Iy_obQY&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
-    var walkingMapToValeFromBarberUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kLzEPhIVuH44&cid=mp&cv=dAM1O09h7Mg.en_GB.';
-    var walkingMapToValeFromQuadrangleUrl = 'https://mapsengine.google.com/map/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.k8pImEuTDIZ4&cid=mp&cv=dAM1O09h7Mg.en_GB.';
+    var helpPointsLayerUrl =                         'https://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kVz3BwO0IfOg&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
+    var busStopLayerUrl =                            'https://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kdgAOrhp_RrE&cid=mp&cv=ETgVFIIic6w.en_GB.';
+    var carParkLayerUrl =                            'https://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&nl=1&lid=zc6rkPZ3mmwg.kU2Q_Iy_obQY&cid=mp&cv=Cf6yy4N3A9U.en_GB.';
+    
+    var walkingMapToValeFromBarberUrl =              'http://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&lid=zc6rkPZ3mmwg.kLzEPhIVuH44';                                         
+    var walkingMapToValeFromUniversityCentreUrl =     'http://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&lid=zc6rkPZ3mmwg.k8pImEuTDIZ4';
     
     var toggleMapOptions = function () {
         $j('#map-options').slideToggle(); 
@@ -61,6 +62,7 @@
         }
     };
     
+       
     var createKmlLayerToggleButton = function (kmlLayer, buttonId, layerDescription)
     {
         $j('#' + buttonId).click(function(){
@@ -75,6 +77,23 @@
         setToggleButtonText(buttonId, layerDescription, kmlLayer.getMap());
     };
         
+    
+    var createKmlLayer = function (kmlLayerUrl, toggleButtonId, layerDescription){
+        
+         var kmlLayer = new google.maps.KmlLayer(kmlLayerUrl,{preserveViewport: true, suppressInfoWindows: true});
+         kmlLayer.setMap(campusGoogleMap);
+         google.maps.event.addListener(kmlLayer, 'click', function(kmlEvent) {
+             var latLng = kmlEvent.latLng;
+             var title = kmlEvent.featureData.name;
+             googleMapWrapper.setDestination(latLng, title);
+          });  
+        
+        createKmlLayerToggleButton(kmlLayer, toggleButtonId, layerDescription);
+        
+        return kmlLayer;
+          
+    };
+    
     var createFacilitiesToggleButton = function (facilitiesServiceUrl, buttonId, facilitiesDescription)
     {
         
@@ -108,6 +127,8 @@
         
         isInitialised: function () {
 
+            var carParkLayer;
+            
             app.uobMap.openDayMap.setMapText('Initialising map ...');
             console.log("Map initialise");
             
@@ -206,26 +227,11 @@
                 
                 google.maps.event.addListener(campusGoogleMap, 'click', hideMapOptions);
 
-                var helpPointsLayer = new google.maps.KmlLayer(helpPointsLayerUrl,{preserveViewport: true});
-                helpPointsLayer.setMap(campusGoogleMap);
-                
-                createKmlLayerToggleButton( helpPointsLayer, 'map-toggle-help-points', 'Help points');                
-                
-                var busStopLayer = new google.maps.KmlLayer(busStopLayerUrl,{preserveViewport: true});
-                busStopLayer.setMap(campusGoogleMap);
-                
-                createKmlLayerToggleButton(busStopLayer, 'map-toggle-bus-stops', 'Bus stops');                
-                
-                var carParkLayer = new google.maps.KmlLayer(carParkLayerUrl,{preserveViewport: true});
-                carParkLayer.setMap(campusGoogleMap);
-                
-                createKmlLayerToggleButton( carParkLayer, 'map-toggle-car-parks', 'Car parks');
-                
-                walkingMapToValeFromBarberLayer = new google.maps.KmlLayer(walkingMapToValeFromBarberUrl,{preserveViewport: true});
+                var walkingMapToValeFromBarberLayer = new google.maps.KmlLayer(walkingMapToValeFromBarberUrl,{preserveViewport: true});
                 createKmlLayerToggleButton(walkingMapToValeFromBarberLayer, 'map-toggle-walking-map-barber-insitute', 'Route from Barber Insitute');
                 
-                walkingMapToValeFromQuadrangleLayer = new google.maps.KmlLayer(walkingMapToValeFromQuadrangleUrl,{preserveViewport: true});
-                createKmlLayerToggleButton(walkingMapToValeFromQuadrangleLayer, 'map-toggle-walking-map-quadrangle', 'Route from Quadrangle');
+                var walkingMapToValeFromQuadrangleLayer = new google.maps.KmlLayer(walkingMapToValeFromUniversityCentreUrl,{preserveViewport: true});
+                createKmlLayerToggleButton(walkingMapToValeFromQuadrangleLayer, 'map-toggle-walking-map-quadrangle', 'Route from University Centre');
                 
             }
             
@@ -235,8 +241,13 @@
                 $j('#map-show-edgbaston-campus').click(googleMapWrapper.centerOnMapData);
                 
                 googleMapWrapper.addTrackingBounds(valeMapData.getLatLngBounds());
+
+                createKmlLayer(helpPointsLayerUrl, 'map-toggle-help-points', 'Help points');                
                 
+                createKmlLayer(busStopLayerUrl, 'map-toggle-bus-stops', 'Bus stops');
                 
+                carParkLayer = createKmlLayer( carParkLayerUrl, 'map-toggle-car-parks', 'Car parks');
+                                
                 $j('#map-show-all-car-parks').click(function(){
                     
                     //Show the car parks if they're not visible:
