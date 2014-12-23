@@ -109,17 +109,23 @@
         //Does this event's schedule clash with another event's schedule?
         isClashingScheduledEvent: function(eventItem2){
             var eventItem1 = this;
-            
-            // Two all-day events without attendance duration can co-exist even at the same time
-            if (eventItem1.getEventType()===uob.events.EventType.ALLDAY && eventItem2.getEventType() === uob.events.EventType.ALLDAY){
-                return false;
-            }
-            
+                       
             var eventItem1ScheduleStartDate = eventItem1.getScheduleStartDate();
             var eventItem1ScheduleEndDate = eventItem1.getScheduleEndDate();
             
             var eventItem2ScheduleStartDate = eventItem2.getScheduleStartDate();
             var eventItem2ScheduleEndDate = eventItem2.getScheduleEndDate();
+            
+            if (eventItem1.getEventType()===uob.events.EventType.ALLDAY && eventItem2.getEventType() === uob.events.EventType.ALLDAY){
+                
+                if (eventItem1ScheduleStartDate.getTime() === eventItem2ScheduleStartDate.getTime()){
+                    //All day events at the same time only clash if they are in different buildings:
+                    if (eventItem1.BuildingIds[0]!== eventItem2.BuildingIds[0]){
+                        return true;
+                    }
+                }
+                return false;
+            }
             
             //Otherwise, check if the schedule dates cross -- note that an event can start at the end time of a previous event.
             if (eventItem1ScheduleStartDate>=eventItem2ScheduleStartDate && eventItem1ScheduleStartDate<eventItem2ScheduleEndDate)
