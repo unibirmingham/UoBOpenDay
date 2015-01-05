@@ -144,6 +144,10 @@ margin-left: .2em;
     background-color: #A0D8F6;
 }
 
+#open-day-events-view li{
+    padding-right: 0;
+}
+
 #appBody .events-list li
 {
     width: 100%;
@@ -197,7 +201,7 @@ margin-left: .2em;
 {
     box-sizing: content-box;
     font-size: 2.35em;
-    padding-right: .3em;
+    padding-right: .5em;
     padding-left: .3em;
     margin-right: 0em;
     margin-left: 0em;
