@@ -96,7 +96,7 @@
         {
             var returnValue = uob.date.formatDateAsUK(this.getScheduleStartDate(), 'HH:mm');
             if (!this.isAllDayEvent() || this.AttendanceDuration>0){
-                returnValue = returnValue + "- " + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
+                returnValue = returnValue + "-" + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
             }
             return returnValue;
         },

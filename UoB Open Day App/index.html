@@ -24,6 +24,7 @@
     <script src="scripts/uob-date.js"></script>
     <script src="scripts/uob-screen.js"></script>
     <script src="scripts/uob-log.js"></script>
+    <script src="scripts/uob-kendo.js"></script>
     <script src="scripts/uob-error.js"></script>
     <script src="scripts/uob-app.js"></script>
     <script src="scripts/uob-localstorage.js"></script>
@@ -39,6 +40,7 @@
     <script src="scripts/app-uobSettings.js"></script>
     <script src="scripts/app-uobOpenDay.js"></script>
     <script src="scripts/app-uobEvents.js"></script>
+    <script src="scripts/app-uobSchedule.js"></script>
     <script src="scripts/app-uobMap.js"></script>
     <script src="scripts/app-uobWebpage.js"></script>
     <script src="scripts/app-uobHelp.js"></script>
@@ -163,7 +165,7 @@
     </div>
     
     <!--Personal schedule(data-show event used as it needs to repopulate in case of changes)-->
-    <div id="tabstrip-schedule" data-role="view" data-show="app.uobEvents.populateScheduleEventList" data-title="Personal Schedule" data-layout="tabstrip-layout-with-help">
+    <div id="tabstrip-schedule" data-role="view" data-show="app.uobSchedule.populateScheduleEventList" data-title="Personal Schedule" data-layout="tabstrip-layout-with-help">
         <ul id="open-day-schedule-events-view" class="events-list"></ul>
         <div data-role="modalview" id="modalview-schedule-help" style="width: 90%;">
             <div data-role="content" style="min-height: 100px">

@@ -245,11 +245,61 @@ margin-left: .2em;
 	padding-bottom: .2em;
 }
 
+#open-day-schedule-events-view {
+    
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#open-day-schedule-events-view .km-group-title{
+    background: none;
+    padding:0;
+    margin:0;
+    border: none;
+}
+
+#open-day-schedule-events-view .km-group-title h2{
+    margin:0;
+    padding-left: .5em;
+    background-color: #00BAE5;
+    color: White;
+}
+
+#open-day-schedule-events-view .km-group-title h2.hour10,
+#open-day-schedule-events-view .km-group-title h2.hour16{
+    background-color: #6FC055;
+}
+
+#open-day-schedule-events-view .km-group-title h2.hour11,
+#open-day-schedule-events-view .km-group-title h2.hour17{
+    background-color: #757577;
+}
+
+#open-day-schedule-events-view .km-group-title h2.hour12{
+    background-color: #A053A0;
+}
+
+#open-day-schedule-events-view .km-group-title h2.hour13{
+    background-color: #B1006F;
+}
+
+#open-day-schedule-events-view .km-group-title h2.hour14{
+    background-color: #F7941D;
+}
+
 #appBody .schedule-item 
 {
     border-bottom: solid 1px rgba(0,0,0,0.1);
     float: left;
     width: 100%;
+}
+
+#open-day-schedule-events-view .km-list li{
+    padding-right: 0;
+}
+
+#open-day-schedule-events-view .km-list li:last-child .schedule-item{
+    border-bottom: 0;
 }
 
 #appBody .remove-schedule
@@ -259,6 +309,7 @@ margin-left: .2em;
     top: -.3em;
     float: right;
     margin-left: .2em;
+    margin-right: 1em;
 }
 
 #appBody .schedule-movers

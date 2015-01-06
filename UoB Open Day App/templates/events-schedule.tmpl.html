@@ -1,14 +1,14 @@
 <!--Events template-->
 <script type="text/x-kendo-tmpl" id="events-schedule-template">
     <div class="schedule-item" uob-content-id="${ContentId}">
-    	<a class="remove-schedule" data-role="button" data-icon="trash"></a>
     	<div class="schedule-movers">
             <div class="event-move-earlier km-icon km-moveup"></div>
             <div class="event-move-later km-icon km-movedown"></div>
         </div>
+        <a class="remove-schedule" data-role="button" data-icon="trash"></a>
         <div>
     		
-            <h1 class="events-header">#= getScheduledTimeDescription() # #= Title#
+            <h1 class="events-header">#= Title#
     			
 		    </h1>
         </div>

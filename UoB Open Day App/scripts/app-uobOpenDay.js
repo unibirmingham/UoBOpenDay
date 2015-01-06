@@ -30,4 +30,22 @@
         localStorage.setItem(openDayDateLocalStorageName, openDayDate);
     }
    
+    
+    uobOpenDay.getOpenDayDateValue = function()
+    {
+        var openDayDate = app.uobOpenDay.getOpenDayDateAsDate();
+        var openDayDateInUk = uob.date.formatDateAsUK(openDayDate, 'YYYY-MM-DD');
+        return openDayDateInUk;
+    };
+    
+    uobOpenDay.getFilterFunctionForOpenDayDate = function()
+    {
+        var openDayDateInUk = uobOpenDay.getOpenDayDateValue();
+        console.log("Creating filter function for: " + openDayDateInUk);
+        var filterFunction = function(eventItem){
+            return eventItem.StartDateInUk=== openDayDateInUk;
+        };
+        return filterFunction;
+    };
+    
 })(window);
