@@ -72,6 +72,8 @@ body#appBody.km-flat .km-button.km-back
     color: #B1006F;
 }
 
+
+
 /* Drop down always appears too high */
 #appBody .k-dropdown
 {
@@ -144,10 +146,6 @@ margin-left: .2em;
     background-color: #A0D8F6;
 }
 
-#open-day-events-view li{
-    padding-right: 0;
-}
-
 #appBody .events-list li
 {
     width: 100%;
@@ -199,24 +197,19 @@ margin-left: .2em;
 
 #appBody .event-schedule
 {
-    box-sizing: content-box;
+    color: #00BAE5;
+    min-width: 1.7em;
+    display: block;
     font-size: 2.35em;
-    padding-right: .5em;
-    padding-left: .3em;
-    margin-right: 0em;
-    margin-left: 0em;
-    margin-top:0;
-    margin-bottom: 0;
-    padding-top:0;
-    padding-bottom: 0;
-    width: auto;
+    padding-left: 0.3em;
+    padding-right: 0;
+    margin: 0;
+    cursor: pointer;
 }
 
-#appBody .event-schedule{
- 	float:right;
-     color: #00BAE5;
+#appBody .event-schedule:hover{
+    cursor: pointer;
 }
-
 
 #appBody .schedule-true,
 #tabstrip-home .km-content .scheduleButton,
@@ -294,10 +287,6 @@ margin-left: .2em;
     width: 100%;
 }
 
-#open-day-schedule-events-view .km-list li{
-    padding-right: 0;
-}
-
 #open-day-schedule-events-view .km-list li:last-child .schedule-item{
     border-bottom: 0;
 }
@@ -308,14 +297,13 @@ margin-left: .2em;
     font-size: .65em;
     top: -.3em;
     float: right;
-    margin-left: .2em;
-    margin-right: 1em;
+    margin-left: .5em;
+    margin-right: .5em;
 }
 
 #appBody .schedule-movers
 {
     float: right;
-    margin-right: .2em;
 }
 
 #appBody .event-move-earlier,
@@ -327,16 +315,20 @@ margin-left: .2em;
 #appBody .move-earlier-true,
 #appBody .move-later-true
 {
-    width: auto;
+    min-width: 1.5em;
     display: block;
     color: #6FC055;
-    height: 1em;
     font-size: 2.5em;
-    padding-left: .1em;
-    padding-right: .1em;
-    margin-left: .1em;
-    margin-right: .1em;
-    }
+    padding-left: .2em;
+    padding-right: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+#appBody .move-earlier-true:hover,
+#appBody .move-later-true:hover{
+    cursor: pointer;
+}
 
 #appBody .iframeHolder
 {

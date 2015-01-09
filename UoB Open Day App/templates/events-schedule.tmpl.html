@@ -1,10 +1,6 @@
 <!--Events template-->
 <script type="text/x-kendo-tmpl" id="events-schedule-template">
     <div class="schedule-item" uob-content-id="${ContentId}">
-    	<div class="schedule-movers">
-            <div class="event-move-earlier km-icon km-moveup"></div>
-            <div class="event-move-later km-icon km-movedown"></div>
-        </div>
         <a class="remove-schedule" data-role="button" data-icon="trash"></a>
         <div>
     		
@@ -15,7 +11,7 @@
         <div class="event-details">
             <p>
                 # if (Location && Location.length){
-                #<span class="event-location">${Location}</span>: #
+                #<span class="event-location clickableButton">${Location}</span>: #
                 } #
                 ${Description}
             </p>

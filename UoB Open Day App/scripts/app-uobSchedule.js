@@ -49,7 +49,7 @@
                         reloadFunction();
                     }
                 },
-            'Remove activity?','Remove, Cancel');
+            'Remove activity?',['Remove', 'Cancel']);
         }
     	
     };
@@ -66,17 +66,23 @@
     
     var setupMoveEarlierAndLater = function(listViewId, dataSource){
         
+        var eventCounter,
+            eventItem,
+            moveEarlier,
+            moveLater,
+            contentEntry,
+            moveButtons,
+            eventItems = dataSource.data();
+        
+        
         uob.log.addLogMessage("Setup move up and down icons");
-                
-        $j("#" + listViewId + " div.schedule-movers").each(function() {
+        
+        for(eventCounter=0;eventCounter<=eventItems.length-1;eventCounter+=1){
             
-            var div = this;
-
-            var uid = uob.kendo.getListViewUidForElement(div);
+            eventItem = eventItems[eventCounter];
             
-            var eventItem = dataSource.getByUid(uid);
-            var moveEarlier = false;
-            var moveLater = false;
+            moveEarlier = false;
+            moveLater = false;
             
             if (eventItem.isAllDayEvent())
             {
@@ -86,23 +92,27 @@
                 if (eventItem.getScheduleStartDate()<eventItem.EndDate){
                     moveLater = true;
                 }
+                
+                if (moveEarlier|| moveLater){
+                    
+                    moveButtons = "";
+                    
+                    if (moveEarlier){
+                        moveButtons = moveButtons + '<div class="event-move-earlier move-earlier-true km-icon km-moveup clickableButton"></div>';
+                    }
+                    
+                    if (moveLater){
+                        moveButtons = moveButtons + '<div class="event-move-later move-later-true km-icon km-movedown clickableButton"></div>';
+                    }
+                    
+                    if (moveButtons){
+                        contentEntry = $j('#' + listViewId + ' div[uob-content-id="' + eventItem.ContentId + '"]')
+                        contentEntry.prepend('<div class="schedule-movers">' + moveButtons + "</div>");
+                    }
+                }
             }
-            
-            if (moveEarlier){
-                //Show the button
-                $j(div).find('.event-move-earlier').addClass('move-earlier-true');    
-            }else{
-                //Hide the button
-                $j(div).find('.event-move-earlier').removeClass('move-earlier-true');
-            }
-            
-            if (moveLater){
-                $j(div).find('.event-move-later').addClass('move-later-true');
-            }else{
-                $j(div).find('.event-move-later').removeClass('move-later-true');
-            }
-        });
-    }
+        }
+    };
     
     var refreshScheduleDataSource = function(contentIdToHighlight)
     {
@@ -143,12 +153,12 @@
                 dataBound: function(){
                     uob.log.addLogMessage("Schedule Data Bound starting");
                     setupMoveEarlierAndLater(scheduleEventsListViewId, this.dataSource);
-                    app.uobEvents.setupLocationClick(scheduleEventsListViewId);
                     reportNoData(scheduleEventsListViewId,  "You have no scheduled activities selected.");
                     uob.log.addLogMessage("Schedule Data Bound complete");
                 } 
             });
-            
+            //Setup the click events:
+            app.uobEvents.setupLocationClick(scheduleEventsListViewId);
             setupRemoveClick(scheduleEventsListViewId, scheduleEventGroup, refreshScheduleDataSource);
             
             $j("#" + scheduleEventsListViewId).on('click', " .move-earlier-true", scheduleMoveClick);

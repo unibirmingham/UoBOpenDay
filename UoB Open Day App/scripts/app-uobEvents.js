@@ -118,7 +118,7 @@
         if (eventItem){
             
             if (eventItem.Location){
-                descriptionText = '<span class="event-location">' + eventItem.Location + '</span>: ';
+                descriptionText = '<span class="event-location clickableButton">' + eventItem.Location + '</span>: ';
             }
             else{
                 descriptionText = '';
@@ -161,7 +161,13 @@
                     for(clashingEventIndex in eventAddedResult.clashingEvents){
                         clashingEventItem = eventAddedResult.clashingEvents[clashingEventIndex];
                         if (clashingEventsList.length){
-                            clashingEventsList = clashingEventsList + ", "
+                            if (parseInt(clashingEventIndex)===eventAddedResult.clashingEvents.length-1){
+                                clashingEventsList = clashingEventsList + " and ";    
+                            }
+                            else{
+                                clashingEventsList = clashingEventsList + ", ";
+                            }
+                            
                         }
                         clashingEventsList = clashingEventsList + "'" + clashingEventItem.Title + " (" + clashingEventItem.getScheduledTimeDescription() + ")'";
                     }
@@ -215,7 +221,7 @@
                         
                     }
                                         
-                    clashingEventsText = "This event clashes with: " + clashingEventsText;
+                    clashingEventsText = "This event clashes with: " + clashingEventsList;
                 }
             }
             else{
