@@ -149,6 +149,7 @@ margin-left: .2em;
 #appBody .events-list li
 {
     width: 100%;
+    overflow: hidden;
 }
 
 #appBody .event-details
@@ -242,41 +243,54 @@ margin-left: .2em;
     
     margin-top: 0;
     margin-bottom: 0;
-}
-
-#open-day-schedule-events-view .km-group-title{
     background: none;
     padding:0;
     margin:0;
     border: none;
 }
 
-#open-day-schedule-events-view .km-group-title h2{
+#open-day-schedule-events-view ul{
+    list-style-type: none;
+}
+
+#open-day-schedule-events-view ul{
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+
+#open-day-schedule-events-view h2{
     margin:0;
     padding-left: .5em;
     background-color: #00BAE5;
     color: White;
 }
 
-#open-day-schedule-events-view .km-group-title h2.hour10,
-#open-day-schedule-events-view .km-group-title h2.hour16{
+#open-day-schedule-events-view .schedule-item
+{
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+#open-day-schedule-events-view h2.hour10,
+#open-day-schedule-events-view h2.hour16{
     background-color: #6FC055;
 }
 
-#open-day-schedule-events-view .km-group-title h2.hour11,
-#open-day-schedule-events-view .km-group-title h2.hour17{
+#open-day-schedule-events-view h2.hour11,
+#open-day-schedule-events-view h2.hour17{
     background-color: #757577;
 }
 
-#open-day-schedule-events-view .km-group-title h2.hour12{
+#open-day-schedule-events-view h2.hour12{
     background-color: #A053A0;
 }
 
-#open-day-schedule-events-view .km-group-title h2.hour13{
+#open-day-schedule-events-view h2.hour13{
     background-color: #B1006F;
 }
 
-#open-day-schedule-events-view .km-group-title h2.hour14{
+#open-day-schedule-events-view h2.hour14{
     background-color: #F7941D;
 }
 
@@ -287,18 +301,16 @@ margin-left: .2em;
     width: 100%;
 }
 
-#open-day-schedule-events-view .km-list li:last-child .schedule-item{
+#open-day-schedule-events-view li:last-child .schedule-item{
     border-bottom: 0;
 }
 
 #appBody .remove-schedule
 {
     width: auto;
-    font-size: .65em;
-    top: -.3em;
+    font-size: 1.75em;
     float: right;
     margin-left: .5em;
-    margin-right: .5em;
 }
 
 #appBody .schedule-movers

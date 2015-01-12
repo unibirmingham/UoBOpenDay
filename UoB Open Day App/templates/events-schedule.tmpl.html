@@ -1,21 +1,28 @@
-<!--Events template-->
-<script type="text/x-kendo-tmpl" id="events-schedule-template">
-    <div class="schedule-item" uob-content-id="${ContentId}">
-        <a class="remove-schedule" data-role="button" data-icon="trash"></a>
-        <div>
-    		
-            <h1 class="events-header">#= Title#
-    			
-		    </h1>
-        </div>
-        <div class="event-details">
-            <p>
-                # if (Location && Location.length){
-                #<span class="event-location clickableButton">${Location}</span>: #
-                } #
-                ${Description}
-            </p>
-        </div>
-    </div>
+<!--Events schedule template-->
+<script type="text/x-handlebars-template" id="events-schedule-template">
+    {{#each timeGroups}} 
+        <li>
+            <h2 class="hour{{hour}}">{{heading}}</h2>
+            <ul>
+                {{#each eventItems}}
+                    <li>
+                        <div class="schedule-item" uob-content-id="{{ContentId}}">
+                            <a class="remove-schedule km-icon km-trash"></a>
+                            <div>
+                        		<h1 class="events-header">{{Title}}</h1>
+                            </div>
+                            <div class="event-details">
+                                <p>
+                                    {{#if Location}}
+                                        <span class="event-location clickableButton">{{Location}}</span>:
+                                    {{/if}}
+                                    {{Description}}
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                {{/each}}
+            </ul>
+        </li>
+    {{/each}}
 </script>
-    

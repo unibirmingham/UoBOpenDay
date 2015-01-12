@@ -222,18 +222,44 @@
             return parsedEventItems;
         };
         
-        var moveEventLaterInSchedule = function(eventGroup, eventItem){
-            return moveEventInSchedule(eventGroup, eventItem, scheduleChunksInMinutes);
+        var moveEventLaterInSchedule = function(eventGroup, contentId){
+            return moveEventInSchedule(eventGroup, contentId, scheduleChunksInMinutes);
         };
         
-        var moveEventEarlierInSchedule = function(eventGroup, eventItem){
-            return moveEventInSchedule(eventGroup, eventItem, 0-scheduleChunksInMinutes);
+        var moveEventEarlierInSchedule = function(eventGroup, contentId){
+            return moveEventInSchedule(eventGroup, contentId, 0-scheduleChunksInMinutes);
         };
         
-        var moveEventInSchedule = function(eventGroup, eventItem, minutesToChangeBy){
-
-            var selectedEventItems = getSelectedEventItems(eventGroup, true);
+        var getEventItemForContentId = function (contentId){
             
+            contentId = parseInt(contentId);
+            
+            var eventItems = getEventItems();
+            
+            var eventItemsWithContentId = $j.grep(eventItems, function(eventItem){ return (eventItem.ContentId === contentId);});
+            
+            if (eventItemsWithContentId.length){
+                eventItem = eventItemsWithContentId[0];
+            }
+            else{
+                uob.log.addLogError("Failed to find event with id: " + contentId + " to move.");
+                return false;
+            }
+            
+            return eventItem;
+        };
+        
+        var moveEventInSchedule = function(eventGroup, contentId, minutesToChangeBy){
+                       
+            var eventItem = getEventItemForContentId(contentId);
+
+            if (!eventItem){
+                uob.log.addLogError("Cannot move event for content id: " + contentId + " as it doesn't exist");
+                return false;
+            }
+            
+            var selectedEventItems = getSelectedEventItems(eventGroup, true);
+                        
             var newDate = getScheduleStartDateForItem(eventItem, selectedEventItems, minutesToChangeBy);
             
             if (newDate)
@@ -332,13 +358,21 @@
                 
         var removeEventFromSelectedData =function(eventGroup, eventItem)
         {
-            var selectedEventData= getSelectedEventData(eventGroup);
-            
             var contentId = eventItem.ContentId;
+            
+            removeContentIdFromSelectedData(eventGroup, contentId);
+            
+        };
+    
+        var removeContentIdFromSelectedData = function(eventGroup, contentId)
+        {
+            contentId = parseInt(contentId);
+            
+            var selectedEventData= getSelectedEventData(eventGroup);
             
             if (selectedEventData)
             {
-                console.log('Removing Content id: ' + eventItem.ContentId + ' from ' + eventGroup +' with ' + selectedEventData.length + ' entries.');
+                console.log('Removing Content id: ' + contentId + ' from ' + eventGroup +' with ' + selectedEventData.length + ' entries.');
                 
                 var eventsWithoutContentId = $j.grep(selectedEventData, function(e){ return e.ContentId !== contentId; });
                 
@@ -349,8 +383,8 @@
             else{
                 console.log('Attempt to remove event from non-existent group ' + eventGroup + ' with content id: ' + contentId);
             }
-        };
-    
+        }
+        
         var updateEventInSelectedData = function(eventGroup, eventItem, setScheduleStartDate)
         {
             var existingSelectedEventData = getSelectedEventData(eventGroup);
@@ -621,6 +655,26 @@
                 }
             }
            
+            //Before sending, if they're scheduled events, be kind and sort them into time order.
+            if (scheduledEvents && selectedEventItems.length>0){
+                
+                selectedEventItems.sort(function(eventItem1, eventItem2){
+                    if (eventItem1.getScheduleStartDate()<eventItem2.getScheduleStartDate()){
+                        return -1;
+                    } 
+                    if (eventItem1.getScheduleStartDate()>eventItem2.getScheduleStartDate()){
+                        return 1;
+                    }
+                    if (eventItem1.Title.toLowerCase() < eventItem2.Title.toLowerCase()){
+                        return -1;
+                    }
+                    if (eventItem1.Title.toLowerCase() > eventItem2.Title.toLowerCase()){
+                        return 1;
+                    }
+                    return 0;
+                });
+            }
+            
             console.log("Returning " + selectedEventItems.length + " selected events for " + eventGroup);
             return selectedEventItems;
         };
@@ -645,10 +699,12 @@
             hasData: hasData,
             getStatus: getStatus,
             getEventItems: getEventItems,
+            getEventItemForContentId: getEventItemForContentId,
             getSelectedEventItems: getSelectedEventItems,
             moveEventLaterInSchedule: moveEventLaterInSchedule,
             moveEventEarlierInSchedule: moveEventEarlierInSchedule,
             removeEventFromSelectedData: removeEventFromSelectedData,
+            removeContentIdFromSelectedData: removeContentIdFromSelectedData,
             addEventToSelectedData: addEventToSelectedData,
             isContentIdSelected: isContentIdSelected,
             initialise: initialise,

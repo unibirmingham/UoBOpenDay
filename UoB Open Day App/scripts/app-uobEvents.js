@@ -60,6 +60,7 @@
     var locationClick = function(event){
 
         var uid,
+            contentId,
             listViewId,
             listView,
             dataSource,
@@ -74,11 +75,16 @@
         console.log("Select click start");
         listViewId = event.data.listViewId;
         listView = $j("#" + listViewId).data("kendoMobileListView");
-        dataSource = listView.dataSource;
         
-        uid = uob.kendo.getListViewUidForElement(this);
-        
-        eventItem = dataSource.getByUid(uid);
+        if (listView){
+            dataSource = listView.dataSource;
+            uid = uob.kendo.getListViewUidForElement(this);
+            eventItem = dataSource.getByUid(uid);    
+        }
+        else{
+            contentId = app.uobEvents.getContentIdForCurrentElement(this);
+            eventItem = app.uobRepository.eventsRepository.getEventItemForContentId(contentId);
+        }        
         
         if (eventItem && eventItem.BuildingIds && eventItem.BuildingIds.length>0){
             buildingId = eventItem.BuildingIds[0];
@@ -86,6 +92,25 @@
         }
     
         return;
+    }
+    
+    app.uobEvents.getContentIdForCurrentElement = function(element){
+        
+        var currentElement = $j(element),
+            contentid;
+        
+        while(!contentid){
+        
+            contentid = currentElement.attr('uob-content-id');
+            currentElement = currentElement.parent();
+            
+            if (!currentElement){
+                break;
+            }
+        }
+        
+        return contentid;
+        
     }
     
     app.uobEvents.setupLocationClick = function (listViewId){
