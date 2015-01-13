@@ -2,24 +2,18 @@
 <script type="text/x-handlebars-template" id="events-schedule-template">
     {{#each timeGroups}} 
         <li>
-            <h2 class="hour{{hour}}">{{heading}}</h2>
-            <ul>
+            <div class="timeHeading hour{{hour}}">{{heading}}</div>
+            <ul class="events-list">
                 {{#each eventItems}}
-                    <li>
-                        <div class="schedule-item" uob-content-id="{{ContentId}}">
-                            <a class="remove-schedule km-icon km-trash"></a>
-                            <div>
-                        		<h1 class="events-header">{{Title}}</h1>
-                            </div>
-                            <div class="event-details">
-                                <p>
-                                    {{#if Location}}
-                                        <span class="event-location clickableButton">{{Location}}</span>:
-                                    {{/if}}
-                                    {{Description}}
-                                </p>
-                            </div>
-                        </div>
+                    <li class="event-item" uob-content-id="{{ContentId}}">
+                        <a class="remove-schedule km-icon km-trash"></a>
+                        <div class="events-header">{{Title}}</div>
+                        <p class="event-details">
+                                {{#if Location}}
+                                    <span class="event-location clickableButton">{{Location}}</span>:
+                                {{/if}}
+                                {{Description}}
+                        </p>
                     </li>
                 {{/each}}
             </ul>

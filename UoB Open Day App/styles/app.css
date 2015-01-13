@@ -72,8 +72,6 @@ body#appBody.km-flat .km-button.km-back
     color: #B1006F;
 }
 
-
-
 /* Drop down always appears too high */
 #appBody .k-dropdown
 {
@@ -87,12 +85,12 @@ body#appBody.km-flat .km-button.km-back
 
 #appBody .bottomRow
 {
-	padding:1em;
+    padding:1em;
 }
 
 #appBody .bottomRow a.km-button
 {
-	font-size: .75em;
+    font-size: .75em;
 }
 
 #appBody .acknowledgementButton
@@ -142,34 +140,41 @@ margin-left: .2em;
     font-size: .75em;
 }
 
-#appBody .events-list div.highlightEvent{
-    background-color: #A0D8F6;
+
+/* Events and schedule list */
+
+#appBody ul.events-list {
+   
+    margin:0;
+    list-style-type: none;
+    padding-top:0;
+    padding-bottom: 0;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 #appBody .events-list li
 {
     width: 100%;
     overflow: hidden;
+    display: block;
 }
 
-#appBody .event-details
+#appBody .event-item
 {
-    border-bottom: solid 1px rgba(0,0,0,0.1);
-	padding-bottom: .2em;
+    padding-top: .5em;
+    padding-bottom: .5em;
 }
 
 #appBody .events-header
 {
-    font-size: 1em;
-    margin-bottom: 0;
-    margin-top: 0;
+    font-weight: bold;
 }
 
-#appBody  .event-details p
+#appBody .event-details
 {
-    margin-right: 0;
-    margin-bottom: 0;
-    margin-top: 0;
+    padding-bottom: .2em;
+    margin:0;
 }
 
 #appBody .event-location
@@ -177,30 +182,17 @@ margin-left: .2em;
     text-decoration: underline;
 }
 
-#tabstrip-home .km-content  .activitiesButton
-{
-    color: #B1006F;
-}
-#appBody .show-location
-{
-    font-size: 1.1em;
-    padding: .1em .4em;
-    width: auto;
-    color: #00BAE5;
-    margin-right: .2em;
-}
-#appBody .event-selectors
-{
-    float: right;
-    margin: 0;
-    padding: 0;
+/* Events list */
+
+#appBody .events-list .highlightEvent{
+    background-color: #A0D8F6;
 }
 
 #appBody .event-schedule
 {
+    float: right;
     color: #00BAE5;
     min-width: 1.7em;
-    display: block;
     font-size: 2.35em;
     padding-left: 0.3em;
     padding-right: 0;
@@ -208,100 +200,66 @@ margin-left: .2em;
     cursor: pointer;
 }
 
-#appBody .event-schedule:hover{
-    cursor: pointer;
-}
-
-#appBody .schedule-true,
-#tabstrip-home .km-content .scheduleButton,
-#appBody .scheduleColour
-{
-    color: #6FC055;
-    }
-
-#tabstrip-home .km-content .mapButton
+#appBody .show-location
 {
     color: #00BAE5;
+    display: inline-block;
+    padding-right: .5em;
 }
 
-#tabstrip-home .km-content  .faqButton
-{
-    color: #A053A0;
-}
-
-#appBody .gettingHereButton{
-    color: #757577;
-}
-
-#appBody .event-details
-{
-    border: none;
-	padding-bottom: .2em;
-}
-
-#open-day-schedule-events-view {
-    
-    margin-top: 0;
-    margin-bottom: 0;
-    background: none;
-    padding:0;
+/*Schedule list*/
+#appBody ul.schedule-list{
     margin:0;
-    border: none;
-}
-
-#open-day-schedule-events-view ul{
     list-style-type: none;
+    padding:0;
 }
 
-#open-day-schedule-events-view ul{
-    padding-left: 1em;
-    padding-right: 1em;
+#appBody .schedule-list li
+{
+    width: 100%;
+    overflow: hidden;
+    display: block;
 }
 
-
-#open-day-schedule-events-view h2{
+.timeHeading{
     margin:0;
-    padding-left: .5em;
+    padding-left: 1em;
     background-color: #00BAE5;
     color: White;
+    font-weight: bold;
+    font-size: 1.3em;
 }
 
-#open-day-schedule-events-view .schedule-item
-{
-    padding-top: .5em;
-    padding-bottom: .5em;
-}
-
-#open-day-schedule-events-view h2.hour10,
-#open-day-schedule-events-view h2.hour16{
+.hour10,
+.hour16{
     background-color: #6FC055;
 }
 
-#open-day-schedule-events-view h2.hour11,
-#open-day-schedule-events-view h2.hour17{
+.hour11,
+.hour17{
     background-color: #757577;
 }
 
-#open-day-schedule-events-view h2.hour12{
+.hour12{
     background-color: #A053A0;
 }
 
-#open-day-schedule-events-view h2.hour13{
+.hour13{
     background-color: #B1006F;
 }
 
-#open-day-schedule-events-view h2.hour14{
+.hour14{
     background-color: #F7941D;
 }
 
-#appBody .schedule-item 
+#appBody .schedule-list .event-item 
 {
     border-bottom: solid 1px rgba(0,0,0,0.1);
     float: left;
     width: 100%;
 }
 
-#open-day-schedule-events-view li:last-child .schedule-item{
+#appBody .schedule-list li:last-child .event-item{
     border-bottom: 0;
 }
 
@@ -341,6 +299,36 @@ margin-left: .2em;
 #appBody .move-later-true:hover{
     cursor: pointer;
 }
+
+/* Colours */
+
+#tabstrip-home .km-content  .activitiesButton
+{
+    color: #B1006F;
+}
+
+#appBody .schedule-true,
+#tabstrip-home .km-content .scheduleButton,
+#appBody .scheduleColour
+{
+    color: #6FC055;
+    }
+
+#tabstrip-home .km-content .mapButton
+{
+    color: #00BAE5;
+}
+
+#tabstrip-home .km-content  .faqButton
+{
+    color: #A053A0;
+}
+
+#appBody .gettingHereButton{
+    color: #757577;
+}
+
+
 
 #appBody .iframeHolder
 {

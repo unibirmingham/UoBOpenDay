@@ -37,8 +37,7 @@
         var reloadFunction = event.data.reloadFunction;
         var contentId = app.uobEvents.getContentIdForCurrentElement(this);
         var eventItem;
-        
-        
+                
         if (contentId){
         
             eventItem = app.uobRepository.eventsRepository.getEventItemForContentId(contentId);
@@ -104,7 +103,7 @@
                     }
                     
                     if (moveButtons){
-                        contentEntry = $j('#' + listViewId + ' div[uob-content-id="' + eventItem.ContentId + '"]')
+                        contentEntry = $j('#' + listViewId + ' li[uob-content-id="' + eventItem.ContentId + '"]')
                         contentEntry.prepend('<div class="schedule-movers">' + moveButtons + "</div>");
                     }
                 }
@@ -135,7 +134,7 @@
         updateList(scheduleEventsListViewId, scheduleData);
 
         if (contentIdToHighlight){
-            var item = $j('#' + scheduleEventsListViewId + ' div[uob-content-id="' + contentIdToHighlight + '"]');
+            var item = $j('#' + scheduleEventsListViewId + ' li[uob-content-id="' + contentIdToHighlight + '"]');
             
             item.hide().fadeIn(250);
             item.addClass('highlightEvent').delay(250).queue(function() {
