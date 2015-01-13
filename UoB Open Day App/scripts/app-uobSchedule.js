@@ -95,11 +95,11 @@
                     moveButtons = "";
                     
                     if (moveEarlier){
-                        moveButtons = moveButtons + '<div class="event-move-earlier move-earlier-true km-icon km-moveup clickableButton"></div>';
+                        moveButtons = moveButtons + '<a class="event-move-earlier move-earlier-true km-icon km-moveup clickableButton"></a>';
                     }
                     
                     if (moveLater){
-                        moveButtons = moveButtons + '<div class="event-move-later move-later-true km-icon km-movedown clickableButton"></div>';
+                        moveButtons = moveButtons + '<a class="event-move-later move-later-true km-icon km-movedown clickableButton"></a>';
                     }
                     
                     if (moveButtons){

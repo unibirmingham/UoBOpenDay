@@ -2,7 +2,7 @@
 <script type="text/x-handlebars-template" id="events-template">
     {{#each eventItems}}
         <li class="event-item" uob-content-id="{{ContentId}}">
-            <div class="event-schedule km-icon km-personalschedule clickableButton"></div>
+            <a class="event-schedule km-icon km-personalschedule clickableButton"></a>
             <div class="events-header">{{StartTimeInUk}} - {{EndTimeInUk}} {{Title}}
                     {{#if AttendanceDuration}}
                         (Allow {{AttendanceDuration}} minutes) 
