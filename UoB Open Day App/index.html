@@ -152,7 +152,10 @@
                 <a data-role="button" data-click="app.uobEvents.clearEventSearch" data-icon="clear" ></a>
             </div>
             <div id="activityStatus"></div>
-            <ul id="open-day-events-view" class="events-list"></ul>
+            <div id="eventLists">
+                <ul id="open-day-events-view-subject" class="events-list" style="display:none;"></ul>
+                <ul id="open-day-events-view-general" class="events-list" style="display:none;"></ul>
+            </div>
         </div>
         <div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
             <div data-role="content" style="min-height: 150px">
@@ -271,6 +274,8 @@
                 <p>This software uses the following libraries:</p>
                 <ul>
                     <li>Moment.js</li>
+                    <li>Handlebars.js</li>
+                    <li>Kendo UI Core</li>
                 </ul>
             </div>
             <div><button class="position-right" id="settingsButton">Show Settings and Logs</button></div>

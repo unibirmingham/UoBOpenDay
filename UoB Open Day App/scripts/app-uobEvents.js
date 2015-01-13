@@ -5,7 +5,8 @@
     var app,
         uob,
         scheduleEventGroup = 'schedule',
-        eventTemplate;
+        eventTemplate,
+        listSettings=[];
     global.app = global.app || {};
     
     app = global.app;
@@ -51,7 +52,7 @@
         
         for (index = 0; index < selectedEventItems.length; ++index) {
             var selectedEventItem = selectedEventItems[index];
-            var selectorHolder = $j('#' + listViewId + ' li div[uob-content-id="' + selectedEventItem.ContentId + '"]');
+            var selectorHolder = $j('#' + listViewId + ' li[uob-content-id="' + selectedEventItem.ContentId + '"]');
             var selector = selectorHolder.find(".event-" + eventGroup);
             setupSelectorState(eventGroup, selector, true);
         }
@@ -320,34 +321,57 @@
         
         var openDayDate,
             searchText,
+            activityTypeFilter,
             activityTypeText,
+            eventsListId,
+            eventsList,
+            eventsListSettings,
             filterFunction,
             context,
             templateScript;
         
         uob.log.addLogMessage("Starting event list population");
-        var eventsListViewId = "open-day-events-view";
-       
-        var eventsListView = $j("#" + eventsListViewId);
         
-        if (!eventsListView.html()){
+        //Set up activity filter if it doesn't already exist
+        activityTypeFilter = $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
+        
+        if (!activityTypeFilter){
+        
+            $j("#event-activity-type-filter").kendoMobileButtonGroup({
+                select: app.uobEvents.populateEventList,
+                index: 0
+            });            
+            
+            activityTypeFilter =  $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
+        }
+        
+        activityTypeText = activityTypeFilter.current().text();
+        
+        eventsListId = "open-day-events-view-" + activityTypeText.toLowerCase();
+       
+        eventsList = $j("#" + eventsListId);
+        
+        eventsListSettings = listSettings[eventsListId];
+        
+        if (!eventsListSettings){
+           //This list hasn't been seen so set up the events for it:
             
             //Event to show the location details
             var locationClickEventData = {
-                                                listViewId: eventsListViewId
-                }
+                                                listViewId: eventsListId
+                };
             
-                $j("#" + eventsListViewId).on('click', '.show-location', locationClickEventData, showLocationClick);
+            $j("#" + eventsListId).on('click', '.show-location', locationClickEventData, showLocationClick);
             
             //Location click event to go to the map
-            app.uobEvents.setupLocationClick(eventsListViewId);
+            app.uobEvents.setupLocationClick(eventsListId);
             
             //Add/Remove from schedule
-            var scheduleClickData = {listViewId: eventsListViewId,
+            var scheduleClickData = {listViewId: eventsListId,
                                                 scheduledEvent: true,
                                                                 eventGroup: scheduleEventGroup};
         
-            $j("#" + eventsListViewId).on('click', " .event-" + scheduleEventGroup, scheduleClickData, selectorClick);
+            $j("#" + eventsListId).on('click', " .event-" + scheduleEventGroup, scheduleClickData, selectorClick);
         
             //Make the search activate if enter is pressed
             $("#activity-search-text" ).keypress(function( event ) {
@@ -358,69 +382,75 @@
                                                 });
         }
         
-        $j('#activityStatus').text("Loading activities");
-        //Set up activity filter
-        var activityTypeFilter = $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
-        
-        if (!activityTypeFilter){
-        
-            $j("#event-activity-type-filter").kendoMobileButtonGroup({
-                select: app.uobEvents.populateEventList,
-                index: 0
-            });            
-            
-            activityTypeFilter =  $j("#event-activity-type-filter").data("kendoMobileButtonGroup");
-        }        
-
+        //Now let's get the filter settings:
         openDayDate = app.uobOpenDay.getOpenDayDateValue();
         console.log("Filter on date: " + openDayDate);
         
         searchText = $j('#activity-search-text').val();
         
-        activityTypeText = activityTypeFilter.current().text();
+        if (!eventsListSettings || 
+            eventsListSettings.openDayDate!== openDayDate
+              || eventsListSettings.activityTypeText!== activityTypeText
+              || eventsListSettings.searchText!== searchText)
+        {
+            //So either the list is new or the settings have changed since the last population:
+            $j('#activityStatus').text("Loading activities");    
+            filterFunction = getFilterFunction(openDayDate, activityTypeText, searchText);        
+            console.log("Getting events for " + openDayDate + " of type " + activityTypeText + " with search text '"+ searchText + "'");
+            var eventItems = app.uobRepository.eventsRepository.getEventItems(filterFunction);            
         
-        filterFunction = getFilterFunction(openDayDate, activityTypeText, searchText);
-        uob.log.addLogMessage("Getting events.");
-        var eventItems = app.uobRepository.eventsRepository.getEventItems(filterFunction);
+            uob.log.addLogMessage("Sorting events.");
+            eventItems.sort(function(eventItem1, eventItem2){
+                    if (eventItem1.Title.toLowerCase()< eventItem2.Title.toLowerCase()){
+                        return -1;
+                    }
+                    if (eventItem1.Title.toLowerCase()> eventItem2.Title.toLowerCase()){
+                        return 1;
+                    }
+                    if (eventItem1.StartDate<eventItem2.StartDate){
+                        return -1;
+                    }
+                    if (eventItem1.StartDate>eventItem2.StartDate){
+                        return 1;
+                    }
+                    return 0;
+            });
+            
+            context = {eventItems: eventItems};
         
-        uob.log.addLogMessage("Sorting events.");
-        eventItems.sort(function(eventItem1, eventItem2){
-                if (eventItem1.Title.toLowerCase()< eventItem2.Title.toLowerCase()){
-                    return -1;
-                }
-                if (eventItem1.Title.toLowerCase()> eventItem2.Title.toLowerCase()){
-                    return 1;
-                }
-                if (eventItem1.StartDate<eventItem2.StartDate){
-                    return -1;
-                }
-                if (eventItem1.StartDate>eventItem2.StartDate){
-                    return 1;
-                }
-                return 0;
-        });
-        
-        context = {eventItems: eventItems};
-        
-        if (!eventTemplate){
-            templateScript = $j("#events-template").html();
-            uob.log.addLogMessage("Template script compiling");
-            eventTemplate = Handlebars.compile(templateScript);
+            if (!eventTemplate){
+                templateScript = $j("#events-template").html();
+                uob.log.addLogMessage("Template script compiling");
+                eventTemplate = Handlebars.compile(templateScript);
+            }
+            
+            uob.log.addLogMessage("Handlebarring");
+            
+            htmlForList = eventTemplate(context);
+            
+            uob.log.addLogMessage("Setting html");
+
+            eventsList.html(htmlForList);
+            
+            //Now stash the settings for the list for future comparison:
+            listSettings[eventsListId] = {
+                            openDayDate: openDayDate,
+                            activityTypeText: activityTypeText,
+                            searchText: searchText};
+            
+            reportNoData(eventsListId, "No activities found.");
+            
         }
         
-        uob.log.addLogMessage("Handlebarring");
+        $j('#eventLists ul:not(#' + eventsListId + ')').hide();
         
-        htmlForList = eventTemplate(context);
+        eventsList.show();
         
-        uob.log.addLogMessage("Setting html");
-
-        eventsListView.html(htmlForList);
-        uob.log.addLogMessage("Setting selectors.");
+        $j('#activityStatus').text(eventsList.find('.event-item').length + " activities retrieved");
         
-        setupSelectorValuesForEventGroup(eventsListViewId, scheduleEventGroup, true);
-        $j('#activityStatus').text(eventItems.length + " activities retrieved");
-        reportNoData(eventsListViewId, "No activities found.");
-        uob.log.addLogMessage("Data bind complete");
+        setupSelectorValuesForEventGroup(eventsListId, scheduleEventGroup, true);
+        
+        uob.log.addLogMessage("Events list " + eventsListId + " complete");
         
         if (resetScroller)
         {
