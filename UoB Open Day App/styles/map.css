@@ -17,26 +17,27 @@
 #map-header, #map-options {
     position: absolute;
     z-index: 10;
-    background-color: rgba(0, 0, 0, 0.5);
     padding-top: 3px;
     padding-left: 3px;
     padding-right: 3px;
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
 }
+#map-header{
+    background-color: rgba(0, 0, 0, 0.5);
+}
+#map-options{
+    background-color: rgba(0, 0, 0, 0.8);   
+}
 
 #map-show-options {
     float: left;
-    width: 40px;
-    height: 40px;
-    color: #fff;
-    border: none;
-    background: none;
-    background-repeat: no-repeat;
-    background-position: center center;
+    background-color: rgba(255,255,255,.8);
+    color: #757577;
     font-size: 32px;
     padding: 2px;
-    margin: 0;
+    padding-right: 5px;
+    padding-bottom: 1px;
 }
 
 #appBody #map-header .mapMessage,
