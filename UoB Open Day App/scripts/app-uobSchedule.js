@@ -83,10 +83,11 @@
             
             if (eventItem.isAllDayEvent())
             {
-                if (eventItem.getScheduleStartDate()>eventItem.StartDate){
+                if (eventItem.canBeScheduledEarlier()){
                     moveEarlier = true;
                 }
-                if (eventItem.getScheduleStartDate()<eventItem.EndDate){
+                
+                if (eventItem.canBeScheduledLater()){
                     moveLater = true;
                 }
                 

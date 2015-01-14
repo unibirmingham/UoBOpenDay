@@ -7,6 +7,7 @@
         scheduleEventGroup = 'schedule',
         eventTemplate,
         listSettings=[];
+    
     global.app = global.app || {};
     
     app = global.app;
@@ -148,7 +149,7 @@
             alternativeEventsMessage;
         
         eventAddedResult = app.uobRepository.eventsRepository.addEventToSelectedData(eventGroup, eventItem, scheduledEvent);
-                        
+
         if(eventAddedResult.eventAdded)
         {
             setupSelectorState(eventGroup, selector, true);
@@ -158,8 +159,18 @@
             if (eventAddedResult.clashingEvents){
              
                 if (eventAddedResult.clashingEvents.length === 0){
-                    clashingEventsText = "No space could be found in your schedule for the event. You need a space of " + eventItem.AttendanceDuration + 
-                        " minutes in your schedule between " + eventItem.StartTimeInUk + " and " + eventItem.EndTimeInUk ;
+                    
+                    if (eventItem.AttendanceDuration){
+                        minutesInScheduleRequired = eventItem.AttendanceDuration;  
+                    }
+                    else{
+                        minutesInScheduleRequired = eventItem.getDurationOfAllDayEvent();
+                    }
+                    
+                    minutesInScheduleRequired += eventItem.getTimeToMoveBetweenBuildingsInMinutes();
+                    
+                    clashingEventsText = "No space could be found in your schedule for the event. You need a space of " + minutesInScheduleRequired + 
+                        " minutes in your schedule between " + eventItem.StartTimeInUk + " and " + eventItem.EndTimeInUk;
                 }
                 else{
                     

@@ -73,6 +73,7 @@
         getScheduleEndDate: function()
         {
             var eventItem = this;
+            
             if (eventItem.getEventType()===uob.events.EventType.FIXED)
             {
                 //Fixed events end when their end date is
@@ -80,8 +81,8 @@
             }
             if (eventItem.getEventType()===uob.events.EventType.ALLDAY)
             {
-                //All day events effectively end at their schedule time -- they basically float free.
-                return eventItem.getScheduleStartDate();
+                //All day events have a default duration:
+                return new Date(eventItem.getScheduleStartDate().getTime() + (eventItem.getDurationOfAllDayEvent() *60000));
             }
             //Events with attendance duration need that taking into account.
             var scheduleEndDate = new Date(eventItem.getScheduleStartDate().getTime() + (eventItem.AttendanceDuration *60000));
@@ -94,10 +95,7 @@
         },
         getScheduledTimeDescription: function()
         {
-            var returnValue = uob.date.formatDateAsUK(this.getScheduleStartDate(), 'HH:mm');
-            if (!this.isAllDayEvent() || this.AttendanceDuration>0){
-                returnValue = returnValue + "-" + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
-            }
+            var returnValue = uob.date.formatDateAsUK(this.getScheduleStartDate(), 'HH:mm') + "-" + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
             return returnValue;
         },
         
@@ -117,14 +115,16 @@
             var eventItem2ScheduleEndDate = eventItem2.getScheduleEndDate();
             
             if (eventItem1.getEventType()===uob.events.EventType.ALLDAY && eventItem2.getEventType() === uob.events.EventType.ALLDAY){
-                
-                if (eventItem1ScheduleStartDate.getTime() === eventItem2ScheduleStartDate.getTime()){
-                    //All day events at the same time only clash if they are in different buildings:
-                    if (eventItem1.BuildingIds[0]!== eventItem2.BuildingIds[0]){
-                        return true;
-                    }
+                //All day events in the same building cannot clash:
+                if (eventItem1.BuildingIds[0]=== eventItem2.BuildingIds[0]){
+                    return false;
                 }
-                return false;
+            }
+            
+            //If the events aren't in the same building allow time to travel between them:
+            if (eventItem1.BuildingIds[0]!== eventItem2.BuildingIds[0]){
+                eventItem1ScheduleEndDate = new Date(eventItem1ScheduleEndDate.getTime() + (eventItem1.getTimeToMoveBetweenBuildingsInMinutes() *60000));
+                eventItem2ScheduleEndDate = new Date(eventItem2ScheduleEndDate.getTime() + (eventItem2.getTimeToMoveBetweenBuildingsInMinutes() *60000));
             }
             
             //Otherwise, check if the schedule dates cross -- note that an event can start at the end time of a previous event.
@@ -157,6 +157,60 @@
                     && this.getEventType() === comparisonEventItem.getEventType()
                     && this.ContentId      !== comparisonEventItem.ContentId);
             
+        },
+        //The length of time that should be allowed to move from one building to another
+        getTimeToMoveBetweenBuildingsInMinutes: function(){
+            return 15;
+        },
+        getDurationOfAllDayEvent: function(){
+            return 15;
+        },
+        canBeScheduledEarlier: function(){
+            if (this.isAllDayEvent() && this.getScheduleStartDate()>this.StartDate){
+                return true;
+            }
+            return false;
+        },
+        canBeScheduledLater: function(){
+            
+            var eventType = this.getEventType();
+            
+            if (eventType===uob.events.EventType.ALLDAY){
+                //All day events can be moved if their end doesn't go past the end time.
+                //Basically the given duration is the only time the event can be seen
+                if (this.getScheduleEndDate()<this.EndDate){
+                    return true;
+                }
+            }
+            if (eventType===uob.events.EventType.ALLDAYWITHDURATION){
+                //All day events can be moved if their start doesn't go past the end time.
+                //Basically, the given duration is the only time the event can be started!
+                if (this.getScheduleStartDate()<this.EndDate){
+                    return true;
+                }
+            }
+            return false;
+        },
+        isValidSchedule: function(){
+            
+            var eventType = this.getEventType();
+            
+            if (this.getScheduleStartDate()<this.StartDate){
+                return false;
+            }
+            if (eventType===uob.events.EventType.ALLDAYWITHDURATION){
+                //All day events can be moved if their start doesn't go past the end time.
+                //Basically, the given duration is the only time the event can be started!
+                if (this.getScheduleStartDate()>this.EndDate){
+                    return false;
+                }
+            }
+            else{
+                if (this.getScheduleEndDate()>this.EndDate){
+                    return false;
+                }
+            }
+            return true;
         }
     };
     
@@ -345,17 +399,11 @@
                     }
                 }
             //We carry on if there is a last date and it has a value which is different to the schedule date (as that means there's a new date to test).
-            }while (lastDate && (lastDate)!==eventItemToTest.getScheduleStartDate());
-                        
-            if (eventItemToTest.getScheduleStartDate()>eventItem.EndDate)
+            }while (lastDate && eventItemToTest.isValidSchedule() && (lastDate)!==eventItemToTest.getScheduleStartDate());
+
+            if (!eventItemToTest.isValidSchedule())
             {
-                console.log("Cannot find a new schedule date which is before the end date -- returning null");
-                lastDate = null;
-            }
-            
-            if (eventItemToTest.getScheduleStartDate()<eventItem.StartDate)
-            {
-                console.log("Cannot find a new schedule date which after the start date -- returning null");
+                console.log("Cannot find a new schedule date which is valid");
                 lastDate = null;
             }
             
