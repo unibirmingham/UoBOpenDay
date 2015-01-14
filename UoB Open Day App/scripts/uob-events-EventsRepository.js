@@ -167,9 +167,15 @@
         
         var status =  uob.json.JsonStatus.UNINITIALISED;
         
+        var initialisationDate;
+        
         var getStatus = function(){
             return status;
         };
+        
+        var getInitialisationDate = function(){
+            return initialisationDate;           
+        }
         
         var hasData = function()
         {
@@ -188,6 +194,7 @@
         	}
             setEventItems(data);
             status = jsonStatus;
+            initialisationDate = new Date();
             callInitialisedFunction();
         };
         var eventsError = function(jsonStatus){
@@ -698,6 +705,7 @@
         return {
             hasData: hasData,
             getStatus: getStatus,
+            getInitialisationDate: getInitialisationDate,
             getEventItems: getEventItems,
             getEventItemForContentId: getEventItemForContentId,
             getSelectedEventItems: getSelectedEventItems,

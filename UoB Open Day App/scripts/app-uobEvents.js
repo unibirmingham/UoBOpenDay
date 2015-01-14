@@ -391,7 +391,8 @@
         if (!eventsListSettings || 
             eventsListSettings.openDayDate!== openDayDate
               || eventsListSettings.activityTypeText!== activityTypeText
-              || eventsListSettings.searchText!== searchText)
+              || eventsListSettings.searchText!== searchText
+              || eventsListSettings.listPopulationDate < app.uobRepository.eventsRepository.getInitialisationDate())
         {
             //So either the list is new or the settings have changed since the last population:
             $j('#activityStatus').text("Loading activities");    
@@ -436,7 +437,8 @@
             listSettings[eventsListId] = {
                             openDayDate: openDayDate,
                             activityTypeText: activityTypeText,
-                            searchText: searchText};
+                            searchText: searchText,
+                            listPopulationDate: new Date()};
             
             reportNoData(eventsListId, "No activities found.");
             
