@@ -139,8 +139,8 @@
                     <li>
                         <label>Activities to show:
                             <ul id="event-activity-type-filter">
-                                <li>Subject</li>
                                 <li>General</li>
+                                <li>Subject</li>
                             </ul>
                         </label>
                     </li>
@@ -153,8 +153,8 @@
             </div>
             <div id="activityStatus"></div>
             <div id="eventLists">
-                <ul id="open-day-events-view-subject" class="events-list" style="display:none;"></ul>
                 <ul id="open-day-events-view-general" class="events-list" style="display:none;"></ul>
+                <ul id="open-day-events-view-subject" class="events-list" style="display:none;"></ul>
             </div>
         </div>
         <div data-role="modalview" id="modalview-activities-help" style="width: 90%;">
@@ -184,7 +184,7 @@
                     <li>Events which can be visited throughout the day can have their scheduled time changed by using the <span class="km-icon km-moveup helpIcon scheduleColour"></span> <span class="km-icon km-movedown helpIcon scheduleColour"></span> buttons to move them to an earlier or earlier time. Those events which require you to allow some time to complete will require space in your schedule in order to move.</li>
                 </ul>
             </div>
-                </div>
+        </div>
     </div>
 
     <!--Campus Map-->
@@ -200,22 +200,22 @@
             Campus map requires internet connection to display.
         </div>
         <div id="map-header">
-            <a id="map-show-options" data-icon="settings" data-role="button"></a>
+            <a id="map-show-options" data-click="app.uobMap.toggleMapOptions" data-icon="settings" data-role="button"></a>
             <div class="mapMessage"></div>
             <div class="mapStatus"></div>
         </div>
         <div id="map-canvas"></div>
-                                <div data-role="modalview" id="modalview-map-help" style="width: 90%;">
-            <div data-role="content" style="min-height: 100px; max-height: 150px;">
-                <a data-click="app.uobHelp.closeMapHelp" data-role="button" data-align="right" class="position-right">Close</a>
-                <h2>Map</h2>  
-                <div data-role="listview">
-                    <p>You can tap on buildings and facilities to see the building name in the information header. If your location is available and you are on campus you will be told how long it will take you to walk to a selected building or facility. If you tap on two buildings you can see how long it takes to get from one to the other. To reselect a single building, simply tap on the same building twice.</p>
-                    <p>Information stands are indicated with an 'i' and the buses show the stops for the accommodation tours and the Park and Ride.</p>
-                    <p>If you find you have moved the map away from campus click on <span class="km-icon km-refresh helpIcon"></span> to return to the campus.</p>
+            <div data-role="modalview" id="modalview-map-help" style="width: 90%;">
+                <div data-role="content" style="min-height: 100px; max-height: 150px;">
+                    <a data-click="app.uobHelp.closeMapHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                    <h2>Map</h2>  
+                    <div data-role="listview">
+                        <p>You can tap on buildings and facilities to see the building name in the information header. If your location is available and you are on campus you will be told how long it will take you to walk to a selected building or facility. If you tap on two buildings you can see how long it takes to get from one to the other. To reselect a single building, simply tap on the same building twice.</p>
+                        <p>Information stands are indicated with an 'i' and the buses show the stops for the accommodation tours and the Park and Ride.</p>
+                        <p>If you find you have moved the map away from campus click on <img src="styles/images/clocktower_icon.png" /> in the options to return to the campus.</p>
+                    </div>
                 </div>
             </div>
-                </div>
         <div id="map-options" style="display:none;">
             <div class="headerLines"></div>
             <div class="mapOptionsGroup">
@@ -262,7 +262,7 @@
                 <p>We are always trying to improve our services at the University of Birmingham and if you can we'd love you to fill in our feedback form:</p>
                 <div class="iframeHolder">
                                 <iframe style="height: 600px;" src="http://www.birmingham.ac.uk/forms/events/open-day-app-feedback.aspx"></iframe>
-                                                                </div>
+                </div>
             </div>
         </div>
      </div>
@@ -335,7 +335,7 @@
                 <a class="mapButton" href="#tabstrip-map" data-icon="globe">Map</a>
             </div>
         </div>
-                </div>    
+     </div>    
     
 <!-- Layout End -->
     

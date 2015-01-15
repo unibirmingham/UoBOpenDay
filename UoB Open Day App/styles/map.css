@@ -27,6 +27,8 @@
     background-color: rgba(0, 0, 0, 0.5);
 }
 #map-options{
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     background-color: rgba(0, 0, 0, 0.8);   
 }
 
@@ -71,11 +73,14 @@
 }
 
 #appBody .headerLines{
-    width: 100%;
+    width: 30%;
     border-top: 1px solid #FFF;
     border-bottom: 1px solid #FFF;
     height: 4px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 

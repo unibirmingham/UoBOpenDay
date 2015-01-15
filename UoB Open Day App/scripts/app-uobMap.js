@@ -39,13 +39,13 @@
     var walkingMapToValeFromBarberUrl =              'http://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&lid=zc6rkPZ3mmwg.kLzEPhIVuH44';                                         
     var walkingMapToValeFromUniversityCentreUrl =     'http://www.google.com/maps/d/kml?mid=zc6rkPZ3mmwg.kH7qSgVOiyl4&lid=zc6rkPZ3mmwg.k8pImEuTDIZ4';
     
-    var toggleMapOptions = function () {
+    app.uobMap.toggleMapOptions = function () {
         $j('#map-options').slideToggle(); 
     };
     
     var hideMapOptions = function () {
         if ($j('#map-options').is(':visible')){
-            toggleMapOptions();
+            app.uobMap.toggleMapOptions();
         }
     };
     
@@ -216,8 +216,6 @@
                 campusGoogleMap.setMapTypeId('Campus Map');
                 
                 //Now set up the layers and events on the map:
-                $j('#map-show-options').click(toggleMapOptions);
-                
                 //Set up a swipe event to hide the options:
                 $j("#map-options").kendoTouch({
                     dragstart: function (e) {
