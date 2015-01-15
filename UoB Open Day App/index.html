@@ -200,22 +200,22 @@
             Campus map requires internet connection to display.
         </div>
         <div id="map-header">
-            <a id="map-show-options" data-click="app.uobMap.toggleMapOptions" data-icon="settings" data-role="button"></a>
+            <a id="map-show-options"><span class="km-settings km-icon"></span></a>
             <div class="mapMessage"></div>
             <div class="mapStatus"></div>
         </div>
         <div id="map-canvas"></div>
-            <div data-role="modalview" id="modalview-map-help" style="width: 90%;">
-                <div data-role="content" style="min-height: 100px; max-height: 150px;">
-                    <a data-click="app.uobHelp.closeMapHelp" data-role="button" data-align="right" class="position-right">Close</a>
-                    <h2>Map</h2>  
-                    <div data-role="listview">
-                        <p>You can tap on buildings and facilities to see the building name in the information header. If your location is available and you are on campus you will be told how long it will take you to walk to a selected building or facility. If you tap on two buildings you can see how long it takes to get from one to the other. To reselect a single building, simply tap on the same building twice.</p>
-                        <p>Information stands are indicated with an 'i' and the buses show the stops for the accommodation tours and the Park and Ride.</p>
-                        <p>If you find you have moved the map away from campus click on <img src="styles/images/clocktower_icon.png" /> in the options to return to the campus.</p>
-                    </div>
+        <div data-role="modalview" id="modalview-map-help" style="width: 90%;">
+            <div data-role="content" style="min-height: 100px; max-height: 150px;">
+                <a data-click="app.uobHelp.closeMapHelp" data-role="button" data-align="right" class="position-right">Close</a>
+                <h2>Map</h2>  
+                <div data-role="listview">
+                    <p>You can tap on buildings and facilities to see the building name in the information header. If your location is available and you are on campus you will be told how long it will take you to walk to a selected building or facility. If you tap on two buildings you can see how long it takes to get from one to the other. To reselect a single building, simply tap on the same building twice.</p>
+                    <p>Information stands are indicated with an 'i' and the buses show the stops for the accommodation tours and the Park and Ride.</p>
+                    <p>If you find you have moved the map away from campus click on <img src="styles/images/clocktower_icon.png" /> in the options to return to the campus.</p>
                 </div>
             </div>
+        </div>
         <div id="map-options" style="display:none;">
             <div class="headerLines"></div>
             <div class="mapOptionsGroup">

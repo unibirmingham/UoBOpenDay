@@ -34,13 +34,21 @@
 
 #map-show-options {
     float: left;
-    background-color: rgba(255,255,255,.8);
+    background-color: rgba(255, 255, 255, 0.8);
     color: #757577;
-    font-size: 32px;
-    padding: 2px;
-    padding-right: 5px;
-    padding-bottom: 1px;
+    font-size: 2.5em;
+    padding: 0;
+    padding-bottom: 2px;
+    border-color: rgba(0,0,0,0.1);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 3px;
+    margin: .1rem;
+    margin-bottom: .25rem;
+    cursor: pointer;
 }
+
+
 
 #appBody #map-header .mapMessage,
 #appBody #map-header .mapStatus
