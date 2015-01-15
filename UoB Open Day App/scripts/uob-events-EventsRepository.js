@@ -163,7 +163,7 @@
             return 15;
         },
         getDurationOfAllDayEvent: function(){
-            return 15;
+            return 30;
         },
         canBeScheduledEarlier: function(){
             if (this.isAllDayEvent() && this.getScheduleStartDate()>this.StartDate){
