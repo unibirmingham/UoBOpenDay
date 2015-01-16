@@ -314,7 +314,8 @@ margin-left: .2em;
     color: #6FC055;
     }
 
-#tabstrip-home .km-content .mapButton
+#tabstrip-home .km-content .mapButton,
+#appBody .mapColour
 {
     color: #00BAE5;
 }

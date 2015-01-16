@@ -62,56 +62,7 @@
         $j("#" + listViewId).on('click', " .remove-" + eventGroup, eventData, removeClick);
         
     };
-    
-    var setupMoveEarlierAndLater = function(listViewId, eventItems){
-        
-        var eventCounter,
-            eventItem,
-            moveEarlier,
-            moveLater,
-            contentEntry,
-            moveButtons;
-        
-        uob.log.addLogMessage("Setup move up and down icons");
-        
-        for(eventCounter=0;eventCounter<=eventItems.length-1;eventCounter+=1){
-            
-            eventItem = eventItems[eventCounter];
-            
-            moveEarlier = false;
-            moveLater = false;
-            
-            if (eventItem.isAllDayEvent())
-            {
-                if (eventItem.canBeScheduledEarlier()){
-                    moveEarlier = true;
-                }
-                
-                if (eventItem.canBeScheduledLater()){
-                    moveLater = true;
-                }
-                
-                if (moveEarlier|| moveLater){
-                    
-                    moveButtons = "";
-                    
-                    if (moveEarlier){
-                        moveButtons = moveButtons + '<a class="event-move-earlier move-earlier-true km-icon km-moveup clickableButton"></a>';
-                    }
-                    
-                    if (moveLater){
-                        moveButtons = moveButtons + '<a class="event-move-later move-later-true km-icon km-movedown clickableButton"></a>';
-                    }
-                    
-                    if (moveButtons){
-                        contentEntry = $j('#' + listViewId + ' li[uob-content-id="' + eventItem.ContentId + '"]')
-                        contentEntry.prepend('<div class="schedule-movers">' + moveButtons + "</div>");
-                    }
-                }
-            }
-        }
-    };
-    
+       
     var refreshScheduleDataSource = function(contentIdToHighlight)
     {
         var listView;
@@ -144,7 +95,6 @@
                    });
         }
         
-        setupMoveEarlierAndLater(scheduleEventsListViewId, scheduleData);
         reportNoData(scheduleEventsListViewId,  "You have no scheduled activities selected.");
         uob.log.addLogMessage("Schedule Data Bound complete");
   
@@ -187,6 +137,31 @@
         
         if (!scheduleTemplate){
             templateScript = $j("#events-schedule-template").html();
+            
+            Handlebars.registerHelper('if_event_can_be_scheduled_earlier_or_later', function(eventItem, opts) {
+                if (eventItem.canBeScheduledEarlier() || eventItem.canBeScheduledLater()){
+                    return opts.fn(this);
+                }else{
+                    return opts.inverse(this);
+                }
+            });
+            
+            Handlebars.registerHelper('if_event_can_be_scheduled_earlier', function(eventItem, opts) {
+                if (eventItem.canBeScheduledEarlier()){
+                    return opts.fn(this);
+                }else{
+                    return opts.inverse(this);
+                }
+            });
+            
+            Handlebars.registerHelper('if_event_can_be_scheduled_later', function(eventItem, opts) {
+                if (eventItem.canBeScheduledLater()){
+                    return opts.fn(this);
+                }else{
+                    return opts.inverse(this);
+                }
+            });          
+            
             uob.log.addLogMessage("Template script compiling");
             scheduleTemplate = Handlebars.compile(templateScript);
         }
