@@ -91,9 +91,15 @@
     {
         
         console.log(dataDescription + ": Test mode retrieving data from local file");
+        var jsonMimeType = "application/json;charset=UTF-8";
         $j.ajax({
             dataType: "json",
             url: localFile,
+            beforeSend: function(x) {
+                if(x && x.overrideMimeType) {
+                    x.overrideMimeType(jsonMimeType);
+                    }
+                },
             success:function(jsonData) {
                 if (jsonData.length>0)
                 {
