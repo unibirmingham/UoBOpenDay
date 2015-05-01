@@ -14,7 +14,13 @@
     
     var date = new Date();
     var year = date.getFullYear();
-    var eventBuildingsJsonUrl = app.uobSettings.EventsService + 'buildings/?folderPath=' + app.uobSettings.OpenDayEventsFolder + '&category=Open Day&startDate=01-Jan-' + (year-1) + '&endDate=31-Dec-' + year;
+    
+    //Open Day CM
+    var eventBuildingsJsonUrl = app.uobSettings.EventsService + 'buildings.json';
+    
+    //CMS:
+    //var eventBuildingsJsonUrl = app.uobSettings.EventsService + 'buildings/?folderPath=' + app.uobSettings.OpenDayEventsFolder + '&category=Open Day&startDate=01-Jan-' + (year-1) + '&endDate=31-Dec-' + year;
+    
     var eventBuildingsLocalFile ='data/events-buildings.json';
     
     var valeBuildingsJsonUrl = app.uobSettings.MapsService + '54454/buildings/';
