@@ -36,9 +36,18 @@
             startDates = [];
             
             for (var index = 0; index <data.length; ++index) {
-                var startDateValue = data[index];
-                var startDate = startDateValue;
-                var startDateDescription = uob.date.formatDateAsUK(startDate,'ddd, DD MMM');
+                var startDateItem = data[index];
+                
+                var startDate = startDateItem;
+                
+                if (startDateItem["Date"]){
+                    //This uses a parameter to store the value so take that:
+                    startDate = startDateItem["Date"];
+                }
+                
+                var startDateAsDate = uob.json.parseJsonDate(startDate);
+                
+                var startDateDescription = uob.date.formatDateAsUK(startDateAsDate,'ddd, DD MMM');
                 
                 var startDateItem = {
                     startDate: startDate,
