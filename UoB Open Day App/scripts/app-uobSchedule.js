@@ -106,6 +106,8 @@
             eventCounter,
             timeGroups,
             currentHeading,
+            currentScheduledTimeDescription,
+            currentScheduleEndDate,
             timeGroup,
             templateScript,
             eventItem,
@@ -118,9 +120,17 @@
         for(eventCounter=0;eventCounter<=scheduledEventItems.length-1;eventCounter+=1){
             
             eventItem = scheduledEventItems[eventCounter];
-            if(!currentHeading || currentHeading !== eventItem.getScheduledTimeDescription())
+            if(!currentHeading || currentScheduledTimeDescription !== eventItem.getScheduledTimeDescription())
             {
-                currentHeading = eventItem.getScheduledTimeDescription();
+                if(currentScheduleEndDate>eventItem.getScheduleStartDate()){
+                    currentHeading = eventItem.getScheduledTimeDescription(currentScheduleEndDate);                    
+                }
+                else{
+                    currentHeading = eventItem.getScheduledTimeDescription();
+                }
+                
+                currentScheduledTimeDescription = eventItem.getScheduledTimeDescription();
+                currentScheduleEndDate = eventItem.getScheduleEndDate();
                 timeGroup = {
                                          heading: currentHeading,
                                          hour: currentHeading.substring(0, 2),
