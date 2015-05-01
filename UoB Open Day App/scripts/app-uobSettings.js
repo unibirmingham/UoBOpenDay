@@ -3,8 +3,12 @@
     var app = global.app = global.app || {};
     app.uobSettings = app.uobSettings || {};
       
+    //Open Day CM:
+    app.uobSettings.EventsService = 'http://www.openday-cm.bham.ac.uk/';
     
-    app.uobSettings.EventsService = 'http://www.birmingham.ac.uk/web_services/Events.svc/';
+    //CMS:
+    //app.uobSettings.EventsService = 'http://www.birmingham.ac.uk/web_services/Events.svc/';
+    
     app.uobSettings.MapsService = 'http://www.birmingham.ac.uk/web_services/Maps.svc/';
     app.uobSettings.WebSite = 'www.birmingham.ac.uk';
     app.uobSettings.OpenDayEventsFolder='/undergraduate/visit/opendays/';
