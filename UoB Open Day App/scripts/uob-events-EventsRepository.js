@@ -93,9 +93,17 @@
             var titleAndTime = this.Title + " (" + this.StartTimeInUk + "-" + this.EndTimeInUk + ")";
             return titleAndTime;
         },
-        getScheduledTimeDescription: function()
+        getScheduledTimeDescription: function(alternativeStartDate)
         {
-            var returnValue = uob.date.formatDateAsUK(this.getScheduleStartDate(), 'HH:mm') + "-" + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
+            var startDate;
+            if (alternativeStartDate){
+                startDate = alternativeStartDate;
+            }
+            else{
+                startDate = this.getScheduleStartDate();
+            }
+                        
+            var returnValue = uob.date.formatDateAsUK(startDate, 'HH:mm') + "-" + uob.date.formatDateAsUK(this.getScheduleEndDate(), 'HH:mm');
             return returnValue;
         },
         
