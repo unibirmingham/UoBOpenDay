@@ -9,6 +9,25 @@
         return new google.maps.LatLngBounds(swLatLng, nwLatLng);
     };
     
+    uob.google.getLatLngArrayFromCoordinateArray = function (coordinateArrayValue){
+        
+        var coordinateArray = coordinateArrayValue;
+        
+        if (typeof(coordinateArray)=== "string"){
+            //Convert this to a proper array:
+            coordinateArray = JSON.parse(coordinateArrayValue);
+        }
+        
+        var latLngArray = [];
+        for (var pci in coordinateArray) {
+            var coords = coordinateArray[pci];
+            latLngArray.push(new google.maps.LatLng(coords[0], coords[1]));
+        }  
+        
+        return latLngArray;
+        
+    };
+    
     uob.google.getPolygon = function (googlePolygonCoords, colour) {
     
         var strokeWeight = 1;
@@ -70,6 +89,12 @@
     {
         var bounds = new google.maps.LatLngBounds()
         polygon.getPath().forEach(function(element,index){bounds.extend(element)})
+        
+        if (bounds.toString().indexOf("NaN")>-1){
+            uob.log.addLogError('Polygon has illformed co-ordinates so returning null');
+            return null;
+        }
+        
         return bounds;
     }
     
