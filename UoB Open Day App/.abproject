@@ -12,17 +12,17 @@
     "android.permission.INTERNET"
   ],
   "CorePlugins": [
-    "uk.co.whiteoctober.cordova.appversion@0.1.4",
     "org.apache.cordova.console",
     "org.apache.cordova.device",
     "org.apache.cordova.device-motion",
     "org.apache.cordova.device-orientation",
+    "org.apache.cordova.dialogs",
     "org.apache.cordova.geolocation",
     "org.apache.cordova.globalization",
     "org.apache.cordova.inappbrowser",
     "org.apache.cordova.network-information",
-    "org.apache.cordova.dialogs",
-    "org.apache.cordova.splashscreen"
+    "org.apache.cordova.splashscreen",
+    "uk.co.whiteoctober.cordova.appversion@0.1.4"
   ],
   "DeviceOrientations": [
     "Portrait",
@@ -30,14 +30,14 @@
   ],
   "iOSStatusBarStyle": "Default",
   "AndroidHardwareAcceleration": "false",
-  "BundleVersion": "3.13",
+  "BundleVersion": "3.14",
   "iOSDisplayName": "",
   "iOSDeviceFamily": [
     "1",
     "2"
   ],
   "iOSBackgroundMode": [],
-  "AndroidVersionCode": "21",
+  "AndroidVersionCode": "22",
   "DisplayName": "UoB Open Day",
   "Author": "",
   "Description": "University of Birmingham Open Day Application",
@@ -55,5 +55,6 @@
   "Framework": "Cordova",
   "projectVersion": "1",
   "WP8WindowsPublisherName": "CN=Telerik",
-  "WP8PackageIdentityName": "1234Telerik.uk.ac.birmingham.m.UoBOpenDayApp"
+  "WP8PackageIdentityName": "1234Telerik.uk.ac.birmingham.m.UoBOpenDayApp",
+  "WPSdk": "8.0"
 }
