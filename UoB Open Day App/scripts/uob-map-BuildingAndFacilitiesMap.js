@@ -68,13 +68,8 @@
             if (typeof building.googlePolygon === "undefined") {
                 
                 var polygonCoordinates = building.PolygonCoordinatesAsArrayList;
+                var googleBuildingCoords = uob.google.getLatLngArrayFromCoordinateArray(polygonCoordinates);
 
-                var googleBuildingCoords = [];
-
-                for (var pci in polygonCoordinates) {
-                    var coords = polygonCoordinates[pci];
-                    googleBuildingCoords.push(new google.maps.LatLng(coords[0], coords[1]));
-                }
                 building.googleBuildingCoords = googleBuildingCoords;
                 building.googlePolygon = uob.google.getPolygon(googleBuildingCoords, building.Colour);
                 setupBuildingClickEvent(building);
@@ -125,6 +120,12 @@
 
             //Now work out what the map should focus on and track
             var buildingLatLngBounds = uob.google.getPolygonLatLngBounds(building.googlePolygon);
+            
+            if (!buildingLatLngBounds){
+                uob.log.addLogError('Building with id: ' + building.ContentId + ' has illformed co-ordinates so cannot recieve focus');
+                return;
+            }
+            
             var minimumZoom = null;
             if (building.googleMapLabels && googleMap.getZoom()<building.googleMapLabels[0].minZoom){
                 //if the zoom doesn't allow the map labels to be seen then change it to make them visible.
