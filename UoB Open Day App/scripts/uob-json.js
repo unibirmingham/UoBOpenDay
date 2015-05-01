@@ -118,6 +118,13 @@
     }
     uob.json.parseJsonDate = function(jsonDateValue)
     {
+        if (jsonDateValue && jsonDateValue.length===20 && jsonDateValue.indexOf('-')===-1 && jsonDateValue.indexOf(':')===-1){
+            //Attempt to convert this symbollessISO 8601 value into a fuller version:
+            var dateText = jsonDateValue.substr(0,4) + '-' + jsonDateValue.substr(4,2) + '-' + jsonDateValue.substr(6,2);
+            var timeText = jsonDateValue.substr(9,2) + ':' + jsonDateValue.substr(11,2) + ':' + jsonDateValue.substr(13,2);
+            var offsetText = jsonDateValue.substr(15,3) + ':' + jsonDateValue.substr(18,2);
+            jsonDateValue = dateText + 'T' + timeText + offsetText;
+        }
         return kendo.parseDate(jsonDateValue);
     }
 })(jQuery, window);
